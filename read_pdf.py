@@ -114,7 +114,7 @@ if __name__ == '__main__':
 
             for j, c in enumerate(cnts):
                 area = cv2.contourArea(c)
-                if area > 1000:
+                if area > 2000:
                     x, y, w, h = cv2.boundingRect(c)
                     if x < min_x:
                         min_x = x

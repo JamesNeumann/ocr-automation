@@ -1,4 +1,5 @@
 import uuid
+from time import time
 
 import cv2
 from numpy import ndarray
@@ -9,21 +10,23 @@ from utils.console import console
 
 
 def cut_pdf(path_to_pdf: str):
-    images = convert_pdf_to_image(path_to_pdf)
+    images, pts_width, pts_height = convert_pdf_to_image(path_to_pdf)
     cv2_images = convert_pil_images_to_cv2_format(images)
     file_id = uuid.uuid4()
     Path(f"./converted_files/{file_id}").mkdir(parents=True, exist_ok=True)
+
+    start_time = time()
 
     global_max_x = 0
     global_min_x = 999999999
     global_max_y = 0
     global_min_y = 999999999
 
+    width = images[0].width
+    height = images[0].height
+
     for i, image in enumerate(cv2_images):
         console.log(f"Detect text of page {i} of {len(images)}")
-
-        width = images[i].width
-        height = images[i].height
 
         gray_scale_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -50,6 +53,21 @@ def cut_pdf(path_to_pdf: str):
     for i, image in enumerate(cv2_images):
         cv2.rectangle(image, (global_min_x, global_min_y), (global_max_x, global_max_y), (0, 255, 0), 2)
         cv2.imwrite(f"./converted_files/{file_id}/{i}.png", image)
+
+    print(f"Needed {time() - start_time}s to convert {len(images)} PDF-files")
+
+    pts_constant = 0.352778
+
+    pts_per_width = pts_width / width
+    pts_per_height = pts_height / height
+
+    min_x_mm = float(pts_per_width) * global_min_x * pts_constant
+    min_y_mm = float(pts_per_width) * global_min_y * pts_constant
+
+    max_x_mm = float(pts_per_height) * global_max_x * pts_constant
+    max_y_mm = float(pts_per_height) * global_max_y * pts_constant
+
+    return min_x_mm, min_y_mm, max_x_mm - min_x_mm, max_y_mm - min_y_mm
 
 
 def find_text_on_image(image: ndarray) -> None:
