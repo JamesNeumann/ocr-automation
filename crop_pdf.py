@@ -7,9 +7,10 @@ from pathlib import Path
 
 from convert_pdf import convert_pdf_to_image, convert_pil_images_to_cv2_format
 from utils.console import console
+from rich.progress import track
 
 
-def cut_pdf(path_to_pdf: str):
+def get_crop_box(path_to_pdf: str) -> (float, float, float, float):
     images, pts_width, pts_height = convert_pdf_to_image(path_to_pdf)
     cv2_images = convert_pil_images_to_cv2_format(images)
     file_id = uuid.uuid4()
@@ -25,18 +26,9 @@ def cut_pdf(path_to_pdf: str):
     width = images[0].width
     height = images[0].height
 
-    for i, image in enumerate(cv2_images):
-        console.log(f"Detect text of page {i} of {len(images)}")
+    for i, image in track(enumerate(cv2_images), description="Detecting text...", total=len(cv2_images)):
 
-        gray_scale_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-        ret, threshold = cv2.threshold(gray_scale_image, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
-
-        rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (18, 18))
-
-        dilation = cv2.dilate(threshold, rect_kernel, iterations=1)
-
-        contours, hierarchy = cv2.findContours(dilation, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        contours, _ = find_contours_on_image(image)
 
         for cnt in contours:
             x, y, w, h = cv2.boundingRect(cnt)
@@ -51,10 +43,10 @@ def cut_pdf(path_to_pdf: str):
             cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
     for i, image in enumerate(cv2_images):
-        cv2.rectangle(image, (global_min_x, global_min_y), (global_max_x, global_max_y), (0, 255, 0), 2)
+        cv2.rectangle(image, (global_min_x, global_min_y), (global_max_x, global_max_y), (255, 0, 0), 2)
         cv2.imwrite(f"./converted_files/{file_id}/{i}.png", image)
 
-    print(f"Needed {time() - start_time}s to convert {len(images)} PDF-files")
+    console.log(f"Needed {time() - start_time}s to convert {len(images)} PDF-files")
 
     pts_constant = 0.352778
 
@@ -70,5 +62,15 @@ def cut_pdf(path_to_pdf: str):
     return min_x_mm, min_y_mm, max_x_mm - min_x_mm, max_y_mm - min_y_mm
 
 
-def find_text_on_image(image: ndarray) -> None:
-    pass
+def find_contours_on_image(image: ndarray):
+    gray_scale_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    ret, threshold = cv2.threshold(gray_scale_image, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
+
+    rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (18, 18))
+
+    dilation = cv2.dilate(threshold, rect_kernel, iterations=1)
+
+    contours, hierarchy = cv2.findContours(dilation, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+
+    return contours, hierarchy
