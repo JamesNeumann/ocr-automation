@@ -14,6 +14,10 @@ def optimize_pdf_in_abby(path_to_pdf: str, iterations: int, x: float, y: float, 
 
     :param path_to_pdf: Path leading to the PDF
     :param iterations: How often the optimizations should be applied
+    :param x: x position of crop rectangle
+    :param y: y position of crop rectangle
+    :param height: Height of the crop rectangle
+    :param width: Width of the crop rectangle
     """
     abby_exe = 'D:\\Software\\Abby Finereader 15\\ABBYY FineReader 15\\FineReader.exe'
     # abby_exe = "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\ABBYY FineReader PDF 15\\ABBYY FineReader 15 OCR-Editor.lnk"
