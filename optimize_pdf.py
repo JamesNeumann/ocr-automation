@@ -32,31 +32,39 @@ def optimize_pdf_in_abby(path_to_pdf: str, iterations: int, x: float, y: float, 
     time.sleep(10)
     keyboard.press_and_release('ctrl+i')
     time.sleep(5)
+
     keyboard.press_and_release('alt+c')
-    keyboard.press_and_release('alt+ß')
-    keyboard.write(str("1"))
-    keyboard.press_and_release('tab')
-    keyboard.write(str("1"))
-    keyboard.press_and_release('alt+a')
-    keyboard.write(str("0"))
-    keyboard.press_and_release('tab')
-    keyboard.write(str("0"))
 
-    keyboard.press_and_release('alt+ß')
-    keyboard.press_and_release('ctrl+a')
-    keyboard.write(str(math.floor(width)))
-    keyboard.press_and_release('tab')
-    keyboard.press_and_release('ctrl+a')
-    keyboard.write(str(math.floor(height)))
-    keyboard.press_and_release('alt+a')
-    keyboard.press_and_release('ctrl+a')
-    keyboard.write(str(math.ceil(x)))
-    keyboard.press_and_release('tab')
-    keyboard.press_and_release('ctrl+a')
+    write_crop_values(1, 1, 0, 0)
+    write_crop_values(math.floor(width), math.floor(height), math.ceil(x), math.ceil(y))
 
-    keyboard.write(str(math.ceil(y)))
     keyboard.press_and_release('alt+shift+.')
     keyboard.press_and_release('down')
     keyboard.press_and_release('down')
     keyboard.press_and_release('down')
     keyboard.press_and_release('alt+e')
+    time.sleep(1)
+    keyboard.press_and_release('enter')
+
+
+def write_crop_values(width: int, height: int, x: int, y: int):
+    # Width
+    keyboard.press_and_release('alt+ß')
+    keyboard.press_and_release('ctrl+a')
+    keyboard.write(str(width))
+    time.sleep(0.1)
+
+    # Height
+    keyboard.press_and_release('enter')
+    keyboard.write(str(height))
+    time.sleep(0.1)
+
+    # X
+    keyboard.press_and_release('enter')
+    keyboard.write(str(x))
+    time.sleep(0.1)
+    # Y
+    keyboard.press_and_release('enter')
+    keyboard.write(str(y))
+    time.sleep(0.1)
+    keyboard.press_and_release('enter')
