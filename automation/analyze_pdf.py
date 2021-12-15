@@ -9,6 +9,7 @@ from automation.convert_pdf import convert_pdf_to_image, convert_pil_images_to_c
 from utils.console import console
 from rich.progress import track
 
+from utils.conversion import convert_to_pts
 from utils.rectangle import Rectangle
 
 
@@ -58,22 +59,20 @@ def get_crop_box(path_to_pdf: str) -> Rectangle:
 
     console.log(f"Needed {time() - start_time} seconds to convert {len(images)} PDF-files")
 
-    pts_constant = 0.352778
-
     pts_per_width = pts_width / width
     pts_per_height = pts_height / height
 
-    min_x_mm = float(pts_per_width) * global_min_x * pts_constant
-    min_y_mm = float(pts_per_width) * global_min_y * pts_constant
+    min_x_mm = convert_to_pts(float(pts_per_width) * global_min_x)
+    min_y_mm = convert_to_pts(float(pts_per_width) * global_min_y)
 
-    max_x_mm = float(pts_per_height) * global_max_x * pts_constant
-    max_y_mm = float(pts_per_height) * global_max_y * pts_constant
+    max_x_mm = convert_to_pts(float(pts_per_height) * global_max_x)
+    max_y_mm = convert_to_pts(float(pts_per_height) * global_max_y)
 
     min_x_mm = max(min_x_mm, 0)
     min_y_mm = max(min_y_mm, 0)
 
-    max_x_mm = min(max_x_mm - min_x_mm, float(pts_width) * pts_constant)
-    max_y_mm = min(max_y_mm - min_y_mm, float(pts_height) * pts_constant)
+    max_x_mm = min(max_x_mm - min_x_mm, convert_to_pts(float(pts_width)))
+    max_y_mm = min(max_y_mm - min_y_mm, convert_to_pts(float(pts_height)))
 
     return Rectangle(min_x_mm, min_y_mm, max_x_mm, max_y_mm)
 
