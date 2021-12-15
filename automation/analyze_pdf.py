@@ -13,7 +13,7 @@ from utils.conversion import convert_to_pts
 from utils.rectangle import Rectangle
 
 
-def get_crop_box(path_to_pdf: str, offset: float = 0.0) -> Rectangle:
+def get_crop_box(path_to_pdf: str, offset: int = 0) -> Rectangle:
     """
     Calculates the crop box for the given PDF
     :param path_to_pdf: The path to the PDF
@@ -57,7 +57,7 @@ def get_crop_box(path_to_pdf: str, offset: float = 0.0) -> Rectangle:
     global_min_x = global_min_x - offset
     global_min_y = global_min_y - offset
     global_max_x = global_max_x + offset
-    global_max_y = global_max_x + offset
+    global_max_y = global_max_y + offset
 
     for i, image in track(enumerate(cv2_images), description="Saving images...".ljust(40), total=len(cv2_images),
                           console=console):

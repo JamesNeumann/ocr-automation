@@ -29,7 +29,7 @@ def convert_pdf_to_image(path_to_pdf: str) -> (List[Image], float, float):
             converted_images = convert_from_path(
                 pdf_path=path_to_pdf,
                 output_folder=path,
-                # poppler_path="./Poppler/Library/bin",
+                poppler_path="./Poppler/Library/bin",
                 thread_count=multiprocessing.cpu_count(),
             )
         console.log(f"Needed {time() - start_time} seconds to convert {path_to_pdf} to images")
