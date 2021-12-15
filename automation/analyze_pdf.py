@@ -34,7 +34,8 @@ def get_crop_box(path_to_pdf: str) -> Rectangle:
     width = images[0].width
     height = images[0].height
 
-    for i, image in track(enumerate(cv2_images), description="Detecting text...", total=len(cv2_images)):
+    for i, image in track(enumerate(cv2_images), description="Detecting text...".ljust(40), total=len(cv2_images),
+                          console=console):
 
         contours, hierarchy = find_contours_on_image(image)
 
@@ -52,7 +53,8 @@ def get_crop_box(path_to_pdf: str) -> Rectangle:
                         global_max_y = y + h
                     cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-    for i, image in track(enumerate(cv2_images), description="Saving images...", total=len(cv2_images)):
+    for i, image in track(enumerate(cv2_images), description="Saving images...".ljust(40), total=len(cv2_images),
+                          console=console):
         cv2.rectangle(image, (global_min_x, global_min_y), (global_max_x, global_max_y), (255, 0, 0), 2)
         copped_image = image[global_min_y:global_max_y, global_min_x:global_max_x]
         cv2.imwrite(f"./converted_files/{file_id}/{i}.png", copped_image)

@@ -46,7 +46,7 @@ def convert_pil_images_to_cv2_format(pil_images: List[Image]) -> List[ndarray]:
     :return List of all images in cv2 format
     """
     cv2_images = []
-    for image in track(pil_images, description="Converting image to cv2 format..."):
+    for image in track(pil_images, description="Converting image to cv2 format...".ljust(40), console=console):
         cv2_images.append(convert_pil_to_cv2_format(image))
     return cv2_images
 
