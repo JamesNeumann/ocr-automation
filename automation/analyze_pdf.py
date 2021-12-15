@@ -13,10 +13,11 @@ from utils.conversion import convert_to_pts
 from utils.rectangle import Rectangle
 
 
-def get_crop_box(path_to_pdf: str) -> Rectangle:
+def get_crop_box(path_to_pdf: str, offset: float = 0.0) -> Rectangle:
     """
     Calculates the crop box for the given PDF
     :param path_to_pdf: The path to the PDF
+    :param offset: The offset to add to the resulting crop box
     :return: The calculated crop box
     """
     images, pts_width, pts_height = convert_pdf_to_image(path_to_pdf)
@@ -52,6 +53,11 @@ def get_crop_box(path_to_pdf: str) -> Rectangle:
                     if y + h > global_max_y:
                         global_max_y = y + h
                     cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+    global_min_x = global_min_x - offset
+    global_min_y = global_min_y - offset
+    global_max_x = global_max_x + offset
+    global_max_y = global_max_x + offset
 
     for i, image in track(enumerate(cv2_images), description="Saving images...".ljust(40), total=len(cv2_images),
                           console=console):
