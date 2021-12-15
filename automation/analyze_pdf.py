@@ -2,16 +2,22 @@ import uuid
 from time import time
 
 import cv2
-import numpy as np
 from numpy import ndarray
 from pathlib import Path
 
-from convert_pdf import convert_pdf_to_image, convert_pil_images_to_cv2_format
+from automation.convert_pdf import convert_pdf_to_image, convert_pil_images_to_cv2_format
 from utils.console import console
 from rich.progress import track
 
+from utils.rectangle import Rectangle
 
-def get_crop_box(path_to_pdf: str) -> (float, float, float, float):
+
+def get_crop_box(path_to_pdf: str) -> Rectangle:
+    """
+    Calculates the crop box for the given PDF
+    :param path_to_pdf: The path to the PDF
+    :return: The calculated crop box
+    """
     images, pts_width, pts_height = convert_pdf_to_image(path_to_pdf)
     cv2_images = convert_pil_images_to_cv2_format(images)
     file_id = uuid.uuid4()
@@ -69,10 +75,15 @@ def get_crop_box(path_to_pdf: str) -> (float, float, float, float):
     max_x_mm = min(max_x_mm - min_x_mm, float(pts_width) * pts_constant)
     max_y_mm = min(max_y_mm - min_y_mm, float(pts_height) * pts_constant)
 
-    return min_x_mm, min_y_mm, max_x_mm, max_y_mm
+    return Rectangle(min_x_mm, min_y_mm, max_x_mm, max_y_mm)
 
 
 def find_contours_on_image(image: ndarray):
+    """
+    Find all contours on the given image
+    :param image: Image to find contours on
+    :return: The found contours and the hierarchy
+    """
     gray_scale_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blur = cv2.GaussianBlur(gray_scale_image, (7, 7), 0)
     ret, threshold = cv2.threshold(blur, 20, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)

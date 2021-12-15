@@ -1,19 +1,23 @@
-import glob
 import multiprocessing
 import tempfile
 from time import time
-from typing import List, Any
+from typing import List
 import numpy as np
 from PIL.Image import Image
 from PyPDF2 import PdfFileReader
 from numpy import ndarray
 
 from pdf2image import convert_from_path
-from rich.progress import  track
+from rich.progress import track
 from utils.console import console
 
 
 def convert_pdf_to_image(path_to_pdf: str) -> (List[Image], float, float):
+    """
+    Converts each page of the given PDF to an image
+    :param path_to_pdf: Path to the PDF file that should be converted
+    :return list of all images and the width and height in pts
+    """
     converted_images = None
 
     pdf_file_reader = PdfFileReader(open(path_to_pdf, "rb"))
@@ -25,7 +29,7 @@ def convert_pdf_to_image(path_to_pdf: str) -> (List[Image], float, float):
             converted_images = convert_from_path(
                 pdf_path=path_to_pdf,
                 output_folder=path,
-                poppler_path="./Poppler/Library/bin",
+                # poppler_path="./Poppler/Library/bin",
                 thread_count=multiprocessing.cpu_count(),
             )
         console.log(f"Needed {time() - start_time} seconds to convert {path_to_pdf} to images")
@@ -35,16 +39,12 @@ def convert_pdf_to_image(path_to_pdf: str) -> (List[Image], float, float):
     return converted_images, upper_left, upper_right
 
 
-def convert_pdfs_to_images() -> (List[List[Image]], float, float):
-    result_images = []
-    files_to_convert = glob.glob('./files/*.pdf')
-    for file in files_to_convert:
-        images, pts_width, pts_height = convert_pdf_to_image(file)
-        result_images.append([images, pts_width, pts_width])
-    return result_images
-
-
 def convert_pil_images_to_cv2_format(pil_images: List[Image]) -> List[ndarray]:
+    """
+    Converts Image in PIL format to cv2 format
+    :param pil_images: PIL Images to convert
+    :return List of all images in cv2 format
+    """
     cv2_images = []
     for image in track(pil_images, description="Converting image to cv2 format..."):
         cv2_images.append(convert_pil_to_cv2_format(image))

@@ -4,3 +4,4 @@ rich>=10.15.2
 Pillow>=8.4.0
 numpy>=1.21.4
 opencv-python>=4.5.4.60
+keyboard>=0.13.5
