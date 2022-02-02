@@ -1,27 +1,28 @@
 import uuid
+from pathlib import Path
 from time import time
 
 import cv2
 from numpy import ndarray
-from pathlib import Path
-
-from automation.convert_pdf import convert_pdf_to_image, convert_pil_images_to_cv2_format
-from utils.console import console
 from rich.progress import track
 
+from automation.convert_pdf import convert_pdf_to_image, convert_pil_images_to_cv2_format
+from ui.progress_bar import ProgressBar
+from utils.console import console
 from utils.conversion import convert_to_pts
 from utils.rectangle import Rectangle
 
 
-def get_crop_box(path_to_pdf: str, offset: int = 0) -> Rectangle:
+def get_crop_box(path_to_pdf: str, progress_bar: ProgressBar, offset: int = 0) -> Rectangle:
     """
     Calculates the crop box for the given PDF
     :param path_to_pdf: The path to the PDF
     :param offset: The offset to add to the resulting crop box
     :return: The calculated crop box
     """
+
     images, pts_width, pts_height = convert_pdf_to_image(path_to_pdf)
-    cv2_images = convert_pil_images_to_cv2_format(images)
+    cv2_images = convert_pil_images_to_cv2_format(images, progress_bar)
     file_id = uuid.uuid4()
     Path(f"./converted_files/{file_id}").mkdir(parents=True, exist_ok=True)
 
@@ -38,6 +39,10 @@ def get_crop_box(path_to_pdf: str, offset: int = 0) -> Rectangle:
     for i, image in track(enumerate(cv2_images), description="Detecting text...".ljust(40), total=len(cv2_images),
                           console=console):
 
+        progress = i / (len(cv2_images) * 2)
+        progress = round(progress, 2)
+
+        progress_bar.setValue(50 + progress * 100)
         contours, hierarchy = find_contours_on_image(image)
 
         for j, cnt in enumerate(contours):
@@ -54,16 +59,18 @@ def get_crop_box(path_to_pdf: str, offset: int = 0) -> Rectangle:
                         global_max_y = y + h
                     cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-    global_min_x = global_min_x - offset
-    global_min_y = global_min_y - offset
-    global_max_x = global_max_x + offset
-    global_max_y = global_max_y + offset
+    progress_bar.setValue(100)
 
-    for i, image in track(enumerate(cv2_images), description="Saving images...".ljust(40), total=len(cv2_images),
-                          console=console):
-        cv2.rectangle(image, (global_min_x, global_min_y), (global_max_x, global_max_y), (255, 0, 0), 2)
-        copped_image = image[global_min_y:global_max_y, global_min_x:global_max_x]
-        cv2.imwrite(f"./converted_files/{file_id}/{i}.png", copped_image)
+    global_min_x = max(0, global_min_x - offset)
+    global_min_y = max(0, global_min_y - offset)
+    global_max_x = min(width, global_max_x + offset)
+    global_max_y = min(height, global_max_y + offset)
+
+    # for i, image in track(enumerate(cv2_images), description="Saving images...".ljust(40), total=len(cv2_images),
+    #                       console=console):
+    #     cv2.rectangle(image, (global_min_x, global_min_y), (global_max_x, global_max_y), (255, 0, 0), 2)
+    #     copped_image = image[global_min_y:global_max_y, global_min_x:global_max_x]
+    #     cv2.imwrite(f"./converted_files/{file_id}/{i}.png", copped_image)
 
     console.log(f"Needed {time() - start_time} seconds to convert {len(images)} PDF-files")
 

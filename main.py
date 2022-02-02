@@ -1,19 +1,16 @@
-import glob
-import os.path
+import sys
 
+from PyQt6.QtWidgets import QApplication
 from rich.traceback import install
 
-from automation.abby_automation import crop_pdf_in_ocr_editor
-from automation.analyze_pdf import get_crop_box
-
-from utils.console import console
+from ui.main import MainWindow
 
 if __name__ == '__main__':
     install(show_locals=True)
 
-    for file_path in glob.glob("./files/*.pdf"):
-        rectangle = get_crop_box(file_path, offset=80)
-        console.print("Calculated bounding box: ", rectangle)
-        abs_path = os.path.abspath(file_path)
-        crop_pdf_in_ocr_editor(path_to_pdf=abs_path, x=rectangle.x, y=rectangle.y, width=rectangle.width,
-                               height=rectangle.height)
+    app = QApplication(sys.argv)
+
+    window = MainWindow()
+    window.show()
+
+    app.exec()
