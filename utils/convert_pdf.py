@@ -18,6 +18,7 @@ from utils.console import console
 def convert_pdf_to_image(path_to_pdf: str) -> (List[Image], float, float):
     """
     Converts each page of the given PDF to an image
+
     :param path_to_pdf: Path to the PDF file that should be converted
     :return list of all images and the width and height in pts
     """
@@ -53,6 +54,7 @@ def convert_pdf_to_image(path_to_pdf: str) -> (List[Image], float, float):
 def convert_pil_images_to_cv2_format(pil_images: List[Image], progress_bar: ProgressBar) -> List[ndarray]:
     """
     Converts Image in PIL format to cv2 format
+    
     :param pil_images: PIL Images to convert
     :return List of all images in cv2 format
     """

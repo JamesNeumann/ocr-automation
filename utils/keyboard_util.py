@@ -7,6 +7,7 @@ import keyboard
 def write(text: Any, delay: float = 0.0):
     """
     Writes given text via keyboard presses
+
     :param text: Text to be written
     :param delay: Time to wait after text was written
     """

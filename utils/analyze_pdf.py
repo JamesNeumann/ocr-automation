@@ -6,16 +6,17 @@ import cv2
 from numpy import ndarray
 from rich.progress import track
 
-from automation.convert_pdf import convert_pdf_to_image, convert_pil_images_to_cv2_format
 from ui.progress_bar import ProgressBar
 from utils.console import console
 from utils.conversion import convert_to_pts
+from utils.convert_pdf import convert_pdf_to_image, convert_pil_images_to_cv2_format
 from utils.rectangle import Rectangle
 
 
 def get_crop_box(path_to_pdf: str, progress_bar: ProgressBar = None, offset: int = 0) -> Rectangle:
     """
     Calculates the crop box for the given PDF
+
     :param path_to_pdf: The path to the PDF
     :param offset: The offset to add to the resulting crop box
     :return: The calculated crop box
@@ -97,6 +98,7 @@ def get_crop_box(path_to_pdf: str, progress_bar: ProgressBar = None, offset: int
 def find_contours_on_image(image: ndarray):
     """
     Find all contours on the given image
+
     :param image: Image to find contours on
     :return: The found contours and the hierarchy
     """

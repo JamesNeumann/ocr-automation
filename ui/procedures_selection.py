@@ -3,7 +3,7 @@ from typing import List
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QWidget, QGroupBox, QCheckBox, QVBoxLayout, QHBoxLayout, QLabel, QSlider
 
-from automation.procedures import Procedures
+from automation.procedures.ocr_procedures import OcrProcedures
 
 
 class ProcedureSelection(QWidget):
@@ -16,7 +16,7 @@ class ProcedureSelection(QWidget):
 
         self.vbox_layout = QVBoxLayout()
 
-        for name, procedure in Procedures.get_available_procedures().items():
+        for name, procedure in OcrProcedures.get_available_procedures().items():
             checkbox = QCheckBox(name)
             self.vbox_layout.addWidget(checkbox)
 

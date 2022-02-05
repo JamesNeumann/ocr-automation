@@ -4,9 +4,8 @@ import time
 from PyQt6.QtWidgets import QWidget, QStackedLayout, QMainWindow
 
 from automation.abby_automation import AbbyAutomation
-from automation.procedures import Procedures
+from automation.procedures.ocr_procedures import OcrProcedures
 from ui.step import FileSelectionStep, ProcedureSelectionStep
-from utils.console import console
 
 
 class MainWindow(QMainWindow):
@@ -98,6 +97,6 @@ class MainWindow(QMainWindow):
 
     def do_optimization(self):
         names = self.procedures_step.procedure_selection.get_selected_procedures()
-        procedures = Procedures.get_procedures(names)
+        procedures = OcrProcedures.get_procedures(names)
         iterations = self.procedures_step.procedure_selection.get_iteration_amount()
         AbbyAutomation.do_optimization(procedures, iterations)
