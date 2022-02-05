@@ -13,7 +13,7 @@ from utils.conversion import convert_to_pts
 from utils.rectangle import Rectangle
 
 
-def get_crop_box(path_to_pdf: str, progress_bar: ProgressBar, offset: int = 0) -> Rectangle:
+def get_crop_box(path_to_pdf: str, progress_bar: ProgressBar = None, offset: int = 0) -> Rectangle:
     """
     Calculates the crop box for the given PDF
     :param path_to_pdf: The path to the PDF
@@ -42,7 +42,8 @@ def get_crop_box(path_to_pdf: str, progress_bar: ProgressBar, offset: int = 0) -
         progress = i / (len(cv2_images) * 2)
         progress = round(progress, 2)
 
-        progress_bar.setValue(50 + progress * 100)
+        if progress_bar:
+            progress_bar.setValue(50 + progress * 100)
         contours, hierarchy = find_contours_on_image(image)
 
         for j, cnt in enumerate(contours):
@@ -59,7 +60,8 @@ def get_crop_box(path_to_pdf: str, progress_bar: ProgressBar, offset: int = 0) -
                         global_max_y = y + h
                     cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-    progress_bar.setValue(100)
+    if progress_bar:
+        progress_bar.setValue(100)
 
     global_min_x = max(0, global_min_x - offset)
     global_min_y = max(0, global_min_y - offset)

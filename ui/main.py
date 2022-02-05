@@ -1,10 +1,12 @@
 import os
+import time
 
 from PyQt6.QtWidgets import QWidget, QStackedLayout, QMainWindow
 
 from automation.abby_automation import AbbyAutomation
-from automation.analyze_pdf import get_crop_box
-from ui.step import Step, FileSelectionStep
+from automation.procedures import Procedures
+from ui.step import FileSelectionStep, ProcedureSelectionStep
+from utils.console import console
 
 
 class MainWindow(QMainWindow):
@@ -16,34 +18,41 @@ class MainWindow(QMainWindow):
         self.resize(600, 400)
 
         self.layout = QStackedLayout()
-        self.file_selection_step = FileSelectionStep(text="Wähle eine PDF-Datei aus:", next_callback=self.open_abby)
+        self.file_selection_step = FileSelectionStep(text="Wähle eine PDF-Datei aus:",
+                                                     next_callback=self.open_abby_and_ocr_editor)
 
-        self.abby_opened_step = Step(
-            text="Ist die Datei in Abby geöffnet?",
+        self.procedures_step = ProcedureSelectionStep(
+            text="Welche Optimierungen sollen durchgeführt werden?",
             previous_callback=lambda: self.layout.setCurrentIndex(0),
-            next_text="Ja",
-            next_callback=self.open_ocr_editor
+            next_callback=self.do_optimization
         )
 
-        self.ocr_editor_opened_step = Step(
-            text="Dateiverarbeitung starten",
-            previous_callback=lambda: self.layout.setCurrentIndex(1),
-            next_callback=self.open_image_improvement_tools,
-            detail="<h2>Bitte alle (Fehler-)dialoge entfernen und die erste Seite auswählen.</h2>"
-                   "<h2>Dann erst auf Weiter</h2>"
-        )
-
-        self.cut_pdf_step = Step(
-            text="PDF-Zuschneiden",
-            previous_callback=lambda: self.layout.setCurrentIndex(2),
-            next_text="Zuschneiden",
-            next_callback=self.crop_pdf
-        )
-
+        # self.abby_opened_step = Step(
+        #     text="Ist die Datei in Abby geöffnet?",
+        #     previous_callback=lambda: self.layout.setCurrentIndex(0),
+        #     next_text="Ja",
+        #     next_callback=self.open_ocr_editor
+        # )
+        #
+        # self.ocr_editor_opened_step = Step(
+        #     text="Dateiverarbeitung starten",
+        #     previous_callback=lambda: self.layout.setCurrentIndex(1),
+        #     next_callback=self.open_image_improvement_tools,
+        #     detail="<h2>Bitte alle (Fehler-)dialoge entfernen und die erste Seite auswählen.</h2>"
+        #            "<h2>Dann erst auf Weiter</h2>"
+        # )
+        #
+        # self.cut_pdf_step = Step(
+        #     text="PDF-Zuschneiden",
+        #     previous_callback=lambda: self.layout.setCurrentIndex(2),
+        #     next_text="Zuschneiden",
+        #     next_callback=self.crop_pdf
+        # )
         self.layout.addWidget(self.file_selection_step)
-        self.layout.addWidget(self.abby_opened_step)
-        self.layout.addWidget(self.ocr_editor_opened_step)
-        self.layout.addWidget(self.cut_pdf_step)
+        self.layout.addWidget(self.procedures_step)
+        # self.layout.addWidget(self.abby_opened_step)
+        # self.layout.addWidget(self.ocr_editor_opened_step)
+        # self.layout.addWidget(self.cut_pdf_step)
 
         self.layout.setCurrentIndex(0)
 
@@ -51,6 +60,14 @@ class MainWindow(QMainWindow):
         widget.setLayout(self.layout)
         self.setCentralWidget(widget)
         self.rectangle = None
+
+    def open_abby_and_ocr_editor(self):
+        if self.file_selection_step.file_selection.selected_file_name != "":
+            abs_path = os.path.abspath(self.file_selection_step.file_selection.file_path())
+            AbbyAutomation.open_abby_and_ocr_editor(path_to_pdf=abs_path)
+            time.sleep(0.5)
+            self.layout.setCurrentIndex(1)
+            self.window().activateWindow()
 
     def open_abby(self):
         if self.file_selection_step.file_selection.selected_file_name != "":
@@ -79,8 +96,8 @@ class MainWindow(QMainWindow):
         self.do_optimization()
         self.layout.setCurrentIndex(3)
 
-    def crop_pdf(self):
-        AbbyAutomation.crop_pdf()
-
     def do_optimization(self):
-        AbbyAutomation.do_optimization()
+        names = self.procedures_step.procedure_selection.get_selected_procedures()
+        procedures = Procedures.get_procedures(names)
+        iterations = self.procedures_step.procedure_selection.get_iteration_amount()
+        AbbyAutomation.do_optimization(procedures, iterations)

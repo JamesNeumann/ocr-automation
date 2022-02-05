@@ -2,8 +2,6 @@ import os
 
 from PyQt6.QtWidgets import QFileDialog, QWidget, QHBoxLayout, QPushButton, QLabel
 
-from utils.console import console
-
 
 class FileSelection(QWidget):
 

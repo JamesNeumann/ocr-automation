@@ -61,9 +61,11 @@ def convert_pil_images_to_cv2_format(pil_images: List[Image], progress_bar: Prog
                           console=console, total=len(pil_images)):
         progress = i / (len(pil_images) * 2)
         progress = round(progress, 2)
-        progress_bar.setValue(progress * 100)
+        if progress_bar:
+            progress_bar.setValue(progress * 100)
         cv2_images.append(convert_pil_to_cv2_format(image))
-    progress_bar.setValue(50)
+    if progress_bar:
+        progress_bar.setValue(50)
     return cv2_images
 
 
