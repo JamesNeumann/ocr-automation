@@ -67,10 +67,10 @@ class OcrProcedures:
             press_key(key_combination='alt+c')
             GeneralProcedures.write_crop_values(1, 1, 0, 0)
             GeneralProcedures.write_crop_values(math.floor(width), math.floor(height), math.ceil(x), math.ceil(y))
-            press_key(key_combination='alt+shift+.')
-            press_key(key_combination='down', repetitions=3)
+            press_key(key_combination='alt+shift+.', delay_in_seconds=0.5)
+            press_key(key_combination='down', repetitions=3, delay_in_seconds=0.5)
             press_key(key_combination='alt+e', delay_in_seconds=1)
-            press_key(key_combination='enter')
+            press_key(key_combination='enter', delay_in_seconds=0.5)
 
     @staticmethod
     def get_available_procedures() -> Dict[str, Callable]:

@@ -9,6 +9,7 @@ from automation.procedures.general_procedures import GeneralProcedures
 from automation.procedures.ocr_procedures import OcrProcedures
 from automation.procedures.waiting_procedures import WaitingProcedures
 from utils.analyze_pdf import get_crop_box
+from utils.console import console
 from utils.keyboard_util import press_key
 
 
@@ -105,8 +106,11 @@ class AbbyAutomation:
 
         sanitized_path = os.environ['USERPROFILE'] + "\\AppData\\Local\\Temp"
         rectangle = get_crop_box(path_to_pdf=f"{sanitized_path}\\{file_name}.pdf", offset=0)
+        console.log("Crop box: ", rectangle)
         AbbyAutomation.open_abby_and_ocr_editor(path_to_pdf=f"{path}\\{file_name}.pdf")
         AbbyAutomation.open_image_improvement_tools(should_tab_in=False)
         time.sleep(0.5)
         GeneralProcedures.click_light_bulb()
+        GeneralProcedures.click_light_bulb()
         OcrProcedures.do_crop_pdf(rectangle.x, rectangle.y, rectangle.width, rectangle.height, should_tab_in=False)
+        os.remove(f"{path}\\{file_name}.pdf")

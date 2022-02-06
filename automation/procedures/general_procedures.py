@@ -32,22 +32,22 @@ class GeneralProcedures:
 
         # Width
         press_key(key_combination='alt+ß')
-        press_key(key_combination='ctrl+a')
-        write(width, 0.1)
+        press_key(key_combination='ctrl+a', delay_in_seconds=0.3)
+        write(width, 0.5)
 
         # Height
-        press_key(key_combination='enter')
-        write(height, 0.1)
+        press_key(key_combination='enter', delay_in_seconds=0.3)
+        write(height, 0.5)
 
         # X
-        press_key(key_combination='enter')
-        write(x, 0.1)
+        press_key(key_combination='enter', delay_in_seconds=0.3)
+        write(x, 0.5)
 
         # Y
-        press_key(key_combination='enter')
-        write(y, 0.1)
+        press_key(key_combination='enter', delay_in_seconds=0.3)
+        write(y, 0.5)
 
-        press_key(key_combination='enter')
+        press_key(key_combination='enter', delay_in_seconds=0.3)
 
     @staticmethod
     def save_temp_pdf() -> (str, str):

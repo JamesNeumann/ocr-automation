@@ -7,3 +7,4 @@ opencv-python>=4.5.4.60
 keyboard>=0.13.5
 PyQt6>=6.2.2
 PyAutoGUI~=0.9.53
+pyinstaller~=4.9

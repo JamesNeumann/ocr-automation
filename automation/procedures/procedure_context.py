@@ -22,7 +22,7 @@ class ProcedureContext:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         WaitingProcedures.wait_until_procedure_finished()
-        time.sleep(1)
+        time.sleep(0.5)
         WaitingProcedures.wait_until_procedure_finished()
         press_key(key_combination='alt+shift+s')
         self.end = time.time()
