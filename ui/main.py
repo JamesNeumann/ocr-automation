@@ -5,7 +5,8 @@ from PyQt6.QtWidgets import QWidget, QStackedLayout, QMainWindow
 
 from automation.abby_automation import AbbyAutomation
 from automation.procedures.ocr_procedures import OcrProcedures
-from ui.step import FileSelectionStep, ProcedureSelectionStep
+from ui.steps.procedure_selection_step import ProcedureSelectionStep
+from ui.steps.file_selection_step import FileSelectionStep
 
 
 class MainWindow(QMainWindow):
