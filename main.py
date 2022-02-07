@@ -1,16 +1,18 @@
-import sys
+import glob
 
-from PyQt6.QtWidgets import QApplication
 from rich.traceback import install
 
-from ui.main import MainWindow
+from utils.edit_metadata import set_standard_metadata
 
 if __name__ == '__main__':
     install(show_locals=True)
 
-    app = QApplication(sys.argv)
+    # app = QApplication(sys.argv)
 
-    window = MainWindow()
-    window.show()
+    # window = MainWindow()
+    # window.show()
 
-    app.exec()
+    # app.exec()
+
+    for file in glob.glob('./files/metadata/*.pdf'):
+        set_standard_metadata(file)
