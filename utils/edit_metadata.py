@@ -9,7 +9,8 @@ from utils.console import console
 
 def set_standard_metadata(path_to_pdf: str) -> None:
     """
-    Sets the standard PDF metadata. Removes all existing data.
+    Sets the standard PDF metadata. Removes all existing data
+
     :param path_to_pdf: Path to the PDF
     """
 
