@@ -5,8 +5,9 @@ from PyQt6.QtWidgets import QWidget, QStackedLayout, QMainWindow
 
 from automation.abby_automation import AbbyAutomation
 from automation.procedures.ocr_procedures import OcrProcedures
-from ui.steps.procedure_selection_step import ProcedureSelectionStep
+from ui.steps.crop_amount_step import CropAmountStep
 from ui.steps.file_selection_step import FileSelectionStep
+from ui.steps.procedure_selection_step import ProcedureSelectionStep
 
 
 class MainWindow(QMainWindow):
@@ -15,11 +16,11 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.setWindowTitle("Abby Automation")
-        self.resize(600, 400)
+        self.resize(1024, 800)
 
         self.layout = QStackedLayout()
         self.file_selection_step = FileSelectionStep(text="Wähle eine PDF-Datei aus:",
-                                                     next_callback=self.open_abby_and_ocr_editor)
+                                                     next_callback=self.open_crop_step)
 
         self.procedures_step = ProcedureSelectionStep(
             text="Welche Optimierungen sollen durchgeführt werden?",
@@ -27,32 +28,15 @@ class MainWindow(QMainWindow):
             next_callback=self.do_optimization
         )
 
-        # self.abby_opened_step = Step(
-        #     text="Ist die Datei in Abby geöffnet?",
-        #     previous_callback=lambda: self.layout.setCurrentIndex(0),
-        #     next_text="Ja",
-        #     next_callback=self.open_ocr_editor
-        # )
-        #
-        # self.ocr_editor_opened_step = Step(
-        #     text="Dateiverarbeitung starten",
-        #     previous_callback=lambda: self.layout.setCurrentIndex(1),
-        #     next_callback=self.open_image_improvement_tools,
-        #     detail="<h2>Bitte alle (Fehler-)dialoge entfernen und die erste Seite auswählen.</h2>"
-        #            "<h2>Dann erst auf Weiter</h2>"
-        # )
-        #
-        # self.cut_pdf_step = Step(
-        #     text="PDF-Zuschneiden",
-        #     previous_callback=lambda: self.layout.setCurrentIndex(2),
-        #     next_text="Zuschneiden",
-        #     next_callback=self.crop_pdf
-        # )
+        self.crop_amount_step = CropAmountStep(
+            text="Wähle dein Beschneidungsrahmen?",
+            previous_callback=lambda: self.layout.setCurrentIndex(0),
+            next_callback=self.do_optimization
+        )
+
         self.layout.addWidget(self.file_selection_step)
+        self.layout.addWidget(self.crop_amount_step)
         self.layout.addWidget(self.procedures_step)
-        # self.layout.addWidget(self.abby_opened_step)
-        # self.layout.addWidget(self.ocr_editor_opened_step)
-        # self.layout.addWidget(self.cut_pdf_step)
 
         self.layout.setCurrentIndex(0)
 
@@ -72,7 +56,7 @@ class MainWindow(QMainWindow):
     def open_abby(self):
         if self.file_selection_step.file_selection.selected_file_name != "":
             abs_path = os.path.abspath(self.file_selection_step.file_selection.file_path())
-            # abs_path = os.path.abspath("C:\\Users\\janne\\Downloads\\tmpl=s_t.pdf")
+            abs_path = os.path.abspath("C:\\Users\\janne\\Downloads\\tmpl=s_t.pdf")
 
             AbbyAutomation.open_abby_and_ocr_editor(path_to_pdf=abs_path)
             # AbbyAutomation.open_pdf_in_abby(path_to_pdf=abs_path)
@@ -86,6 +70,13 @@ class MainWindow(QMainWindow):
         #                                   self.file_selection_step.progress_bar, offset=80)
         #     abs_path = os.path.abspath(self.file_selection_step.file_selection.file_path())
         #     self.layout.setCurrentIndex(1)
+
+    def open_crop_step(self):
+        path = self.file_selection_step.file_selection.file_path()
+        # path = os.path.abspath(
+        #     r"D:\Projects\harry\00 Dateien für Programmierung Jannes\PDF-Dateien\Fanta, Ein Bericht über die Ansprüche des Königs Alfons auf den deutschen Thron.pdf")
+        self.layout.setCurrentIndex(1)
+        self.crop_amount_step.open_pdf_pages(path)
 
     def open_ocr_editor(self):
         AbbyAutomation.open_ocr_editor()

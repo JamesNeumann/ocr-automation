@@ -92,7 +92,7 @@ class AbbyAutomation:
         time.sleep(1)
         path, file_name = GeneralProcedures.save_temp_pdf()
         press_key(key_combination="alt+tab")
-        AbbyAutomation.crop_pdf(path, file_name)
+        # AbbyAutomation.crop_pdf(path, file_name)
 
     @staticmethod
     def crop_pdf(path: str, file_name: str) -> None:
@@ -105,7 +105,7 @@ class AbbyAutomation:
         """
 
         sanitized_path = os.environ['USERPROFILE'] + "\\AppData\\Local\\Temp"
-        rectangle = get_crop_box(path_to_pdf=f"{sanitized_path}\\{file_name}.pdf", offset=0)
+        rectangle = get_crop_box(path_to_pdf=f"{sanitized_path}\\{file_name}.pdf")
         console.log("Crop box: ", rectangle)
         AbbyAutomation.open_abby_and_ocr_editor(path_to_pdf=f"{path}\\{file_name}.pdf")
         AbbyAutomation.open_image_improvement_tools(should_tab_in=False)

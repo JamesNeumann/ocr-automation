@@ -2,7 +2,7 @@ import multiprocessing
 import shutil
 import tempfile
 from time import time
-from typing import List
+from typing import List, Callable
 
 import numpy as np
 from PIL.Image import Image
@@ -11,7 +11,6 @@ from numpy import ndarray
 from pdf2image import convert_from_path
 from rich.progress import track
 
-from ui.progress_bar import ProgressBar
 from utils.console import console
 
 
@@ -51,11 +50,13 @@ def convert_pdf_to_image(path_to_pdf: str) -> (List[Image], float, float):
     return converted_images, upper_left, upper_right
 
 
-def convert_pil_images_to_cv2_format(pil_images: List[Image], progress_bar: ProgressBar) -> List[ndarray]:
+def convert_pil_images_to_cv2_format(pil_images: List[Image], progress_callback: Callable[[int], None]) -> List[
+        ndarray]:
     """
     Converts Image in PIL format to cv2 format
-    
+
     :param pil_images: PIL Images to convert
+    :param progress_callback: Callback for progress display
     :return List of all images in cv2 format
     """
     cv2_images = []
@@ -63,11 +64,8 @@ def convert_pil_images_to_cv2_format(pil_images: List[Image], progress_bar: Prog
                           console=console, total=len(pil_images)):
         progress = i / (len(pil_images) * 2)
         progress = round(progress, 2)
-        if progress_bar:
-            progress_bar.setValue(progress * 100)
+        progress_callback(progress * 100)
         cv2_images.append(convert_pil_to_cv2_format(image))
-    if progress_bar:
-        progress_bar.setValue(50)
     return cv2_images
 
 
