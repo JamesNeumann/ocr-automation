@@ -1,3 +1,5 @@
+from PyQt6.QtCore import pyqtSignal
+
 from ui.file_selection import FileSelection
 from ui.progress_bar import ProgressBar
 from ui.steps.step import Step

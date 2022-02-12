@@ -2,6 +2,7 @@ import os
 import subprocess
 import time
 from typing import Callable, List
+from uuid import UUID
 
 import pyautogui
 
@@ -11,10 +12,14 @@ from automation.procedures.waiting_procedures import WaitingProcedures
 from utils.analyze_pdf import get_crop_box
 from utils.console import console
 from utils.keyboard_util import press_key
+from utils.rectangle import Rectangle
 
 
 class AbbyAutomation:
+    TEMP_PATH = os.environ['USERPROFILE'] + "\\AppData\\Local\\Temp"
     ABBY_EXE_PATH = 'D:\\Software\\Abby Finereader 15\\ABBYY FineReader 15\\FineReader.exe'
+    OPEN_INSTANCES = []
+    CURR_INSTANCE = None
 
     @staticmethod
     def open_abby_and_ocr_editor(*, path_to_pdf: str, abby_exe_path: str = ABBY_EXE_PATH) -> None:
@@ -37,7 +42,9 @@ class AbbyAutomation:
         :param abby_exe_path: Path to the abby exe
         """
 
-        subprocess.Popen([abby_exe_path, path_to_pdf])
+        p_open = subprocess.Popen([abby_exe_path, path_to_pdf])
+        AbbyAutomation.OPEN_INSTANCES.append(p_open)
+        AbbyAutomation.CURR_INSTANCE = p_open
 
     @staticmethod
     def open_ocr_editor() -> None:
@@ -74,43 +81,39 @@ class AbbyAutomation:
             pyautogui.click(x, y)
 
     @staticmethod
-    def do_optimization(procedures: List[Callable], iterations: int) -> None:
+    def do_optimization(procedures: List[Callable], iterations: int, progress_callback: Callable[[int], None]) \
+            -> [str, UUID]:
         """
         Executes all the given procedures and crops the pdf afterwards.
 
+        :param progress_callback: Callback function for progress
         :param procedures: Contains all procedures that should be executed
         :param iterations: How often all procedures should be executed
         """
         AbbyAutomation.open_image_improvement_tools()
+        progress_step = 100 / (iterations * len(procedures) + 1)
+        curr_step = 0
         for i in range(iterations):
-            for operation in procedures:
+            for index, operation in enumerate(procedures):
                 GeneralProcedures.click_light_bulb()
                 operation()
+                curr_step += progress_step
+                progress_callback(curr_step)
         time.sleep(1)
         if WaitingProcedures.is_close_button_visible():
             press_key(key_combination='alt+shift+s')
         time.sleep(1)
         path, file_name = GeneralProcedures.save_temp_pdf()
         press_key(key_combination="alt+tab")
-        # AbbyAutomation.crop_pdf(path, file_name)
+        progress_callback(100)
+        return path, file_name
 
     @staticmethod
-    def crop_pdf(path: str, file_name: str) -> None:
-        """
-        Crops the given PDF file.
-        Therefore, analyses the PDF and finds the most suitable crop box.
-
-        :param path: Path to the PDF
-        :param file_name: Name of the PDF file
-        """
-
-        sanitized_path = os.environ['USERPROFILE'] + "\\AppData\\Local\\Temp"
-        rectangle = get_crop_box(path_to_pdf=f"{sanitized_path}\\{file_name}.pdf")
-        console.log("Crop box: ", rectangle)
-        AbbyAutomation.open_abby_and_ocr_editor(path_to_pdf=f"{path}\\{file_name}.pdf")
+    def crop_pdf(path_to_pdf: str, crop_rectangle: Rectangle):
+        AbbyAutomation.open_abby_and_ocr_editor(path_to_pdf=path_to_pdf)
         AbbyAutomation.open_image_improvement_tools(should_tab_in=False)
         time.sleep(0.5)
         GeneralProcedures.click_light_bulb()
         GeneralProcedures.click_light_bulb()
-        OcrProcedures.do_crop_pdf(rectangle.x, rectangle.y, rectangle.width, rectangle.height, should_tab_in=False)
-        os.remove(f"{path}\\{file_name}.pdf")
+        OcrProcedures.do_crop_pdf(crop_rectangle.x, crop_rectangle.y, crop_rectangle.width, crop_rectangle.height,
+                                  should_tab_in=False)

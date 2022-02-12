@@ -14,7 +14,7 @@ from rich.progress import track
 from utils.console import console
 
 
-def convert_pdf_to_image(path_to_pdf: str) -> (List[Image], float, float):
+def convert_pdf_to_image(path_to_pdf: str) -> (List[Image], float, float, str):
     """
     Converts each page of the given PDF to an image
 
@@ -31,23 +31,18 @@ def convert_pdf_to_image(path_to_pdf: str) -> (List[Image], float, float):
         temp_path = None
         with tempfile.TemporaryDirectory() as path:
             temp_path = path
-            # console.log(temp_path)
             converted_images = convert_from_path(
                 pdf_path=path_to_pdf,
                 output_folder=path,
                 poppler_path="./Poppler/Library/bin",
                 thread_count=multiprocessing.cpu_count(),
+                jpegopt=True
             )
-
-        try:
-            shutil.rmtree(temp_path)
-        except Exception as e:
-            console.log(e)
         console.log(f"Needed {time() - start_time} seconds to convert {path_to_pdf} to images")
     except Exception as e:
         console.log(e, e)
 
-    return converted_images, upper_left, upper_right
+    return converted_images, upper_left, upper_right, temp_path
 
 
 def convert_pil_images_to_cv2_format(pil_images: List[Image], progress_callback: Callable[[int], None]) -> List[

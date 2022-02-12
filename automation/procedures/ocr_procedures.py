@@ -64,7 +64,7 @@ class OcrProcedures:
             if should_tab_in:
                 press_key(key_combination='alt+tab', delay_in_seconds=1)
 
-            press_key(key_combination='alt+c')
+            press_key(key_combination='alt+c', delay_in_seconds=0.5)
             GeneralProcedures.write_crop_values(1, 1, 0, 0)
             GeneralProcedures.write_crop_values(math.floor(width), math.floor(height), math.ceil(x), math.ceil(y))
             press_key(key_combination='alt+shift+.', delay_in_seconds=0.5)

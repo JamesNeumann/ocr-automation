@@ -209,3 +209,13 @@ class CropAmountSelection(QWidget):
         self.top_offset_spinbox.setMaximum(max_top)
         max_bottom = convert_to_pts(float(self.pts_per_height) * (self.height - self.rectangle.height))
         self.bottom_offset_spinbox.setMaximum(max_bottom)
+
+    def get_pts_rectangle(self):
+        return Rectangle(
+            convert_to_pts(max(self.rectangle.x - self.offset_left, 0) * self.pts_per_width),
+            convert_to_pts(max(self.rectangle.y - self.offset_top, 0) * self.pts_per_height),
+            convert_to_pts(min(self.rectangle.width - self.rectangle.x + self.offset_left + self.offset_right,
+                               self.width) * self.pts_per_width),
+            convert_to_pts(min(self.rectangle.height - self.rectangle.y + self.offset_top + self.offset_bottom,
+                               self.height) * self.pts_per_height)
+        )
