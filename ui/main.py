@@ -7,10 +7,11 @@ from automation.abby_automation import AbbyAutomation
 from ui.steps.crop_amount_step import CropAmountStep
 from ui.steps.crop_running_step import CropRunningStep
 from ui.steps.file_selection_step import FileSelectionStep
+from ui.steps.ocr_language_selection_step import OcrLanguageSelectionStep
+from ui.steps.ocr_running_step import OcrRunningStep
 from ui.steps.open_abby_step import OpenAbbyStep
 from ui.steps.procedure_selection_step import ProcedureSelectionStep
-from utils.analyze_pdf import get_crop_box
-from utils.console import console
+from ui.steps.step import Step
 
 
 class MainWindow(QMainWindow):
@@ -47,12 +48,26 @@ class MainWindow(QMainWindow):
         self.crop_running_step = CropRunningStep(
             text="Die PDF wird zugeschnitten"
         )
+        self.crop_running_step.finished.connect(lambda: self.layout.setCurrentIndex(5))
+
+        self.ocr_language_selection_step = OcrLanguageSelectionStep(
+            text="Wähle die OCR-Sprachen für die PDF",
+            next_callback=self.do_ocr
+        )
+
+        self.ocr_running_step = OcrRunningStep(text="OCR läuft")
+        self.ocr_running_step.finished.connect(lambda: (print("finished"), self.layout.setCurrentIndex(7)))
+
+        self.finished_step = Step(text="Alle Schritte abgeschlossen. Die PDF kann nun gespeichert werden.")
 
         self.layout.addWidget(self.file_selection_step)
         self.layout.addWidget(self.open_abby_step)
         self.layout.addWidget(self.procedures_step)
         self.layout.addWidget(self.crop_amount_step)
         self.layout.addWidget(self.crop_running_step)
+        self.layout.addWidget(self.ocr_language_selection_step)
+        self.layout.addWidget(self.ocr_running_step)
+        self.layout.addWidget(self.finished_step)
 
         self.layout.setCurrentIndex(0)
 
@@ -116,3 +131,8 @@ class MainWindow(QMainWindow):
         # procedures = OcrProcedures.get_procedures(names)
         # iterations = self.procedures_step.procedure_selection.get_iteration_amount()
         # AbbyAutomation.do_optimization(procedures, iterations)
+
+    def do_ocr(self):
+        self.layout.setCurrentIndex(6)
+        languages = self.ocr_language_selection_step.get_selected_language()
+        self.ocr_running_step.start(languages)

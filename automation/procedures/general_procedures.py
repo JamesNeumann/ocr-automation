@@ -89,10 +89,83 @@ class GeneralProcedures:
         return temp_path, temp_uuid
 
     @staticmethod
-    def click_light_bulb() -> None:
+    def open_save_pdf_dialog():
+        """
+        Opens the save PDF dialog for saving a searchable PDF
+        """
+        arrow_down = pyautogui.locateCenterOnScreen('save_pdf_dropdown.png')
+        if arrow_down is None:
+            return
+        pyautogui.click(arrow_down.x, arrow_down.y)
+        press_key(key_combination='down', repetitions=1)
+        press_key(key_combination='enter')
+
+    @staticmethod
+    def click_light_bulb(attempts: int = 5) -> None:
         """
         Clicks the light bulb in the OCR image improvement tools
         """
-        result = pyautogui.locateCenterOnScreen('light_bulb.png')
-        if result is not None:
-            pyautogui.click(result.x, result.y)
+        i = 0
+        while i < attempts:
+            result = pyautogui.locateCenterOnScreen('light_bulb.png')
+            if result is not None:
+                pyautogui.click(result.x, result.y)
+                return
+            i += 1
+
+    @staticmethod
+    def click_ocr_file_icon(attempts: int = 5) -> None:
+        """
+        Clicks the OCR file icon
+        """
+        i = 0
+        while i < attempts:
+            x, y = pyautogui.locateCenterOnScreen("ocr_file_icon.png")
+            if x is not None and y is not None:
+                pyautogui.click(x, y)
+                return
+            i += 1
+
+    @staticmethod
+    def click_ocr_pages_header(attempts: int = 5) -> None:
+        """
+        Clicks the OCR pages header
+        """
+        i = 0
+        while i < attempts:
+            result = pyautogui.locateOnScreen("ocr_pages_header.png")
+            if result is not None:
+                pyautogui.click(result.left + 10, result.top + 10)
+                return
+            i += 1
+
+    @staticmethod
+    def click_ocr_language_selection(attempts: int = 5) -> None:
+        """
+        Clicks the OCR option icon in the options menu
+        :return:
+        """
+        i = 0
+        while i < attempts:
+            result = pyautogui.locateCenterOnScreen('ocr_language_selection.png')
+            result_selected = pyautogui.locateCenterOnScreen('ocr_language_selection_selected.png')
+            if result is not None:
+                pyautogui.click(result.x, result.y)
+                return
+            if result_selected is not None:
+                pyautogui.click(result_selected.x, result_selected.y)
+                return
+            i += 1
+
+    @staticmethod
+    def click_ocr_page_recognition_icon(attempts: int = 5):
+        """
+        Clicks the OCR page recognition icon
+        """
+        i = 0
+        while i < attempts:
+            result = pyautogui.locateCenterOnScreen('ocr_page_recognition.png')
+            if result is not None:
+                pyautogui.click(result.x, result.y)
+                return
+            i += 1

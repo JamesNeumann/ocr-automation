@@ -87,8 +87,13 @@ class WaitingProcedures:
         focused_closed_button_visible = pyautogui.locateOnScreen('close_dialog_button.png')
         if focused_closed_button_visible is not None:
             return True
+
         close_button_visible = pyautogui.locateOnScreen('close_dialog_button_not_focused.png')
         if close_button_visible is not None:
+            return True
+
+        highlighted_button_visible = pyautogui.locateOnScreen('close_dialog_button_highlighted.png')
+        if highlighted_button_visible is not None:
             return True
         return False
 

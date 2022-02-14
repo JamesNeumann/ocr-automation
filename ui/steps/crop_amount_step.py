@@ -71,3 +71,4 @@ class CropAmountStep(Step):
         self.crop_amount_selection.show_pix_map()
 
         self.progress_bar.hide()
+        self.window().activateWindow()

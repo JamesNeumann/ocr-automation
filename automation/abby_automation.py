@@ -4,14 +4,10 @@ import time
 from typing import Callable, List
 from uuid import UUID
 
-import pyautogui
-
 from automation.procedures.general_procedures import GeneralProcedures
 from automation.procedures.ocr_procedures import OcrProcedures
 from automation.procedures.waiting_procedures import WaitingProcedures
-from utils.analyze_pdf import get_crop_box
-from utils.console import console
-from utils.keyboard_util import press_key
+from utils.keyboard_util import press_key, write
 from utils.rectangle import Rectangle
 
 
@@ -67,18 +63,38 @@ class AbbyAutomation:
         """
         if should_tab_in:
             press_key(key_combination='alt+tab', delay_in_seconds=1)
-        AbbyAutomation.click_ocr_file_icon()
+        GeneralProcedures.click_ocr_file_icon()
         press_key(key_combination='alt+e+s')
         press_key(key_combination='ctrl+i')
 
     @staticmethod
-    def click_ocr_file_icon() -> None:
+    def close_image_improvement_tools() -> None:
         """
-        Clicks the OCR file icon
+        Closes the OCR improvement tools
         """
-        x, y = pyautogui.locateCenterOnScreen("ocr_file_icon.png")
-        if x is not None and y is not None:
-            pyautogui.click(x, y)
+        press_key(key_combination='ctrl+i')
+
+    @staticmethod
+    def run_ocr(languages: str) -> None:
+        GeneralProcedures.click_ocr_file_icon()
+        AbbyAutomation.close_image_improvement_tools()
+        time.sleep(0.5)
+        press_key(key_combination='alt+k')
+        press_key(key_combination='i')
+        time.sleep(0.5)
+        GeneralProcedures.click_ocr_language_selection()
+        press_key(key_combination='alt+s', delay_in_seconds=0.3)
+        press_key(key_combination='shift+tab', delay_in_seconds=0.3)
+        write(text=languages)
+        press_key(key_combination='enter', repetitions=2, delay_in_seconds=0.3)
+        press_key(key_combination='tab', repetitions=7, delay_in_seconds=0.1)
+        press_key(key_combination='enter')
+        GeneralProcedures.click_ocr_pages_header()
+        press_key(key_combination='ctrl+a')
+        GeneralProcedures.click_ocr_page_recognition_icon()
+        WaitingProcedures.wait_until_close_button_visible()
+        press_key(key_combination='alt+shift+s', delay_in_seconds=0.3)
+        GeneralProcedures.open_save_pdf_dialog()
 
     @staticmethod
     def do_optimization(procedures: List[Callable], iterations: int, progress_callback: Callable[[int], None]) \
