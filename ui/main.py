@@ -1,4 +1,3 @@
-import os
 from uuid import UUID
 
 from PyQt6.QtWidgets import QWidget, QStackedLayout, QMainWindow
@@ -82,24 +81,6 @@ class MainWindow(QMainWindow):
             self.layout.setCurrentIndex(1)
             self.open_abby_step.start()
 
-    def open_abby(self):
-        if self.file_selection_step.file_selection.selected_file_name != "":
-            abs_path = os.path.abspath(self.file_selection_step.file_selection.file_path())
-            abs_path = os.path.abspath("C:\\Users\\janne\\Downloads\\tmpl=s_t.pdf")
-
-            AbbyAutomation.open_abby_and_ocr_editor(path_to_pdf=abs_path)
-            # AbbyAutomation.open_pdf_in_abby(path_to_pdf=abs_path)
-            self.layout.setCurrentIndex(2)
-
-            # if self.file_selection_step.file_selection.selected_file_name != "":
-        #     self.file_selection_step.progress_bar.show()
-        #     self.file_selection_step.progress_bar.setValue(0)
-        #
-        #     self.rectangle = get_crop_box(self.file_selection_step.file_selection.file_path(),
-        #                                   self.file_selection_step.progress_bar, offset=80)
-        #     abs_path = os.path.abspath(self.file_selection_step.file_selection.file_path())
-        #     self.layout.setCurrentIndex(1)
-
     def open_crop_step(self, file_name: UUID):
         self.layout.setCurrentIndex(3)
         self.crop_amount_step.open_pdf_pages(f"{AbbyAutomation.TEMP_PATH}\\{str(file_name)}.pdf")
@@ -107,9 +88,6 @@ class MainWindow(QMainWindow):
     def crop_pdf(self):
         self.crop_running_step.start(self.crop_amount_step.path_to_pdf,
                                      self.crop_amount_step.crop_amount_selection.get_pts_rectangle())
-        # console.log("Calculated: ", self.crop_amount_step.crop_amount_selection.get_pts_rectangle())
-        # rectangle, _ = get_crop_box(self.crop_amount_step.path_to_pdf)
-        # console.log("Needed: ", rectangle)
         self.layout.setCurrentIndex(4)
 
     def open_ocr_editor(self):
@@ -127,10 +105,6 @@ class MainWindow(QMainWindow):
 
     def do_optimization(self):
         self.procedures_step.start()
-        # names = self.procedures_step.procedure_selection.get_selected_procedures()
-        # procedures = OcrProcedures.get_procedures(names)
-        # iterations = self.procedures_step.procedure_selection.get_iteration_amount()
-        # AbbyAutomation.do_optimization(procedures, iterations)
 
     def do_ocr(self):
         self.layout.setCurrentIndex(6)
