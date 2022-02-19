@@ -7,6 +7,7 @@ from rich.panel import Panel
 from automation.procedures.waiting_procedures import WaitingProcedures
 from utils.console import console
 from utils.keyboard_util import press_key, write
+from utils.screen import Screen
 
 
 class GeneralProcedures:
@@ -59,10 +60,11 @@ class GeneralProcedures:
 
         :returns The path to file and the file name
         """
-        temp_path = '%userprofile%\\AppData\\Local\\Temp'
+        temp_path = '%userprofile%\\AppData\\Local\\Temp\\AbbyAutomation'
 
         console.log("Saving temp pdf...")
-        arrow_down = pyautogui.locateCenterOnScreen('save_pdf_dropdown.png')
+        arrow_down = Screen.locate_center_on_screen('save_pdf_dropdown.png')
+        # arrow_down = pyautogui.locateCenterOnScreen('/images/save_pdf_dropdown.png')
         if arrow_down is None:
             return
         pyautogui.click(arrow_down.x, arrow_down.y)
@@ -73,6 +75,8 @@ class GeneralProcedures:
         time.sleep(0.5)
         temp_uuid = uuid.uuid4()
         write(text=f'{temp_uuid}.pdf')
+        press_key(key_combination='tab', repetitions=2)
+        press_key(key_combination='-')
         press_key(key_combination='enter', delay_in_seconds=0.5)
         press_key(key_combination='tab')
         press_key(key_combination='enter', delay_in_seconds=1)
@@ -93,12 +97,13 @@ class GeneralProcedures:
         """
         Opens the save PDF dialog for saving a searchable PDF
         """
-        arrow_down = pyautogui.locateCenterOnScreen('save_pdf_dropdown.png')
+        # arrow_down = pyautogui.locateCenterOnScreen('save_pdf_dropdown.png')
+        arrow_down = Screen.locate_center_on_screen('save_pdf_dropdown.png')
         if arrow_down is None:
             return
         pyautogui.click(arrow_down.x, arrow_down.y)
         press_key(key_combination='down', repetitions=1)
-        press_key(key_combination='enter')
+        press_key(key_combination='enter', delay_in_seconds=0.5)
 
     @staticmethod
     def click_light_bulb(attempts: int = 5) -> None:
@@ -107,7 +112,8 @@ class GeneralProcedures:
         """
         i = 0
         while i < attempts:
-            result = pyautogui.locateCenterOnScreen('light_bulb.png')
+            # result = pyautogui.locateCenterOnScreen('light_bulb.png')
+            result = Screen.locate_center_on_screen('light_bulb.png')
             if result is not None:
                 pyautogui.click(result.x, result.y)
                 return
@@ -120,7 +126,8 @@ class GeneralProcedures:
         """
         i = 0
         while i < attempts:
-            x, y = pyautogui.locateCenterOnScreen("ocr_file_icon.png")
+            # x, y = pyautogui.locateCenterOnScreen("ocr_file_icon.png")
+            x, y = Screen.locate_center_on_screen('ocr_file_icon.png')
             if x is not None and y is not None:
                 pyautogui.click(x, y)
                 return
@@ -133,7 +140,8 @@ class GeneralProcedures:
         """
         i = 0
         while i < attempts:
-            result = pyautogui.locateOnScreen("ocr_pages_header.png")
+            # result = pyautogui.locateOnScreen("ocr_pages_header.png")
+            result = Screen.locate_on_screen("ocr_pages_header.png")
             if result is not None:
                 pyautogui.click(result.left + 10, result.top + 10)
                 return
@@ -147,8 +155,10 @@ class GeneralProcedures:
         """
         i = 0
         while i < attempts:
-            result = pyautogui.locateCenterOnScreen('ocr_language_selection.png')
-            result_selected = pyautogui.locateCenterOnScreen('ocr_language_selection_selected.png')
+            # result = pyautogui.locateCenterOnScreen('ocr_language_selection.png')
+            result = Screen.locate_center_on_screen('ocr_language_selection.png')
+            # result_selected = pyautogui.locateCenterOnScreen('ocr_language_selection_selected.png')
+            result_selected = Screen.locate_center_on_screen('ocr_language_selection_selected.png')
             if result is not None:
                 pyautogui.click(result.x, result.y)
                 return
@@ -164,7 +174,8 @@ class GeneralProcedures:
         """
         i = 0
         while i < attempts:
-            result = pyautogui.locateCenterOnScreen('ocr_page_recognition.png')
+            # result = pyautogui.locateCenterOnScreen('ocr_page_recognition.png')
+            result = Screen.locate_center_on_screen('ocr_page_recognition.png')
             if result is not None:
                 pyautogui.click(result.x, result.y)
                 return

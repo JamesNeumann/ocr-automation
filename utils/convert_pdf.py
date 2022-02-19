@@ -1,6 +1,5 @@
 import multiprocessing
-import shutil
-import tempfile
+import os
 from time import time
 from typing import List, Callable
 
@@ -11,10 +10,11 @@ from numpy import ndarray
 from pdf2image import convert_from_path
 from rich.progress import track
 
+from automation.abby_automation import AbbyAutomation
 from utils.console import console
 
 
-def convert_pdf_to_image(path_to_pdf: str) -> (List[Image], float, float, str):
+def convert_pdf_to_image(path_to_pdf: str, attempts: int = 5) -> (List[Image], float, float, str):
     """
     Converts each page of the given PDF to an image
 
@@ -22,22 +22,33 @@ def convert_pdf_to_image(path_to_pdf: str) -> (List[Image], float, float, str):
     :return list of all images and the width and height in pts
     """
     converted_images = None
+    pdf_file_reader = None
+    i = 0
+    while i < attempts:
+        try:
+            pdf_file_reader = PdfFileReader(open(path_to_pdf, "rb"))
+            if pdf_file_reader is not None:
+                break
+        except FileNotFoundError as e:
+            console.log(e)
+        i += 1
 
-    pdf_file_reader = PdfFileReader(open(path_to_pdf, "rb"))
+    if pdf_file_reader is None:
+        console.log('[red]PDF konnte nicht gefunden werden')
     _, _, upper_left, upper_right = pdf_file_reader.getPage(0).mediaBox
     start_time = time()
     console.log(f"{path_to_pdf} is being converted")
+    temp_path = os.path.join(AbbyAutomation.TEMP_PATH, AbbyAutomation.ABBY_AUTOMATION_TEMP_FOLDER)
     try:
-        temp_path = None
-        with tempfile.TemporaryDirectory() as path:
-            temp_path = path
-            converted_images = convert_from_path(
-                pdf_path=path_to_pdf,
-                output_folder=path,
-                poppler_path="./Poppler/Library/bin",
-                thread_count=multiprocessing.cpu_count(),
-                jpegopt=True
-            )
+        if not os.path.exists(temp_path):
+            os.makedirs(temp_path)
+        converted_images = convert_from_path(
+            pdf_path=path_to_pdf,
+            output_folder=temp_path,
+            poppler_path="./Poppler/Library/bin",
+            thread_count=multiprocessing.cpu_count(),
+            jpegopt=True
+        )
         console.log(f"Needed {time() - start_time} seconds to convert {path_to_pdf} to images")
     except Exception as e:
         console.log(e, e)
@@ -46,7 +57,7 @@ def convert_pdf_to_image(path_to_pdf: str) -> (List[Image], float, float, str):
 
 
 def convert_pil_images_to_cv2_format(pil_images: List[Image], progress_callback: Callable[[int], None]) -> List[
-        ndarray]:
+    ndarray]:
     """
     Converts Image in PIL format to cv2 format
 

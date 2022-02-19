@@ -1,19 +1,24 @@
 import os
-import subprocess
+import shutil
 import time
 from typing import Callable, List
 from uuid import UUID
+
+import pyautogui
 
 from automation.procedures.general_procedures import GeneralProcedures
 from automation.procedures.ocr_procedures import OcrProcedures
 from automation.procedures.waiting_procedures import WaitingProcedures
 from utils.keyboard_util import press_key, write
 from utils.rectangle import Rectangle
+from utils.screen import Screen
 
 
 class AbbyAutomation:
     TEMP_PATH = os.environ['USERPROFILE'] + "\\AppData\\Local\\Temp"
+    ABBY_AUTOMATION_TEMP_FOLDER = "AbbyAutomation"
     ABBY_EXE_PATH = 'D:\\Software\\Abby Finereader 15\\ABBYY FineReader 15\\FineReader.exe'
+    ABBY_LNK_PATH = 'C:\\ProgramData\\Microsoft\Windows\\Start Menu\\Programs\\ABBYY FineReader PDF 15\\ABBYY FineReader PDF 15.lnk'
     OPEN_INSTANCES = []
     CURR_INSTANCE = None
 
@@ -38,9 +43,17 @@ class AbbyAutomation:
         :param abby_exe_path: Path to the abby exe
         """
 
-        p_open = subprocess.Popen([abby_exe_path, path_to_pdf])
-        AbbyAutomation.OPEN_INSTANCES.append(p_open)
-        AbbyAutomation.CURR_INSTANCE = p_open
+        # p_open = subprocess.Popen([abby_exe_path, path_to_pdf])
+        # AbbyAutomation.OPEN_INSTANCES.append(p_open)
+        # AbbyAutomation.CURR_INSTANCE = p_open
+
+        os.startfile(os.path.abspath(AbbyAutomation.ABBY_LNK_PATH))
+        WaitingProcedures.wait_until_open_pdf_is_visible()
+        x, y = Screen.locate_center_on_screen('open_pdf.png')
+        pyautogui.click(x, y)
+        time.sleep(0.5)
+        write(os.path.abspath(path_to_pdf))
+        press_key(key_combination='enter')
 
     @staticmethod
     def open_ocr_editor() -> None:
@@ -92,9 +105,8 @@ class AbbyAutomation:
         GeneralProcedures.click_ocr_pages_header()
         press_key(key_combination='ctrl+a')
         GeneralProcedures.click_ocr_page_recognition_icon()
-        WaitingProcedures.wait_until_close_button_visible()
+        WaitingProcedures.wait_until_ocr_is_finished()
         press_key(key_combination='alt+shift+s', delay_in_seconds=0.3)
-        GeneralProcedures.open_save_pdf_dialog()
 
     @staticmethod
     def do_optimization(procedures: List[Callable], iterations: int, progress_callback: Callable[[int], None]) \
@@ -125,6 +137,12 @@ class AbbyAutomation:
         return path, file_name
 
     @staticmethod
+    def save_pdf(path: str):
+        GeneralProcedures.open_save_pdf_dialog()
+        write(path)
+        press_key(key_combination="enter")
+
+    @staticmethod
     def crop_pdf(path_to_pdf: str, crop_rectangle: Rectangle):
         AbbyAutomation.open_abby_and_ocr_editor(path_to_pdf=path_to_pdf)
         AbbyAutomation.open_image_improvement_tools(should_tab_in=False)
@@ -133,3 +151,19 @@ class AbbyAutomation:
         GeneralProcedures.click_light_bulb()
         OcrProcedures.do_crop_pdf(crop_rectangle.x, crop_rectangle.y, crop_rectangle.width, crop_rectangle.height,
                                   should_tab_in=False)
+
+    @staticmethod
+    def clean_up():
+        os.system("taskkill /f /im FineReader.exe")
+        os.system("taskkill /f /im FineReaderOCR.exe")
+        time.sleep(2)
+        folder = os.path.join(AbbyAutomation.TEMP_PATH, AbbyAutomation.ABBY_AUTOMATION_TEMP_FOLDER)
+        for filename in os.listdir(folder):
+            file_path = os.path.join(folder, filename)
+            try:
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+            except Exception as e:
+                print('Failed to delete %s. Reason: %s' % (file_path, e))

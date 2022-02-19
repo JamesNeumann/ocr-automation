@@ -61,6 +61,7 @@ class CropAmountStep(Step):
 
     def update_ui(self, images: list, pts_width: int, pts_height: int, crop_box: Rectangle):
         self.crop_amount_selection.reset()
+        self.label.setText("<h1>Wie soll die PDF zugeschnitten werden?")
         self.crop_amount_selection.set_images(images)
         self.crop_amount_selection.set_width(images[0].shape[1])
         self.crop_amount_selection.set_height(images[0].shape[0])
@@ -69,6 +70,5 @@ class CropAmountStep(Step):
         self.crop_amount_selection.set_pts_height_per_pixel(pts_height / images[0].shape[0])
         self.crop_amount_selection.set_spinner_max()
         self.crop_amount_selection.show_pix_map()
-
         self.progress_bar.hide()
         self.window().activateWindow()

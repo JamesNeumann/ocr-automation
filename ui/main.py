@@ -1,16 +1,20 @@
+import os
 from uuid import UUID
 
 from PyQt6.QtWidgets import QWidget, QStackedLayout, QMainWindow
+from rich.panel import Panel
 
 from automation.abby_automation import AbbyAutomation
 from ui.steps.crop_amount_step import CropAmountStep
 from ui.steps.crop_running_step import CropRunningStep
+from ui.steps.file_name_selection_step import FileNameSelectionStep
 from ui.steps.file_selection_step import FileSelectionStep
 from ui.steps.ocr_language_selection_step import OcrLanguageSelectionStep
 from ui.steps.ocr_running_step import OcrRunningStep
 from ui.steps.open_abby_step import OpenAbbyStep
 from ui.steps.procedure_selection_step import ProcedureSelectionStep
 from ui.steps.step import Step
+from utils.console import console
 
 
 class MainWindow(QMainWindow):
@@ -40,14 +44,15 @@ class MainWindow(QMainWindow):
         self.procedures_step.finished.connect(lambda file_name: self.open_crop_step(file_name))
 
         self.crop_amount_step = CropAmountStep(
-            text="Wie soll die PDF zugeschnitten werden?",
+            text="Die PDF wird analysiert",
             next_callback=self.crop_pdf
         )
 
         self.crop_running_step = CropRunningStep(
             text="Die PDF wird zugeschnitten"
         )
-        self.crop_running_step.finished.connect(lambda: self.layout.setCurrentIndex(5))
+        self.crop_running_step.finished.connect(
+            lambda: (self.layout.setCurrentIndex(5), self.window().activateWindow()))
 
         self.ocr_language_selection_step = OcrLanguageSelectionStep(
             text="Wähle die OCR-Sprachen für die PDF",
@@ -55,9 +60,32 @@ class MainWindow(QMainWindow):
         )
 
         self.ocr_running_step = OcrRunningStep(text="OCR läuft")
-        self.ocr_running_step.finished.connect(lambda: (print("finished"), self.layout.setCurrentIndex(7)))
 
-        self.finished_step = Step(text="Alle Schritte abgeschlossen. Die PDF kann nun gespeichert werden.")
+        self.ocr_running_step.finished.connect(
+            lambda: (
+                console.log(Panel("[green]OCR Finished")), self.layout.setCurrentIndex(7),
+                self.window().activateWindow()))
+
+        self.ocr_finished_step = Step(text="OCR abgeschlossen. Bitte überprüfen und dann auf weiter.",
+                                      next_callback=lambda: self.layout.setCurrentIndex(8))
+
+        self.choose_save_location_step = FileNameSelectionStep(
+            text="Wähle Speicherort und Name der PDF",
+            next_callback=self.save_pdf
+        )
+
+        self.save_running_step = Step(
+            text="PDF wird gespeichert",
+            next_callback=self.clean_up
+        )
+
+        self.finished_step = Step(
+            text="Fertig!",
+            next_callback=lambda: exit(0),
+            next_text="Schließen",
+            previous_callback=lambda: self.layout.setCurrentIndex(0),
+            previous_text="Neue PDF verarbeiten"
+        )
 
         self.layout.addWidget(self.file_selection_step)
         self.layout.addWidget(self.open_abby_step)
@@ -66,8 +94,10 @@ class MainWindow(QMainWindow):
         self.layout.addWidget(self.crop_running_step)
         self.layout.addWidget(self.ocr_language_selection_step)
         self.layout.addWidget(self.ocr_running_step)
+        self.layout.addWidget(self.ocr_finished_step)
+        self.layout.addWidget(self.choose_save_location_step)
+        self.layout.addWidget(self.save_running_step)
         self.layout.addWidget(self.finished_step)
-
         self.layout.setCurrentIndex(0)
 
         widget = QWidget()
@@ -83,7 +113,11 @@ class MainWindow(QMainWindow):
 
     def open_crop_step(self, file_name: UUID):
         self.layout.setCurrentIndex(3)
-        self.crop_amount_step.open_pdf_pages(f"{AbbyAutomation.TEMP_PATH}\\{str(file_name)}.pdf")
+        self.window().activateWindow()
+        path = os.path.abspath(
+            f"{AbbyAutomation.TEMP_PATH}\\{AbbyAutomation.ABBY_AUTOMATION_TEMP_FOLDER}\\{str(file_name)}.pdf")
+        console.log(path)
+        self.crop_amount_step.open_pdf_pages(path)
 
     def crop_pdf(self):
         self.crop_running_step.start(self.crop_amount_step.path_to_pdf,
@@ -110,3 +144,15 @@ class MainWindow(QMainWindow):
         self.layout.setCurrentIndex(6)
         languages = self.ocr_language_selection_step.get_selected_language()
         self.ocr_running_step.start(languages)
+
+    def save_pdf(self):
+        self.layout.setCurrentIndex(9)
+        folder = self.choose_save_location_step.folder_selection.selected_folder
+        file_name = self.choose_save_location_step.file_name_field.text()
+        suffix = "" if ".pdf" in file_name else ".pdf"
+        path = os.path.abspath(folder + "\\" + file_name + suffix)
+        AbbyAutomation.save_pdf(path)
+
+    def clean_up(self):
+        AbbyAutomation.clean_up()
+        self.layout.setCurrentIndex(10)

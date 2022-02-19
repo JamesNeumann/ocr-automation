@@ -8,12 +8,12 @@ class Step(QWidget):
     def __init__(self, *, text: str, previous_text="Zurück", previous_callback=None, next_text="Weiter",
                  next_callback=None, detail: str = ""):
         super().__init__()
-
+        self.text = text
         self.layout = QGridLayout()
-        header = f'<h1 >{text}</h1>'
-        label = QLabel(header)
-        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.layout.addWidget(label, 1, 0, 1, 4)
+        self.header = f'<h1 >{self.text}</h1>'
+        self.label = QLabel(self.header)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.layout.addWidget(self.label, 1, 0, 1, 4)
         detail = f'<p>{detail}</p>'
         self.layout.addWidget(QLabel(detail), 2, 2)
 
