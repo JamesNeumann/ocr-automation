@@ -19,7 +19,7 @@ class OpenAbbyWorker(QRunnable):
 
     @pyqtSlot()
     def run(self) -> None:
-        AbbyAutomation.open_abby_and_ocr_editor(path_to_pdf=self.path_to_pdf)
+        AbbyAutomation.open_pdf_in_abby_ocr_editor(path_to_pdf=self.path_to_pdf)
         self.signals.finished.emit()
 
 

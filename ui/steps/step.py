@@ -29,4 +29,5 @@ class Step(QWidget):
 
         self.setLayout(self.layout)
 
-
+    def reset(self):
+        pass

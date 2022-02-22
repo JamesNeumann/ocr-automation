@@ -1,3 +1,4 @@
+import os.path
 import time
 
 from utils.console import console
@@ -35,6 +36,7 @@ class WaitingProcedures:
     def wait_until_ocr_is_finished() -> None:
         WaitingProcedures.wait_until_ocr_not_done_is_visible()
         time.sleep(1)
+        WaitingProcedures.wait_until_ocr_not_done_is_not_visible()
 
     @staticmethod
     def wait_until_ocr_not_done_is_visible() -> None:
@@ -44,6 +46,14 @@ class WaitingProcedures:
         console.log("Waiting until OCR is finished...")
         ocr_not_finished = Screen.locate_on_screen('ocr_not_done.png')
         while ocr_not_finished is None:
+            console.log("Waiting until OCR is finished...")
+            ocr_not_finished = Screen.locate_on_screen('ocr_not_done.png')
+
+    @staticmethod
+    def wait_until_ocr_not_done_is_not_visible() -> None:
+        console.log("Waiting until OCR is finished...")
+        ocr_not_finished = Screen.locate_on_screen('ocr_not_done.png')
+        while ocr_not_finished is not None:
             console.log("Waiting until OCR is finished...")
             ocr_not_finished = Screen.locate_on_screen('ocr_not_done.png')
 
@@ -61,16 +71,18 @@ class WaitingProcedures:
         console.log("Close button is visible")
 
     @staticmethod
-    def wait_until_saving_pdf_is_finished() -> None:
+    def wait_until_saving_pdf_is_finished(pdf_path: str) -> None:
         """
         Wait until saving PDF is finished
         """
         console.log("Waiting for PDF to be saved...")
         finished = WaitingProcedures.is_undo_redo_ocr_greyed_out_visible()
-        while not finished:
+        file_exists = os.path.isfile(pdf_path)
+        while not finished and not file_exists:
             console.log("Waiting for PDF to be saved...")
             time.sleep(0.5)
             finished = WaitingProcedures.is_undo_redo_ocr_greyed_out_visible()
+            file_exists = os.path.isfile(pdf_path)
 
     @staticmethod
     def wait_until_open_pdf_is_visible():

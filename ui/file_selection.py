@@ -30,3 +30,8 @@ class FileSelection(QWidget):
 
     def file_path(self):
         return self.file_folder + "/" + self.selected_file_name
+
+    def reset(self):
+        self.selected_file_name = ""
+        self.file_folder = ""
+        self.selected_file_label.setText("")

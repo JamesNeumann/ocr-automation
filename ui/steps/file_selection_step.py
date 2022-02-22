@@ -1,5 +1,3 @@
-from PyQt6.QtCore import pyqtSignal
-
 from ui.file_selection import FileSelection
 from ui.progress_bar import ProgressBar
 from ui.steps.step import Step
@@ -19,3 +17,6 @@ class FileSelectionStep(Step):
         self.progress_bar = ProgressBar()
         self.progress_bar.hide()
         self.layout.addWidget(self.progress_bar, 3, 0, 3, 4)
+
+    def reset(self):
+        self.file_selection.reset()

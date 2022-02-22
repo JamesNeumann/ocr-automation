@@ -20,3 +20,6 @@ class FolderSelection(QWidget):
         self.selected_folder = QFileDialog.getExistingDirectory(self, "Wähle einen Ordner")
         self.selected_folder_label.setText(self.selected_folder)
 
+    def reset(self):
+        self.selected_folder = ""
+        self.selected_folder_label.setText("")

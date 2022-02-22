@@ -25,7 +25,7 @@ class ProcedureWorker(QRunnable):
     @pyqtSlot()
     def run(self):
         _, filename = AbbyAutomation.do_optimization(self.procedures, self.iterations,
-                                                        lambda value: self.signals.progress.emit(value))
+                                                     lambda value: self.signals.progress.emit(value))
 
         self.signals.finished.emit(filename)
 
@@ -58,3 +58,8 @@ class ProcedureSelectionStep(Step):
         self.worker.signals.progress.connect(lambda value: self.progressbar.setValue(math.floor(value)))
         self.worker.signals.finished.connect(lambda file_name: self.finished.emit(file_name))
         self.threadpool.start(self.worker)
+
+    def reset(self):
+        self.procedure_selection.reset()
+        self.progressbar.hide()
+        self.progressbar.setValue(0)

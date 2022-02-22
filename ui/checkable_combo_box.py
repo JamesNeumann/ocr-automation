@@ -119,3 +119,8 @@ class CheckableComboBox(QComboBox):
             if self.model().item(i).checkState() == QtCore.Qt.CheckState.Checked:
                 res.append(self.model().item(i).data())
         return res
+
+    def reset(self):
+        self.lineEdit().setText("")
+        for i in range(self.model().rowCount()):
+            self.model().item(i).setData(QtCore.Qt.CheckState.Unchecked, QtCore.Qt.ItemDataRole.CheckStateRole)

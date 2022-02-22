@@ -140,10 +140,6 @@ class CropAmountSelection(QWidget):
             self.update_pixmap(self.curr_image_index)
         self.update_button_state()
 
-    def reset(self):
-        self.curr_image_index = 0
-        self.images = []
-
     def show_pix_map(self):
         if self.isHidden():
             self.show()
@@ -167,7 +163,7 @@ class CropAmountSelection(QWidget):
     def bottom_spinbox_changed(self, value: int):
         pixel = pts_to_pixel(value, self.pts_per_height)
         if self.rectangle.height + pixel < self.height:
-            self.offset_bottom = pixel
+            self.offset_bottom = max(pixel, 0)
             self.update_pixmap(self.curr_image_index)
 
     def left_spinbox_changed(self, value: int):
@@ -179,7 +175,7 @@ class CropAmountSelection(QWidget):
     def right_spinbox_changed(self, value: int):
         pixel = pts_to_pixel(value, self.pts_per_width)
         if self.rectangle.width + pixel < self.width:
-            self.offset_right = pixel
+            self.offset_right = max(pixel, 0)
             self.update_pixmap(self.curr_image_index)
 
     def set_images(self, images: List[ndarray]) -> None:
@@ -219,3 +215,22 @@ class CropAmountSelection(QWidget):
             convert_to_pts(min(self.rectangle.height - self.rectangle.y + self.offset_top + self.offset_bottom,
                                self.height) * self.pts_per_height)
         )
+
+    def reset(self):
+        self.images = []
+        self.curr_image_index = 0
+        self.q_images = []
+        self.rectangle = None
+        self.pts_per_width = 0
+        self.pts_per_height = 0
+        self.width = 0
+        self.height = 0
+        self.offset_top = 0
+        self.offset_bottom = 0
+        self.offset_left = 0
+        self.offset_right = 0
+
+        self.top_offset_spinbox.setValue(0)
+        self.bottom_offset_spinbox.setValue(0)
+        self.left_offset_spinbox.setValue(0)
+        self.right_offset_spinbox.setValue(0)

@@ -1,27 +1,31 @@
-from PyQt6.QtCore import QRunnable, pyqtSignal, pyqtSlot, QThreadPool, QObject
+from PyQt6.QtCore import pyqtSignal, QObject, QRunnable, pyqtSlot, QThreadPool
 
 from automation.abby_automation import AbbyAutomation
 from ui.progress_bar import ProgressBar
 from ui.steps.step import Step
+from utils.edit_metadata import set_standard_metadata
+from utils.file_utils import wait_until_file_is_unlocked
 
 
-class OcrRunningWorkerSignals(QObject):
+class SavePDFRunningSignals(QObject):
     finished = pyqtSignal()
 
 
-class OcrRunningWorker(QRunnable):
-    def __init__(self, languages: str):
-        super(OcrRunningWorker, self).__init__()
-        self.signals = OcrRunningWorkerSignals()
-        self.languages = languages
+class SavePDFRunningWorker(QRunnable):
+    def __init__(self, pdf_path):
+        super(SavePDFRunningWorker, self).__init__()
+        self.signals = SavePDFRunningSignals()
+        self.pdf_path = pdf_path
 
     @pyqtSlot()
-    def run(self):
-        AbbyAutomation.run_ocr(self.languages)
+    def run(self) -> None:
+        AbbyAutomation.save_pdf(self.pdf_path)
+        wait_until_file_is_unlocked(self.pdf_path)
+        set_standard_metadata(self.pdf_path)
         self.signals.finished.emit()
 
 
-class OcrRunningStep(Step):
+class SavePDFRunningStep(Step):
     finished = pyqtSignal()
 
     def __init__(self, *, text: str, previous_text="Zurück", previous_callback=None, next_text="Weiter",
@@ -41,7 +45,7 @@ class OcrRunningStep(Step):
         self.threadpool = QThreadPool()
         self.worker = None
 
-    def start(self, languages):
-        self.worker = OcrRunningWorker(languages)
+    def start(self, path_to_pdf):
+        self.worker = SavePDFRunningWorker(path_to_pdf)
         self.worker.signals.finished.connect(lambda: self.finished.emit())
         self.threadpool.start(self.worker)

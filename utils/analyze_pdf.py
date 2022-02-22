@@ -15,7 +15,7 @@ from utils.rectangle import Rectangle
 
 def get_pdf_pages_as_images(path_to_pdf: str, progress_callback: Callable[[int], None]) -> (
         List[ndarray], float, float):
-    images, pts_width, pts_height, _ = convert_pdf_to_image(path_to_pdf)
+    images, pts_width, pts_height = convert_pdf_to_image(path_to_pdf)
     cv2_images = convert_pil_images_to_cv2_format(images, progress_callback)
     return cv2_images, pts_width, pts_height
 
@@ -71,7 +71,7 @@ def get_crop_box(path_to_pdf: str, offsetLeft: int = 0,
     :return: The calculated crop box
     """
 
-    images, pts_width, pts_height, _ = convert_pdf_to_image(path_to_pdf)
+    images, pts_width, pts_height = convert_pdf_to_image(path_to_pdf)
     cv2_images = convert_pil_images_to_cv2_format(images, lambda value: print(value))
     file_id = uuid.uuid4()
     Path(f"./converted_files/{file_id}").mkdir(parents=True, exist_ok=True)

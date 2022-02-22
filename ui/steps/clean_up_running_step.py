@@ -1,27 +1,26 @@
-from PyQt6.QtCore import QRunnable, pyqtSignal, pyqtSlot, QThreadPool, QObject
+from PyQt6.QtCore import pyqtSignal, QObject, QRunnable, pyqtSlot, QThreadPool
 
 from automation.abby_automation import AbbyAutomation
 from ui.progress_bar import ProgressBar
 from ui.steps.step import Step
 
 
-class OcrRunningWorkerSignals(QObject):
+class CleanUpRunningSignals(QObject):
     finished = pyqtSignal()
 
 
-class OcrRunningWorker(QRunnable):
-    def __init__(self, languages: str):
-        super(OcrRunningWorker, self).__init__()
-        self.signals = OcrRunningWorkerSignals()
-        self.languages = languages
+class CleanUpRunningWorker(QRunnable):
+    def __init__(self):
+        super(CleanUpRunningWorker, self).__init__()
+        self.signals = CleanUpRunningSignals()
 
     @pyqtSlot()
-    def run(self):
-        AbbyAutomation.run_ocr(self.languages)
+    def run(self) -> None:
+        AbbyAutomation.clean_up()
         self.signals.finished.emit()
 
 
-class OcrRunningStep(Step):
+class CleanUpRunningStep(Step):
     finished = pyqtSignal()
 
     def __init__(self, *, text: str, previous_text="Zurück", previous_callback=None, next_text="Weiter",
@@ -41,7 +40,7 @@ class OcrRunningStep(Step):
         self.threadpool = QThreadPool()
         self.worker = None
 
-    def start(self, languages):
-        self.worker = OcrRunningWorker(languages)
+    def start(self):
+        self.worker = CleanUpRunningWorker()
         self.worker.signals.finished.connect(lambda: self.finished.emit())
         self.threadpool.start(self.worker)

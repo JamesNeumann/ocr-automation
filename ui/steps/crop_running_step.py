@@ -1,6 +1,7 @@
 from PyQt6.QtCore import QObject, pyqtSignal, QRunnable, QThreadPool, pyqtSlot
 
 from automation.abby_automation import AbbyAutomation
+from ui.progress_bar import ProgressBar
 from ui.steps.step import Step
 from utils.rectangle import Rectangle
 
@@ -33,6 +34,11 @@ class CropRunningStep(Step):
                          previous_callback=previous_callback,
                          next_text=next_text,
                          next_callback=next_callback, detail=detail)
+
+        self.progress_bar = ProgressBar(text_visible=False)
+        self.layout.addWidget(self.progress_bar, 2, 0, 2, 4)
+        self.progress_bar.setValue(100)
+
         self.worker = None
         self.threadpool = QThreadPool()
 

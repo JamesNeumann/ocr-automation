@@ -63,3 +63,8 @@ class ProcedureSelection(QWidget):
 
     def get_iteration_amount(self) -> int:
         return self.slider.value()
+
+    def reset(self):
+        for checkbox in self.procedures_group_box.findChildren(QCheckBox):
+            checkbox.setChecked(False)
+        self.slider.setValue(1)

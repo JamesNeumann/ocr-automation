@@ -21,3 +21,7 @@ class FileNameSelectionStep(Step):
         self.form = QFormLayout()
         self.form.addRow("Dateiname", self.file_name_field)
         self.layout.addLayout(self.form, 4, 0, 1, 4)
+
+    def reset(self):
+        self.folder_selection.reset()
+        self.file_name_field.setText("")

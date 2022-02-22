@@ -1,3 +1,4 @@
+import os
 import time
 import uuid
 
@@ -5,6 +6,7 @@ import pyautogui
 from rich.panel import Panel
 
 from automation.procedures.waiting_procedures import WaitingProcedures
+from config import ABBY_WORKING_DIR
 from utils.console import console
 from utils.keyboard_util import press_key, write
 from utils.screen import Screen
@@ -72,12 +74,12 @@ class GeneralProcedures:
         press_key(key_combination='enter')
         write(text=temp_path)
         press_key(key_combination='enter')
-        time.sleep(0.5)
         temp_uuid = uuid.uuid4()
-        write(text=f'{temp_uuid}.pdf')
+        write(text=f'{temp_uuid}.pdf', delay=0.1)
         press_key(key_combination='tab', repetitions=2)
         press_key(key_combination='-')
         press_key(key_combination='enter', delay_in_seconds=0.5)
+        time.sleep(5)
         press_key(key_combination='tab')
         press_key(key_combination='enter', delay_in_seconds=1)
         press_key(key_combination='tab', repetitions=7)
@@ -86,9 +88,7 @@ class GeneralProcedures:
         press_key(key_combination='enter', delay_in_seconds=0.5)
         press_key(key_combination='shift+tab')
         press_key(key_combination='enter', delay_in_seconds=0.5)
-        WaitingProcedures.wait_until_saving_pdf_is_finished()
-        time.sleep(1)
-        WaitingProcedures.wait_until_saving_pdf_is_finished()
+        WaitingProcedures.wait_until_saving_pdf_is_finished(os.path.join(ABBY_WORKING_DIR, f"{temp_uuid}.pdf"))
         console.log(Panel("[green]PDF saved"))
         return temp_path, temp_uuid
 

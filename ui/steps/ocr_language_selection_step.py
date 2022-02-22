@@ -77,3 +77,6 @@ class OcrLanguageSelectionStep(Step):
             for button in self.pre_defined_languages_group_box.findChildren(QRadioButton):
                 if button.isChecked():
                     return button.text()
+
+    def reset(self):
+        self.checkable_combo_box.reset()
