@@ -20,20 +20,6 @@ class WaitingProcedures:
             finished = WaitingProcedures.is_undo_redo_visible() or WaitingProcedures.is_close_button_visible()
 
     @staticmethod
-    def wait_until_abby_reader_is_opened() -> None:
-        """
-        Waits until Abby Reader has opened
-        """
-        console.log("Waiting for Abby to open...")
-        finished = WaitingProcedures.is_undo_redo_abby_greyed_out_visible()
-        while not finished:
-            console.log("Waiting for Abby to open...")
-            time.sleep(0.5)
-            finished = WaitingProcedures.is_undo_redo_abby_greyed_out_visible()
-        time.sleep(2)
-        console.log("Abby opened")
-
-    @staticmethod
     def wait_until_ocr_is_finished() -> None:
         """
         Waits until ocr is finished
@@ -104,16 +90,6 @@ class WaitingProcedures:
             console.log("Waiting for open PDF button to be visible")
             time.sleep(0.5)
             visible = WaitingProcedures.is_open_pdf_visible()
-
-    @staticmethod
-    def is_undo_redo_abby_greyed_out_visible() -> bool:
-        """
-        Checks if the undo redo button in the abby reader is visible and greyed out
-
-        :return Is visible or not
-        """
-        result_not_greyed_out = Screen.locate_on_screen('abby_reader_arrows.png')
-        return result_not_greyed_out is not None
 
     @staticmethod
     def is_undo_redo_ocr_greyed_out_visible() -> bool:
