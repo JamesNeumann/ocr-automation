@@ -65,16 +65,12 @@ class GeneralProcedures:
         path = f"{ABBY_WORKING_DIR}\\{temp_uuid}.pdf"
         GeneralProcedures._save_temp_pdf(path)
 
-        # while not os.path.isfile(path):
-        #     console.log("SAVING")
-
         return ABBY_WORKING_DIR, temp_uuid
 
     @staticmethod
     def _save_temp_pdf(path):
         console.log("Saving temp pdf...")
         arrow_down = Screen.locate_center_on_screen('save_pdf_dropdown.png')
-        # arrow_down = pyautogui.locateCenterOnScreen('/images/save_pdf_dropdown.png')
         if arrow_down is None:
             return
         pyautogui.click(arrow_down.x, arrow_down.y)
@@ -106,7 +102,6 @@ class GeneralProcedures:
         """
         Opens the save PDF dialog for saving a searchable PDF
         """
-        # arrow_down = pyautogui.locateCenterOnScreen('save_pdf_dropdown.png')
         arrow_down = Screen.locate_center_on_screen('save_pdf_dropdown.png')
         if arrow_down is None:
             return
@@ -121,7 +116,6 @@ class GeneralProcedures:
         """
         i = 0
         while i < attempts:
-            # result = pyautogui.locateCenterOnScreen('light_bulb.png')
             result = Screen.locate_center_on_screen('light_bulb.png')
             if result is not None:
                 pyautogui.click(result.x, result.y)
@@ -135,7 +129,6 @@ class GeneralProcedures:
         """
         i = 0
         while i < attempts:
-            # x, y = pyautogui.locateCenterOnScreen("ocr_file_icon.png")
             x, y = Screen.locate_center_on_screen('ocr_file_icon.png')
             if x is not None and y is not None:
                 pyautogui.click(x, y)
@@ -149,7 +142,6 @@ class GeneralProcedures:
         """
         i = 0
         while i < attempts:
-            # result = pyautogui.locateOnScreen("ocr_pages_header.png")
             result = Screen.locate_on_screen("ocr_pages_header.png")
             if result is not None:
                 pyautogui.click(result.left + 10, result.top + 10)
@@ -160,13 +152,10 @@ class GeneralProcedures:
     def click_ocr_language_selection(attempts: int = 5) -> None:
         """
         Clicks the OCR option icon in the options menu
-        :return:
         """
         i = 0
         while i < attempts:
-            # result = pyautogui.locateCenterOnScreen('ocr_language_selection.png')
             result = Screen.locate_center_on_screen('ocr_language_selection.png')
-            # result_selected = pyautogui.locateCenterOnScreen('ocr_language_selection_selected.png')
             result_selected = Screen.locate_center_on_screen('ocr_language_selection_selected.png')
             if result is not None:
                 pyautogui.click(result.x, result.y)
@@ -183,7 +172,6 @@ class GeneralProcedures:
         """
         i = 0
         while i < attempts:
-            # result = pyautogui.locateCenterOnScreen('ocr_page_recognition.png')
             result = Screen.locate_center_on_screen('ocr_page_recognition.png')
             if result is not None:
                 pyautogui.click(result.x, result.y)

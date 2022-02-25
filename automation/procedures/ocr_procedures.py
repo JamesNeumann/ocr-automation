@@ -76,6 +76,7 @@ class OcrProcedures:
     def get_available_procedures() -> Dict[str, Callable]:
         """
         Returns all available procedures and its names.
+        
         :return Mapping of procedure names and corresponding function
         """
         return {

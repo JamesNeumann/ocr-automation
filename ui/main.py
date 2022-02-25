@@ -133,8 +133,10 @@ class MainWindow(QMainWindow):
         self.window().activateWindow()
 
     def crop_pdf(self):
-        self.crop_running_step.start(self.crop_amount_step.path_to_pdf,
-                                     self.crop_amount_step.crop_amount_selection.get_pts_rectangle())
+        self.crop_running_step.start(
+            self.crop_amount_step.path_to_pdf,
+            self.crop_amount_step.crop_amount_selection.get_pts_rectangle()
+        )
         self.layout.setCurrentIndex(4)
 
     def open_image_improvement_tools(self):

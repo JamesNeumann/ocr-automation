@@ -54,6 +54,11 @@ class AbbyAutomation:
 
     @staticmethod
     def run_ocr(languages: str) -> None:
+        """
+        Runs ocr detection
+
+        :param languages: Languages which should be used for ocr
+        """
         GeneralProcedures.click_ocr_file_icon()
         AbbyAutomation.close_image_improvement_tools()
         time.sleep(0.5)
@@ -101,14 +106,25 @@ class AbbyAutomation:
         return path, file_name
 
     @staticmethod
-    def save_pdf(path: str):
+    def save_pdf(path: str) -> None:
+        """
+        Saves the pdf in the given folder
+
+        :param path: Path where the PDF should be saved
+        """
         GeneralProcedures.open_save_pdf_dialog()
         write(path)
         press_key(key_combination="enter")
         WaitingProcedures.wait_until_saving_pdf_is_finished(path)
 
     @staticmethod
-    def crop_pdf(path_to_pdf: str, crop_rectangle: Rectangle):
+    def crop_pdf(path_to_pdf: str, crop_rectangle: Rectangle) -> None:
+        """
+        Crops the given pdf
+
+        :param path_to_pdf: Path to the pdf that should be cropped
+        :param crop_rectangle: The crop rectangle
+        """
         AbbyAutomation.open_pdf_in_abby_ocr_editor(path_to_pdf=path_to_pdf)
         AbbyAutomation.open_image_improvement_tools(should_tab_in=False)
         time.sleep(0.5)
@@ -118,7 +134,10 @@ class AbbyAutomation:
                                   should_tab_in=False)
 
     @staticmethod
-    def clean_up():
+    def clean_up() -> None:
+        """
+        Clean up all abby processes and temporary files
+        """
         os.system("taskkill /f /im FineReader.exe")
         os.system("taskkill /f /im FineReaderOCR.exe")
         time.sleep(2)
@@ -132,51 +151,3 @@ class AbbyAutomation:
                     shutil.rmtree(file_path)
             except Exception as e:
                 print('Failed to delete %s. Reason: %s' % (file_path, e))
-
-    # @staticmethod
-    # def open_abby_and_ocr_editor(*, path_to_pdf: str, abby_exe_path: str = ABBY_EXE_PATH) -> None:
-    #     """
-    #     Opens abby and the ocr editor. Waits until both finished opening
-    #
-    #     :param path_to_pdf: Path leading to the PDF
-    #     :param abby_exe_path: Path to the Abby executable file
-    #     """
-    #     # AbbyAutomation.open_pdf_in_abby(path_to_pdf=path_to_pdf, abby_exe_path=abby_exe_path)
-    #     # WaitingProcedures.wait_until_abby_reader_is_opened()
-    #     # AbbyAutomation.open_ocr_editor()
-    #     AbbyAutomation.open_pdf_in_abby_ocr_editor(path_to_pdf=path_to_pdf)
-    #
-    # @staticmethod
-    # def open_pdf_in_abby(*, path_to_pdf: str, abby_exe_path: str = ABBY_EXE_PATH) -> None:
-    #     """
-    #     Opens the given PDF in Abby
-    #
-    #     :param path_to_pdf: Path leading to the PDF
-    #     :param abby_exe_path: Path to the abby exe
-    #     """
-    #
-    #     # p_open = subprocess.Popen([abby_exe_path, path_to_pdf])
-    #     # AbbyAutomation.OPEN_INSTANCES.append(p_open)
-    #     # AbbyAutomation.CURR_INSTANCE = p_open
-    #
-    #     os.startfile(os.path.abspath(ABBY_LNK_PATH))
-    #     WaitingProcedures.wait_until_open_pdf_is_visible()
-    #     x, y = Screen.locate_center_on_screen('open_pdf.png')
-    #     pyautogui.click(x, y)
-    #     time.sleep(0.5)
-    #     write(os.path.abspath(path_to_pdf))
-    #     press_key(key_combination='enter')
-
-    # @staticmethod
-    # def open_ocr_editor() -> None:
-    #     """
-    #     Opens the Abby OCR-Editor
-    #     """
-    #     press_key(key_combination='shift+alt+1', repetitions=2)
-    #     press_key(key_combination='alt+e+a')
-    #     press_key(key_combination='shift+f10')
-    #     press_key(key_combination='tab')
-    #     press_key(key_combination='down', repetitions=5)
-    #     press_key(key_combination='enter')
-    #     WaitingProcedures.wait_until_close_button_visible()
-    #     press_key(key_combination='alt+shift+s')

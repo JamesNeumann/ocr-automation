@@ -35,6 +35,9 @@ class WaitingProcedures:
 
     @staticmethod
     def wait_until_ocr_is_finished() -> None:
+        """
+        Waits until ocr is finished
+        """
         WaitingProcedures.wait_until_ocr_not_done_is_visible()
         time.sleep(1)
         WaitingProcedures.wait_until_ocr_not_done_is_not_visible()
@@ -52,6 +55,9 @@ class WaitingProcedures:
 
     @staticmethod
     def wait_until_ocr_not_done_is_not_visible() -> None:
+        """
+        Waits until ocr not done banner is visible
+        """
         console.log("Waiting until OCR is finished...")
         ocr_not_finished = Screen.locate_on_screen('ocr_not_done.png')
         while ocr_not_finished is not None:
@@ -123,6 +129,7 @@ class WaitingProcedures:
     def is_open_pdf_visible() -> bool:
         """
         Checks if the open PDF button in Abby is visible
+
         :return: Is visible or not
         """
         result = Screen.locate_center_on_screen('open_pdf.png')
@@ -167,6 +174,9 @@ class WaitingProcedures:
 
     @staticmethod
     def is_warning_symbol_visible(attempts: int = 5) -> bool:
+        """
+        Checks if warning symbol is visible
+        """
         for i in range(attempts):
             result = Screen.locate_on_screen('warning_symbol.png')
             if result is not None:
