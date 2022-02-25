@@ -1,4 +1,5 @@
 import os
+from sys import exit
 from uuid import UUID
 
 from PyQt6.QtWidgets import QWidget, QStackedLayout, QMainWindow
