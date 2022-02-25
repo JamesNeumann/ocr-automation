@@ -29,8 +29,11 @@ class MainWindow(QMainWindow):
         self.resize(1024, 800)
 
         self.layout = QStackedLayout()
-        self.file_selection_step = FileSelectionStep(text="Wähle eine PDF-Datei aus",
-                                                     next_callback=self.open_abby_and_ocr_editor)
+
+        self.file_selection_step = FileSelectionStep(
+            text="Wähle eine PDF-Datei aus",
+            next_callback=self.open_abby_and_ocr_editor
+        )
 
         self.open_abby_step = OpenAbbyStep(
             text="Es wird gewartet, bis Abby und der OCR-Editor vollständig geöffnet wurde",
@@ -41,7 +44,6 @@ class MainWindow(QMainWindow):
             text="Welche Optimierungen sollen durchgeführt werden?",
             next_callback=self.do_optimization
         )
-
         self.procedures_step.finished.connect(lambda file_name: self.open_crop_step(file_name))
 
         self.crop_amount_step = CropAmountStep(
@@ -52,9 +54,7 @@ class MainWindow(QMainWindow):
         self.crop_running_step = CropRunningStep(
             text="Die PDF wird zugeschnitten"
         )
-
-        self.crop_running_step.finished.connect(
-            lambda: (self.layout.setCurrentIndex(5), self.window().activateWindow()))
+        self.crop_running_step.finished.connect(self.crop_finished)
 
         self.ocr_language_selection_step = OcrLanguageSelectionStep(
             text="Wähle die OCR-Sprachen für die PDF",
@@ -62,14 +62,11 @@ class MainWindow(QMainWindow):
         )
 
         self.ocr_running_step = OcrRunningStep(text="OCR läuft")
-
-        self.ocr_running_step.finished.connect(
-            lambda: (
-                console.log(Panel("[green]OCR Finished")), self.layout.setCurrentIndex(7),
-                self.window().activateWindow()))
-
-        self.ocr_finished_step = Step(text="OCR abgeschlossen. Bitte überprüfen und dann auf weiter.",
-                                      next_callback=self.open_save_location_step)
+        self.ocr_running_step.finished.connect(self.ocr_running_finished)
+        self.ocr_finished_step = Step(
+            text="OCR abgeschlossen. Bitte überprüfen und dann auf weiter.",
+            next_callback=self.open_save_location_step
+        )
 
         self.choose_save_location_step = FileNameSelectionStep(
             text="Wähle Speicherort und Name der PDF",
@@ -79,19 +76,18 @@ class MainWindow(QMainWindow):
         self.save_running_step = SavePDFRunningStep(
             text="PDF wird gespeichert"
         )
-        self.save_running_step.finished.connect(lambda: self.clean_up())
+        self.save_running_step.finished.connect(self.clean_up)
 
         self.clean_up_running_step = CleanUpRunningStep(
             text="Es wird augeräumt"
         )
-        self.clean_up_running_step.finished.connect(
-            lambda: (self.layout.setCurrentIndex(11), self.window().activateWindow()))
+        self.clean_up_running_step.finished.connect(self.clean_up_finished)
 
         self.finished_step = Step(
             text="Fertig!",
             next_callback=lambda: exit(0),
             next_text="Schließen",
-            previous_callback=lambda: self.reset(),
+            previous_callback=self.reset,
             previous_text="Neue PDF verarbeiten"
         )
 
@@ -130,8 +126,11 @@ class MainWindow(QMainWindow):
         self.layout.setCurrentIndex(3)
         self.window().activateWindow()
         path = os.path.abspath(f"{ABBY_WORKING_DIR}\\{str(file_name)}.pdf")
-        console.log(path)
         self.crop_amount_step.open_pdf_pages(path)
+
+    def crop_finished(self):
+        self.layout.setCurrentIndex(5)
+        self.window().activateWindow()
 
     def crop_pdf(self):
         self.crop_running_step.start(self.crop_amount_step.path_to_pdf,
@@ -155,6 +154,11 @@ class MainWindow(QMainWindow):
         languages = self.ocr_language_selection_step.get_selected_language()
         self.ocr_running_step.start(languages)
 
+    def ocr_running_finished(self):
+        console.log(Panel("[green]OCR Finished"))
+        self.layout.setCurrentIndex(7)
+        self.window().activateWindow()
+
     def open_save_location_step(self):
         self.layout.setCurrentIndex(8),
         self.choose_save_location_step.set_previous_name(self.file_selection_step.file_selection.selected_file_name)
@@ -172,6 +176,10 @@ class MainWindow(QMainWindow):
         for step in self.steps:
             step.reset()
         self.layout.setCurrentIndex(0)
+
+    def clean_up_finished(self):
+        self.layout.setCurrentIndex(11)
+        self.window().activateWindow()
 
     def clean_up(self):
         self.window().activateWindow()

@@ -4,7 +4,6 @@ from ui.crop_amount_selection import CropAmountSelection
 from ui.progress_bar import ProgressBar
 from ui.steps.step import Step
 from utils.analyze_pdf import get_pdf_pages_as_images, get_crop_box_pixel
-from utils.console import console
 from utils.rectangle import Rectangle
 
 
@@ -24,7 +23,6 @@ class CropWorker(QRunnable):
         images, pts_width, pts_height = get_pdf_pages_as_images(self.path_to_pdf,
                                                                 lambda value: self.signals.progress.emit(value))
         crop_box = get_crop_box_pixel(images, lambda value: self.signals.progress.emit(50 + value))
-        console.log(crop_box)
         self.signals.finished.emit(images, pts_width, pts_height, crop_box)
 
 

@@ -1,4 +1,3 @@
-import os
 import uuid
 
 import pyautogui
@@ -101,7 +100,6 @@ class GeneralProcedures:
 
         WaitingProcedures.wait_until_saving_pdf_is_finished(path)
         console.log(Panel("[green]PDF saved"))
-        console.log(os.path.isfile(path))
 
     @staticmethod
     def open_save_pdf_dialog():
