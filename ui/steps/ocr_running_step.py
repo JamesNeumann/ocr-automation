@@ -1,7 +1,7 @@
 from PyQt6.QtCore import QRunnable, pyqtSignal, pyqtSlot, QThreadPool, QObject
 
 from automation.abby_automation import AbbyAutomation
-from ui.progress_bar import ProgressBar
+from ui.components.progress_bar import ProgressBar
 from ui.steps.step import Step
 
 

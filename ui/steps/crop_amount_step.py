@@ -1,7 +1,7 @@
 from PyQt6.QtCore import pyqtSignal, QRunnable, pyqtSlot, QThreadPool, QObject
 
-from ui.crop_amount_selection import CropAmountSelection
-from ui.progress_bar import ProgressBar
+from ui.components.crop_amount_selection import CropAmountSelection
+from ui.components.progress_bar import ProgressBar
 from ui.steps.step import Step
 from utils.analyze_pdf import get_pdf_pages_as_images, get_crop_box_pixel
 from utils.rectangle import Rectangle

@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QFormLayout, QLineEdit
 
-from ui.folder_selection import FolderSelection
+from ui.components.folder_selection import FolderSelection
 from ui.steps.step import Step
 
 

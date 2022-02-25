@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QGroupBox, QVBoxLayout, QRadioButton
 
-from ui.checkable_combo_box import CheckableComboBox
+from ui.components.checkable_combo_box import CheckableComboBox
 from ui.steps.step import Step
 
 

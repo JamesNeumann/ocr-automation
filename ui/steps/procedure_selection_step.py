@@ -5,8 +5,8 @@ from PyQt6.QtCore import QObject, pyqtSignal, QRunnable, pyqtSlot, QThreadPool
 
 from automation.abby_automation import AbbyAutomation
 from automation.procedures.ocr_procedures import OcrProcedures
-from ui.procedures_selection import ProcedureSelection
-from ui.progress_bar import ProgressBar
+from ui.components.procedures_selection import ProcedureSelection
+from ui.components.progress_bar import ProgressBar
 from ui.steps.step import Step
 
 

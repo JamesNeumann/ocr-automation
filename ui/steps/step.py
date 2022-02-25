@@ -1,7 +1,7 @@
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QWidget, QGridLayout, QLabel
 
-from ui.navigation_button import NavigationButton
+from ui.components.navigation_button import NavigationButton
 
 
 class Step(QWidget):
