@@ -11,8 +11,6 @@ def is_file_locked(file_path):
         3. Attempts to rename the file. If this fails the file is open by some other process for reading. The
             file can be read, but not written to or deleted.
     """
-    if not (os.path.exists(file_path)):
-        return False
     try:
         f = open(file_path, 'r')
         f.close()

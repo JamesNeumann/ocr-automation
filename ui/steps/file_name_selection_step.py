@@ -22,6 +22,12 @@ class FileNameSelectionStep(Step):
         self.form.addRow("Dateiname", self.file_name_field)
         self.layout.addLayout(self.form, 4, 0, 1, 4)
 
+        self.previous_name = ""
+
     def reset(self):
         self.folder_selection.reset()
         self.file_name_field.setText("")
+
+    def set_previous_name(self, name: str):
+        self.previous_name = name
+        self.file_name_field.setText(self.previous_name)

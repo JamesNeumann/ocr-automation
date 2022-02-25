@@ -2,6 +2,7 @@ import os.path
 import time
 
 from utils.console import console
+from utils.file_utils import is_file_locked
 from utils.screen import Screen, FolderType
 
 
@@ -78,11 +79,13 @@ class WaitingProcedures:
         console.log("Waiting for PDF to be saved...")
         finished = WaitingProcedures.is_undo_redo_ocr_greyed_out_visible()
         file_exists = os.path.isfile(pdf_path)
-        while not finished and not file_exists:
+        file_locked = is_file_locked(pdf_path)
+        while not finished and file_locked and not file_exists:
             console.log("Waiting for PDF to be saved...")
             time.sleep(0.5)
             finished = WaitingProcedures.is_undo_redo_ocr_greyed_out_visible()
             file_exists = os.path.isfile(pdf_path)
+            file_locked = is_file_locked(pdf_path)
 
     @staticmethod
     def wait_until_open_pdf_is_visible():
@@ -161,3 +164,11 @@ class WaitingProcedures:
         """
         result_greyed_out = Screen.locate_on_screen('operation_finished.png')
         return result_greyed_out is not None
+
+    @staticmethod
+    def is_warning_symbol_visible(attempts: int = 5) -> bool:
+        for i in range(attempts):
+            result = Screen.locate_on_screen('warning_symbol.png')
+            if result is not None:
+                return True
+        return False

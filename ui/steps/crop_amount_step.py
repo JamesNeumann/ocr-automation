@@ -48,6 +48,7 @@ class CropAmountStep(Step):
         self.path_to_pdf = ""
 
     def open_pdf_pages(self, path_to_pdf: str) -> None:
+        self.label.setText("<h1>Die PDF wird analysiert</h1>")
         self.path_to_pdf = path_to_pdf
         if self.crop_amount_selection.isVisible():
             self.crop_amount_selection.hide()

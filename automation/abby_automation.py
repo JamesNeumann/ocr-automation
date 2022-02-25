@@ -95,7 +95,7 @@ class AbbyAutomation:
         time.sleep(1)
         if WaitingProcedures.is_close_button_visible():
             press_key(key_combination='alt+shift+s')
-        time.sleep(1)
+        time.sleep(0.5)
         path, file_name = GeneralProcedures.save_temp_pdf()
         progress_callback(100)
         return path, file_name

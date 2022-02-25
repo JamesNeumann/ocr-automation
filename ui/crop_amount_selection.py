@@ -198,9 +198,9 @@ class CropAmountSelection(QWidget):
 
     def set_spinner_max(self):
         max_left = convert_to_pts(float(self.pts_per_width) * self.rectangle.x)
-        self.left_offset_spinbox.setMaximum(math.floor(max_left))
+        self.left_offset_spinbox.setMaximum(max(math.floor(max_left), 0))
         max_right = convert_to_pts((self.width - self.rectangle.width) * float(self.pts_per_width))
-        self.right_offset_spinbox.setMaximum(max_right)
+        self.right_offset_spinbox.setMaximum(max(max_right, 0))
         max_top = convert_to_pts(float(self.pts_per_height) * self.rectangle.y)
         self.top_offset_spinbox.setMaximum(max_top)
         max_bottom = convert_to_pts(float(self.pts_per_height) * (self.height - self.rectangle.height))

@@ -1,5 +1,4 @@
 import os
-import time
 import uuid
 
 import pyautogui
@@ -62,8 +61,18 @@ class GeneralProcedures:
 
         :returns The path to file and the file name
         """
-        temp_path = '%userprofile%\\AppData\\Local\\Temp\\AbbyAutomation'
 
+        temp_uuid = uuid.uuid4()
+        path = f"{ABBY_WORKING_DIR}\\{temp_uuid}.pdf"
+        GeneralProcedures._save_temp_pdf(path)
+
+        # while not os.path.isfile(path):
+        #     console.log("SAVING")
+
+        return ABBY_WORKING_DIR, temp_uuid
+
+    @staticmethod
+    def _save_temp_pdf(path):
         console.log("Saving temp pdf...")
         arrow_down = Screen.locate_center_on_screen('save_pdf_dropdown.png')
         # arrow_down = pyautogui.locateCenterOnScreen('/images/save_pdf_dropdown.png')
@@ -72,25 +81,27 @@ class GeneralProcedures:
         pyautogui.click(arrow_down.x, arrow_down.y)
         press_key(key_combination='down', repetitions=2, delay_in_seconds=0.5)
         press_key(key_combination='enter')
-        write(text=temp_path)
-        press_key(key_combination='enter')
-        temp_uuid = uuid.uuid4()
-        write(text=f'{temp_uuid}.pdf', delay=0.1)
-        press_key(key_combination='tab', repetitions=2)
-        press_key(key_combination='-')
-        press_key(key_combination='enter', delay_in_seconds=0.5)
-        time.sleep(5)
-        press_key(key_combination='tab')
+        write(text=path)
+        press_key(key_combination='tab', repetitions=2, delay_in_seconds=0.3)
+        press_key(key_combination='-', delay_in_seconds=0.3)
+        press_key(key_combination='tab', repetitions=4, delay_in_seconds=0.3)
         press_key(key_combination='enter', delay_in_seconds=1)
-        press_key(key_combination='tab', repetitions=7)
-        press_key(key_combination='enter')
-        press_key(key_combination='tab', repetitions=8)
-        press_key(key_combination='enter', delay_in_seconds=0.5)
-        press_key(key_combination='shift+tab')
-        press_key(key_combination='enter', delay_in_seconds=0.5)
-        WaitingProcedures.wait_until_saving_pdf_is_finished(os.path.join(ABBY_WORKING_DIR, f"{temp_uuid}.pdf"))
+
+        if WaitingProcedures.is_warning_symbol_visible():
+            console.log("Warning is visible")
+            console.log("Setting save settings...")
+            press_key(key_combination='tab')
+            press_key(key_combination='enter', delay_in_seconds=0.3)
+            press_key(key_combination='tab', repetitions=7, delay_in_seconds=0.3)
+            press_key(key_combination='enter', delay_in_seconds=0.3)
+            press_key(key_combination='tab', repetitions=6, delay_in_seconds=0.3)
+            press_key(key_combination='enter', delay_in_seconds=0.5)
+            press_key(key_combination='shift+tab')
+            press_key(key_combination='enter', delay_in_seconds=1)
+
+        WaitingProcedures.wait_until_saving_pdf_is_finished(path)
         console.log(Panel("[green]PDF saved"))
-        return temp_path, temp_uuid
+        console.log(os.path.isfile(path))
 
     @staticmethod
     def open_save_pdf_dialog():

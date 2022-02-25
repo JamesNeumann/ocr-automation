@@ -69,8 +69,7 @@ class MainWindow(QMainWindow):
                 self.window().activateWindow()))
 
         self.ocr_finished_step = Step(text="OCR abgeschlossen. Bitte überprüfen und dann auf weiter.",
-                                      next_callback=lambda: self.layout.setCurrentIndex(8)
-                                      )
+                                      next_callback=self.open_save_location_step)
 
         self.choose_save_location_step = FileNameSelectionStep(
             text="Wähle Speicherort und Name der PDF",
@@ -156,13 +155,18 @@ class MainWindow(QMainWindow):
         languages = self.ocr_language_selection_step.get_selected_language()
         self.ocr_running_step.start(languages)
 
+    def open_save_location_step(self):
+        self.layout.setCurrentIndex(8),
+        self.choose_save_location_step.set_previous_name(self.file_selection_step.file_selection.selected_file_name)
+
     def save_pdf(self):
-        self.layout.setCurrentIndex(9)
-        folder = self.choose_save_location_step.folder_selection.selected_folder
-        file_name = self.choose_save_location_step.file_name_field.text()
-        suffix = "" if ".pdf" in file_name else ".pdf"
-        path = os.path.abspath(folder + "\\" + file_name + suffix)
-        self.save_running_step.start(path)
+        if self.choose_save_location_step.folder_selection.selected_folder != "":
+            self.layout.setCurrentIndex(9)
+            folder = self.choose_save_location_step.folder_selection.selected_folder
+            file_name = self.choose_save_location_step.file_name_field.text()
+            suffix = "" if ".pdf" in file_name else ".pdf"
+            path = os.path.abspath(folder + "\\" + file_name + suffix)
+            self.save_running_step.start(path)
 
     def reset(self):
         for step in self.steps:
