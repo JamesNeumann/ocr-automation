@@ -117,6 +117,8 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(widget)
         self.rectangle = None
 
+
+
     def open_abby_and_ocr_editor(self):
         if self.file_selection_step.file_selection.selected_file_name != "":
             self.open_abby_step.set_pdf_path(self.file_selection_step.file_selection.file_path())

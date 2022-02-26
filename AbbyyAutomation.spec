@@ -33,7 +33,8 @@ exe = EXE(pyz,
           disable_windowed_traceback=False,
           target_arch=None,
           codesign_identity=None,
-          entitlements_file=None )
+          entitlements_file=None,
+          icon='images/icon.ico')
 coll = COLLECT(exe,
                a.binaries,
                a.zipfiles,
@@ -41,4 +42,4 @@ coll = COLLECT(exe,
                strip=False,
                upx=True,
                upx_exclude=[],
-               name='main')
+               name='AbbyyAutomation')
