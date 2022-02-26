@@ -1,5 +1,6 @@
 import sys
 from enum import Enum
+from typing import Any
 
 import pyautogui
 
@@ -13,31 +14,66 @@ class Screen:
     SCREEN_RESOLUTION_STRING = "1920x1080"
 
     @staticmethod
-    def set_screen_resolution_string():
+    def set_screen_resolution_string() -> None:
+        """
+        Sets the screen resolution screen. Which can be used to select the correct images
+        """
         width, height = pyautogui.size()
         Screen.SCREEN_RESOLUTION_STRING = f"{width}x{height}"
 
     @staticmethod
-    def is_win_11():
+    def is_win_11() -> bool:
+        """
+        Checks if current operating system is Windows 11
+
+        :return: Is Windows 11 or not
+        """
         if sys.getwindowsversion().build > 20000:
             return True
         else:
             return False
 
     @staticmethod
-    def locate_center_on_screen(file_name: str, folder: FolderType = FolderType.ABBY):
-        return pyautogui.locateCenterOnScreen(Screen.get_image_path(file_name, folder))
+    def locate_center_on_screen(image_name: str, folder: FolderType = FolderType.ABBY) -> Any:
+        """
+        Locates the given image on screen. Then returns the center position of that image relative to its screen position
+
+        :param image_name: Image name of the image to locate on screen
+        :param folder: In which folder the image is saved
+        :return: Any
+        """
+        return pyautogui.locateCenterOnScreen(Screen.get_image_path(image_name, folder))
 
     @staticmethod
-    def locate_on_screen(file_name: str, folder: FolderType = FolderType.ABBY):
-        return pyautogui.locateOnScreen(Screen.get_image_path(file_name, folder))
+    def locate_on_screen(image_name: str, folder: FolderType = FolderType.ABBY) -> Any:
+        """
+        Locates the given image on screen. Then returns the position of that image  relative to its screen position
+
+        :param image_name: Image name of the image to locate on screen
+        :param folder: In which folder the image is saved
+        :return: Any
+        """
+        return pyautogui.locateOnScreen(Screen.get_image_path(image_name, folder))
 
     @staticmethod
-    def get_image_path(file_name: str, folder: FolderType = FolderType.ABBY):
-        return f"./images/{Screen.get_folder(folder)}/{Screen.SCREEN_RESOLUTION_STRING}/{file_name}"
+    def get_image_path(image_name: str, folder: FolderType = FolderType.ABBY) -> str:
+        """
+        Returns the full path to the given image
+
+        :param image_name: Name of the image
+        :param folder: Folder where the image is located
+        :return: The full path to the image
+        """
+        return f"./images/{Screen.get_folder(folder)}/{Screen.SCREEN_RESOLUTION_STRING}/{image_name}"
 
     @staticmethod
     def get_folder(folder: FolderType) -> str:
+        """
+        Returns the string of the given FolderType
+
+        :param folder: Type of the
+        :return: The name of the FolderType
+        """
         if folder == FolderType.ABBY:
             return 'FineReader'
         if folder == FolderType.WIN:
