@@ -1,3 +1,5 @@
+import os.path
+
 from PyQt6.QtWidgets import QFormLayout, QLineEdit
 
 from ui.components.folder_selection import FolderSelection
@@ -30,4 +32,4 @@ class FileNameSelectionStep(Step):
 
     def set_previous_name(self, name: str):
         self.previous_name = name
-        self.file_name_field.setText(self.previous_name)
+        self.file_name_field.setText(os.path.splitext(self.previous_name)[0])
