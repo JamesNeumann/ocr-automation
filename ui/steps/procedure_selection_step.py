@@ -3,7 +3,7 @@ from uuid import UUID
 
 from PyQt6.QtCore import QObject, pyqtSignal, QRunnable, pyqtSlot, QThreadPool
 
-from automation.abby_automation import AbbyAutomation
+from automation.finereader_automation import FineReaderAutomation
 from automation.procedures.ocr_procedures import OcrProcedures
 from ui.components.procedures_selection import ProcedureSelection
 from ui.components.progress_bar import ProgressBar
@@ -24,8 +24,8 @@ class ProcedureWorker(QRunnable):
 
     @pyqtSlot()
     def run(self):
-        _, filename = AbbyAutomation.do_optimization(self.procedures, self.iterations,
-                                                     lambda value: self.signals.progress.emit(value))
+        _, filename = FineReaderAutomation.do_optimization(self.procedures, self.iterations,
+                                                           lambda value: self.signals.progress.emit(value))
 
         self.signals.finished.emit(filename)
 

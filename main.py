@@ -12,7 +12,7 @@ from utils.screen import Screen
 if __name__ == '__main__':
     install(show_locals=True)
 
-    myappid = u'jamesneumann.abbyautomation.v1.0'  # arbitrary string
+    myappid = u'jamesneumann.FineReaderAutomation.v1.0'  # arbitrary string
     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
     Screen.set_screen_resolution_string()

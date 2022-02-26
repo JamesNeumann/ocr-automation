@@ -9,22 +9,22 @@ import pyautogui
 from automation.procedures.general_procedures import GeneralProcedures
 from automation.procedures.ocr_procedures import OcrProcedures
 from automation.procedures.waiting_procedures import WaitingProcedures
-from config import ABBY_LNK_PATH, ABBY_WORKING_DIR
+from config import FINEREADER_LNK_PATH, FINEREADER_WORKING_DIR
 from utils.keyboard_util import press_key, write
 from utils.rectangle import Rectangle
 from utils.screen import Screen
 
 
-class AbbyAutomation:
+class FineReaderAutomation:
 
     @staticmethod
-    def open_pdf_in_abby_ocr_editor(*, path_to_pdf: str):
+    def open_pdf_in_finereader_ocr_editor(*, path_to_pdf: str):
         """
         Opens the given PDF in Abby OCR editor
 
         :param path_to_pdf: Path leading to the PDF
         """
-        os.startfile(os.path.abspath(ABBY_LNK_PATH))
+        os.startfile(os.path.abspath(FINEREADER_LNK_PATH))
         WaitingProcedures.wait_until_open_pdf_is_visible()
         x, y = Screen.locate_center_on_screen('open_ocr_editor.png')
         pyautogui.click(x, y)
@@ -60,7 +60,7 @@ class AbbyAutomation:
         :param languages: Languages which should be used for ocr
         """
         GeneralProcedures.click_ocr_file_icon()
-        AbbyAutomation.close_image_improvement_tools()
+        FineReaderAutomation.close_image_improvement_tools()
         time.sleep(0.5)
         press_key(key_combination='alt+k')
         press_key(key_combination='i')
@@ -88,7 +88,7 @@ class AbbyAutomation:
         :param procedures: Contains all procedures that should be executed
         :param iterations: How often all procedures should be executed
         """
-        AbbyAutomation.open_image_improvement_tools()
+        FineReaderAutomation.open_image_improvement_tools()
         progress_step = 100 / (iterations * len(procedures) + 1)
         curr_step = 0
         for i in range(iterations):
@@ -125,8 +125,8 @@ class AbbyAutomation:
         :param path_to_pdf: Path to the pdf that should be cropped
         :param crop_rectangle: The crop rectangle
         """
-        AbbyAutomation.open_pdf_in_abby_ocr_editor(path_to_pdf=path_to_pdf)
-        AbbyAutomation.open_image_improvement_tools(should_tab_in=False)
+        FineReaderAutomation.open_pdf_in_finereader_ocr_editor(path_to_pdf=path_to_pdf)
+        FineReaderAutomation.open_image_improvement_tools(should_tab_in=False)
         time.sleep(0.5)
         GeneralProcedures.click_light_bulb()
         GeneralProcedures.click_light_bulb()
@@ -136,12 +136,12 @@ class AbbyAutomation:
     @staticmethod
     def clean_up() -> None:
         """
-        Clean up all abby processes and temporary files
+        Clean up all FineReader and OCR-editor processes and temporary files
         """
         os.system("taskkill /f /im FineReader.exe")
         os.system("taskkill /f /im FineReaderOCR.exe")
         time.sleep(2)
-        folder = ABBY_WORKING_DIR
+        folder = FINEREADER_WORKING_DIR
         for filename in os.listdir(folder):
             file_path = os.path.join(folder, filename)
             try:

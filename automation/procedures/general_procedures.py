@@ -4,7 +4,7 @@ import pyautogui
 from rich.panel import Panel
 
 from automation.procedures.waiting_procedures import WaitingProcedures
-from config import ABBY_WORKING_DIR
+from config import FINEREADER_WORKING_DIR
 from utils.console import console
 from utils.keyboard_util import press_key, write
 from utils.screen import Screen
@@ -62,10 +62,10 @@ class GeneralProcedures:
         """
 
         temp_uuid = uuid.uuid4()
-        path = f"{ABBY_WORKING_DIR}\\{temp_uuid}.pdf"
+        path = f"{FINEREADER_WORKING_DIR}\\{temp_uuid}.pdf"
         GeneralProcedures._save_temp_pdf(path)
 
-        return ABBY_WORKING_DIR, temp_uuid
+        return FINEREADER_WORKING_DIR, temp_uuid
 
     @staticmethod
     def _save_temp_pdf(path):

@@ -39,7 +39,7 @@ class Screen:
     @staticmethod
     def get_folder(folder: FolderType) -> str:
         if folder == FolderType.ABBY:
-            return 'Abby'
+            return 'FineReader'
         if folder == FolderType.WIN:
             if Screen.is_win_11():
                 return 'Win11'

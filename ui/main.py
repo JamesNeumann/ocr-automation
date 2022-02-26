@@ -5,8 +5,8 @@ from uuid import UUID
 from PyQt6.QtWidgets import QWidget, QStackedLayout, QMainWindow
 from rich.panel import Panel
 
-from automation.abby_automation import AbbyAutomation
-from config import ABBY_WORKING_DIR
+from automation.finereader_automation import FineReaderAutomation
+from config import FINEREADER_WORKING_DIR
 from ui.steps.clean_up_running_step import CleanUpRunningStep
 from ui.steps.crop_amount_step import CropAmountStep
 from ui.steps.crop_running_step import CropRunningStep
@@ -14,7 +14,7 @@ from ui.steps.file_name_selection_step import FileNameSelectionStep
 from ui.steps.file_selection_step import FileSelectionStep
 from ui.steps.ocr_language_selection_step import OcrLanguageSelectionStep
 from ui.steps.ocr_running_step import OcrRunningStep
-from ui.steps.open_abby_step import OpenAbbyStep
+from ui.steps.open_finereader import OpenFineReaderStep
 from ui.steps.procedure_selection_step import ProcedureSelectionStep
 from ui.steps.save_pdf_running_step import SavePDFRunningStep
 from ui.steps.step import Step
@@ -26,20 +26,20 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("Abby Automation")
+        self.setWindowTitle("FineReader Automation")
         self.resize(1024, 800)
 
         self.layout = QStackedLayout()
 
         self.file_selection_step = FileSelectionStep(
             text="Wähle eine PDF-Datei aus",
-            next_callback=self.open_abby_and_ocr_editor
+            next_callback=self.open_finereader_and_ocr_editor
         )
 
-        self.open_abby_step = OpenAbbyStep(
-            text="Es wird gewartet, bis Abby und der OCR-Editor vollständig geöffnet wurde",
+        self.open_finereader_step = OpenFineReaderStep(
+            text="Es wird gewartet, bis der FineReader und der OCR-Editor vollständig geöffnet wurde",
         )
-        self.open_abby_step.finished_signal.connect(self.open_procedure_step)
+        self.open_finereader_step.finished_signal.connect(self.open_procedure_step)
 
         self.procedures_step = ProcedureSelectionStep(
             text="Welche Optimierungen sollen durchgeführt werden?",
@@ -94,7 +94,7 @@ class MainWindow(QMainWindow):
 
         self.steps = [
             self.file_selection_step,
-            self.open_abby_step,
+            self.open_finereader_step,
             self.procedures_step,
             self.crop_amount_step,
             self.crop_running_step,
@@ -117,18 +117,16 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(widget)
         self.rectangle = None
 
-
-
-    def open_abby_and_ocr_editor(self):
+    def open_finereader_and_ocr_editor(self):
         if self.file_selection_step.file_selection.selected_file_name != "":
-            self.open_abby_step.set_pdf_path(self.file_selection_step.file_selection.file_path())
+            self.open_finereader_step.set_pdf_path(self.file_selection_step.file_selection.file_path())
             self.layout.setCurrentIndex(1)
-            self.open_abby_step.start()
+            self.open_finereader_step.start()
 
     def open_crop_step(self, file_name: UUID):
         self.layout.setCurrentIndex(3)
         self.window().activateWindow()
-        path = os.path.abspath(f"{ABBY_WORKING_DIR}\\{str(file_name)}.pdf")
+        path = os.path.abspath(f"{FINEREADER_WORKING_DIR}\\{str(file_name)}.pdf")
         self.crop_amount_step.open_pdf_pages(path)
 
     def crop_finished(self):
@@ -143,7 +141,7 @@ class MainWindow(QMainWindow):
         self.layout.setCurrentIndex(4)
 
     def open_image_improvement_tools(self):
-        AbbyAutomation.open_image_improvement_tools()
+        FineReaderAutomation.open_image_improvement_tools()
         self.do_optimization()
         self.layout.setCurrentIndex(3)
 

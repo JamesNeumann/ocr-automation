@@ -2,28 +2,28 @@ import os.path
 
 from PyQt6.QtCore import QRunnable, QObject, pyqtSignal, pyqtSlot, QThreadPool
 
-from automation.abby_automation import AbbyAutomation
+from automation.finereader_automation import FineReaderAutomation
 from ui.steps.step import Step
 
 
-class OpenAbbyWorkerSignals(QObject):
+class OpenFineReaderWorkerSignals(QObject):
     finished = pyqtSignal()
 
 
-class OpenAbbyWorker(QRunnable):
+class OpenFineReaderWorker(QRunnable):
 
     def __init__(self, path_to_pdf: str):
-        super(OpenAbbyWorker, self).__init__()
+        super(OpenFineReaderWorker, self).__init__()
         self.path_to_pdf = path_to_pdf
-        self.signals = OpenAbbyWorkerSignals()
+        self.signals = OpenFineReaderWorkerSignals()
 
     @pyqtSlot()
     def run(self) -> None:
-        AbbyAutomation.open_pdf_in_abby_ocr_editor(path_to_pdf=self.path_to_pdf)
+        FineReaderAutomation.open_pdf_in_finereader_ocr_editor(path_to_pdf=self.path_to_pdf)
         self.signals.finished.emit()
 
 
-class OpenAbbyStep(Step):
+class OpenFineReaderStep(Step):
     finished_signal = pyqtSignal()
 
     def __init__(self, *, text: str, previous_text="Zurück", previous_callback=None, next_text="Weiter",
@@ -38,7 +38,7 @@ class OpenAbbyStep(Step):
         self.threadpool = QThreadPool()
 
     def start(self):
-        self.worker = OpenAbbyWorker(self.path_to_pdf)
+        self.worker = OpenFineReaderWorker(self.path_to_pdf)
         self.worker.signals.finished.connect(lambda: self.finished_signal.emit())
         self.threadpool.start(self.worker)
 
