@@ -1,5 +1,6 @@
 import os
 from sys import exit
+from typing import List
 from uuid import UUID
 
 from PyQt6.QtWidgets import QWidget, QStackedLayout, QMainWindow
@@ -7,6 +8,9 @@ from rich.panel import Panel
 
 from automation.finereader_automation import FineReaderAutomation
 from config import FINEREADER_WORKING_DIR
+from ui.steps.SaveTempPdfRunningStep import SaveTempPdfRunningStep
+from ui.steps.check_pdf_orientation_running_step import CheckPdfOrientationRunningStep
+from ui.steps.check_pdf_orientation_step import CheckPdfOrientationStep
 from ui.steps.clean_up_running_step import CleanUpRunningStep
 from ui.steps.crop_amount_step import CropAmountStep
 from ui.steps.crop_running_step import CropRunningStep
@@ -31,6 +35,8 @@ class MainWindow(QMainWindow):
 
         self.layout = QStackedLayout()
 
+        self.current_index = 0
+
         self.file_selection_step = FileSelectionStep(
             text="Wähle eine PDF-Datei aus",
             next_callback=self.open_finereader_and_ocr_editor
@@ -45,7 +51,23 @@ class MainWindow(QMainWindow):
             text="Welche Optimierungen sollen durchgeführt werden?",
             next_callback=self.do_optimization
         )
-        self.procedures_step.finished.connect(lambda file_name: self.open_crop_step(file_name))
+        self.procedures_step.finished.connect(lambda file_name: self.open_check_pdf_orientation_running_step(file_name))
+
+        self.check_pdf_orientation_running_step = CheckPdfOrientationRunningStep(
+            text="Die PDF wird analyisiert"
+        )
+        self.check_pdf_orientation_running_step.finished.connect(
+            lambda indices, path: self.open_check_pdf_orientation_step(indices, path))
+
+        self.save_temp_pdf_running_step = SaveTempPdfRunningStep(
+            text="PDF wird zwischengespeichert"
+        )
+        self.save_temp_pdf_running_step.finished.connect(lambda path: self.open_crop_step(path))
+
+        self.check_pdf_orientation_step = CheckPdfOrientationStep(
+            text="Folgende Seiten müssen überprüft werden",
+            next_callback=self.open_crop_step_after_rotation
+        )
 
         self.crop_amount_step = CropAmountStep(
             text="Die PDF wird analysiert",
@@ -96,6 +118,9 @@ class MainWindow(QMainWindow):
             self.file_selection_step,
             self.open_finereader_step,
             self.procedures_step,
+            self.check_pdf_orientation_running_step,
+            self.check_pdf_orientation_step,
+            self.save_temp_pdf_running_step,
             self.crop_amount_step,
             self.crop_running_step,
             self.ocr_language_selection_step,
@@ -110,27 +135,36 @@ class MainWindow(QMainWindow):
         for step in self.steps:
             self.layout.addWidget(step)
 
-        self.layout.setCurrentIndex(0)
+        self.layout.setCurrentIndex(self.current_index)
 
         widget = QWidget()
         widget.setLayout(self.layout)
         self.setCentralWidget(widget)
         self.rectangle = None
 
+    def open_next_step(self):
+        self.current_index += 1
+        self.layout.setCurrentIndex(self.current_index)
+
     def open_finereader_and_ocr_editor(self):
         if self.file_selection_step.file_selection.selected_file_name != "":
             self.open_finereader_step.set_pdf_path(self.file_selection_step.file_selection.file_path())
-            self.layout.setCurrentIndex(1)
+            self.open_next_step()
             self.open_finereader_step.start()
 
-    def open_crop_step(self, file_name: UUID):
-        self.layout.setCurrentIndex(3)
+    def open_crop_step(self, path: str):
+        self.open_next_step()
         self.window().activateWindow()
-        path = os.path.abspath(f"{FINEREADER_WORKING_DIR}\\{str(file_name)}.pdf")
+        # path = os.path.abspath(f"{FINEREADER_WORKING_DIR}\\{str(file_name)}.pdf")
+        console.log(path)
         self.crop_amount_step.open_pdf_pages(path)
 
+    def open_crop_step_after_rotation(self):
+        self.open_next_step()
+        self.save_temp_pdf_running_step.start()
+
     def crop_finished(self):
-        self.layout.setCurrentIndex(5)
+        self.open_next_step()
         self.window().activateWindow()
 
     def crop_pdf(self):
@@ -138,37 +172,52 @@ class MainWindow(QMainWindow):
             self.crop_amount_step.path_to_pdf,
             self.crop_amount_step.crop_amount_selection.get_pts_rectangle()
         )
-        self.layout.setCurrentIndex(4)
+        self.open_next_step()
 
     def open_image_improvement_tools(self):
         FineReaderAutomation.open_image_improvement_tools()
         self.do_optimization()
-        self.layout.setCurrentIndex(3)
+        self.open_next_step()
+
+    def open_check_pdf_orientation_running_step(self, file_name: UUID):
+        self.open_next_step()
+        path = os.path.abspath(f"{FINEREADER_WORKING_DIR}\\{str(file_name)}.pdf")
+        self.check_pdf_orientation_running_step.start(path)
+
+    def open_check_pdf_orientation_step(self, indices: List[int], path: str):
+        self.check_pdf_orientation_step.set_indices(indices)
+        self.check_pdf_orientation_step.set_path(path)
+        if len(indices) == 0:
+            self.open_next_step()
+            self.open_next_step()
+            self.open_crop_step(path)
+        else:
+            self.open_next_step()
 
     def open_procedure_step(self):
-        self.layout.setCurrentIndex(2)
+        self.open_next_step()
         self.window().activateWindow()
 
     def do_optimization(self):
         self.procedures_step.start()
 
     def do_ocr(self):
-        self.layout.setCurrentIndex(6)
+        self.open_next_step()
         languages = self.ocr_language_selection_step.get_selected_language()
         self.ocr_running_step.start(languages)
 
     def ocr_running_finished(self):
         console.log(Panel("[green]OCR Finished"))
-        self.layout.setCurrentIndex(7)
+        self.open_next_step()
         self.window().activateWindow()
 
     def open_save_location_step(self):
-        self.layout.setCurrentIndex(8),
+        self.open_next_step(),
         self.choose_save_location_step.set_previous_name(self.file_selection_step.file_selection.selected_file_name)
 
     def save_pdf(self):
         if self.choose_save_location_step.folder_selection.selected_folder != "":
-            self.layout.setCurrentIndex(9)
+            self.open_next_step()
             folder = self.choose_save_location_step.folder_selection.selected_folder
             file_name = self.choose_save_location_step.file_name_field.text()
             suffix = "" if ".pdf" in file_name else ".pdf"
@@ -179,12 +228,13 @@ class MainWindow(QMainWindow):
         for step in self.steps:
             step.reset()
         self.layout.setCurrentIndex(0)
+        self.current_index = 0
 
     def clean_up_finished(self):
-        self.layout.setCurrentIndex(11)
+        self.open_next_step()
         self.window().activateWindow()
 
     def clean_up(self):
         self.window().activateWindow()
-        self.layout.setCurrentIndex(10)
+        self.open_next_step()
         self.clean_up_running_step.start()

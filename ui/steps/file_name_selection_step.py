@@ -32,4 +32,4 @@ class FileNameSelectionStep(Step):
 
     def set_previous_name(self, name: str):
         self.previous_name = name
-        self.file_name_field.setText(os.path.splitext(self.previous_name)[0])
+        self.file_name_field.setText(os.path.splitext(self.previous_name)[0] + " OCR")

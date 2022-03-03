@@ -19,7 +19,8 @@ class OpenFineReaderWorker(QRunnable):
 
     @pyqtSlot()
     def run(self) -> None:
-        FineReaderAutomation.open_pdf_in_finereader_ocr_editor(path_to_pdf=self.path_to_pdf)
+        FineReaderAutomation.open_pdf_in_ocr_editor(path_to_pdf=self.path_to_pdf)
+        # FineReaderAutomation.open_pdf_in_finereader_ocr_editor(path_to_pdf=self.path_to_pdf)
         self.signals.finished.emit()
 
 

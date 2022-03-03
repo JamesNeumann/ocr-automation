@@ -9,13 +9,28 @@ import pyautogui
 from automation.procedures.general_procedures import GeneralProcedures
 from automation.procedures.ocr_procedures import OcrProcedures
 from automation.procedures.waiting_procedures import WaitingProcedures
-from config import FINEREADER_LNK_PATH, FINEREADER_WORKING_DIR
+from config import FINEREADER_LNK_PATH, FINEREADER_WORKING_DIR, OCR_EDITOR_LNK_PATH
+from utils.console import console
 from utils.keyboard_util import press_key, write
 from utils.rectangle import Rectangle
 from utils.screen import Screen
 
 
 class FineReaderAutomation:
+
+    @staticmethod
+    def open_pdf_in_ocr_editor(path_to_pdf: str):
+        os.startfile(OCR_EDITOR_LNK_PATH)
+        WaitingProcedures.wait_util_ocr_open_pdf_is_visible()
+        time.sleep(1)
+        press_key(key_combination='alt+n')
+        time.sleep(1)
+        FineReaderAutomation.disable_initial_ocr()
+        GeneralProcedures.click_ocr_open_pdf_icon()
+        time.sleep(0.5)
+        write(path_to_pdf)
+        press_key(key_combination='enter', delay_in_seconds=0.3)
+        WaitingProcedures.wait_until_ocr_page_recognition_icon_is_visible()
 
     @staticmethod
     def open_pdf_in_finereader_ocr_editor(*, path_to_pdf: str):
@@ -31,8 +46,24 @@ class FineReaderAutomation:
         time.sleep(0.5)
         write(os.path.abspath(path_to_pdf))
         press_key(key_combination='enter')
-        WaitingProcedures.wait_until_close_button_visible()
-        press_key(key_combination='alt+shift+s')
+        WaitingProcedures.wait_until_ocr_page_recognition_icon_is_visible()
+        time.sleep(0.5)
+        press_key(key_combination='alt+shift+a')
+        press_key(key_combination='alt+shift+a')
+        WaitingProcedures.wait_until_close_button_visible(1)
+        press_key(key_combination='alt+shift+s', delay_in_seconds=0.3)
+        GeneralProcedures.click_ocr_pages_header()
+        FineReaderAutomation.disable_initial_ocr()
+        FineReaderAutomation.clean_up()
+        os.startfile(os.path.abspath(FINEREADER_LNK_PATH))
+        WaitingProcedures.wait_until_open_pdf_is_visible()
+        x, y = Screen.locate_center_on_screen('open_ocr_editor.png')
+        pyautogui.click(x, y)
+        time.sleep(0.5)
+        write(os.path.abspath(path_to_pdf))
+        press_key(key_combination='enter')
+        WaitingProcedures.wait_until_ocr_page_recognition_icon_is_visible()
+        time.sleep(1)
 
     @staticmethod
     def open_image_improvement_tools(should_tab_in: bool = True) -> None:
@@ -102,6 +133,7 @@ class FineReaderAutomation:
             press_key(key_combination='alt+shift+s')
         time.sleep(0.5)
         path, file_name = GeneralProcedures.save_temp_pdf()
+        FineReaderAutomation.clean_up_ocr_instances()
         progress_callback(100)
         return path, file_name
 
@@ -125,7 +157,7 @@ class FineReaderAutomation:
         :param path_to_pdf: Path to the pdf that should be cropped
         :param crop_rectangle: The crop rectangle
         """
-        FineReaderAutomation.open_pdf_in_finereader_ocr_editor(path_to_pdf=path_to_pdf)
+        FineReaderAutomation.open_pdf_in_ocr_editor(path_to_pdf)
         FineReaderAutomation.open_image_improvement_tools(should_tab_in=False)
         time.sleep(0.5)
         GeneralProcedures.click_light_bulb()
@@ -134,12 +166,27 @@ class FineReaderAutomation:
                                   should_tab_in=False)
 
     @staticmethod
+    def disable_initial_ocr() -> None:
+        console.log("Disabling initial ocr...")
+        press_key(key_combination='alt+k', delay_in_seconds=0.2)
+        press_key(key_combination='i', delay_in_seconds=0.3)
+        GeneralProcedures.click_ocr_image_processing_icon()
+        press_key(key_combination='tab', repetitions=3, delay_in_seconds=0.1)
+        press_key(key_combination='-', delay_in_seconds=0.1)
+        press_key(key_combination='tab', repetitions=5, delay_in_seconds=0.1)
+        press_key(key_combination='enter', delay_in_seconds=0.3)
+
+    @staticmethod
+    def clean_up_ocr_instances() -> None:
+        os.system("taskkill /f /im FineReader.exe")
+        os.system("taskkill /f /im FineReaderOCR.exe")
+
+    @staticmethod
     def clean_up() -> None:
         """
         Clean up all FineReader and OCR-editor processes and temporary files
         """
-        os.system("taskkill /f /im FineReader.exe")
-        os.system("taskkill /f /im FineReaderOCR.exe")
+        FineReaderAutomation.clean_up_ocr_instances()
         time.sleep(2)
         folder = FINEREADER_WORKING_DIR
         for filename in os.listdir(folder):

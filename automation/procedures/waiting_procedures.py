@@ -51,16 +51,20 @@ class WaitingProcedures:
             ocr_not_finished = Screen.locate_on_screen('ocr_not_done.png')
 
     @staticmethod
-    def wait_until_close_button_visible() -> None:
+    def wait_until_close_button_visible(max_time: int = 3) -> None:
         """
         Waits until the close button of a dialog is visible
         """
         console.log("Waiting for close button to be visible...")
         visible = WaitingProcedures.is_close_button_visible()
+        iteration = 0
         while not visible:
+            if iteration > max_time:
+                return
             console.log("Waiting for close button to be visible...")
             time.sleep(0.5)
             visible = WaitingProcedures.is_close_button_visible()
+            iteration += 1
         console.log("Close button is visible")
 
     @staticmethod
@@ -69,13 +73,13 @@ class WaitingProcedures:
         Wait until saving PDF is finished
         """
         console.log("Waiting for PDF to be saved...")
-        finished = WaitingProcedures.is_undo_redo_ocr_greyed_out_visible()
+        # finished = WaitingProcedures.is_undo_redo_ocr_greyed_out_visible()
         file_exists = os.path.isfile(pdf_path)
         file_locked = is_file_locked(pdf_path)
-        while not finished and file_locked and not file_exists:
+        while file_locked or not file_exists:
             console.log("Waiting for PDF to be saved...")
             time.sleep(0.5)
-            finished = WaitingProcedures.is_undo_redo_ocr_greyed_out_visible()
+            # finished = WaitingProcedures.is_undo_redo_ocr_greyed_out_visible()
             file_exists = os.path.isfile(pdf_path)
             file_locked = is_file_locked(pdf_path)
 
@@ -90,6 +94,55 @@ class WaitingProcedures:
             console.log("Waiting for open PDF button to be visible")
             time.sleep(0.5)
             visible = WaitingProcedures.is_open_pdf_visible()
+
+    @staticmethod
+    def wait_until_ocr_page_recognition_icon_is_visible() -> None:
+        """
+        Waits until the OCR page recognition icon is visible
+        """
+        console.log("Waiting for open ocr page recognition icon to be visible")
+        visible = WaitingProcedures.is_ocr_page_recognition_icon_visible()
+        while not visible:
+            console.log("Waiting for open ocr page recognition icon to be visible")
+            time.sleep(0.5)
+            visible = WaitingProcedures.is_ocr_page_recognition_icon_visible()
+
+    @staticmethod
+    def wait_util_ocr_open_pdf_is_visible() -> None:
+        """
+        Waits until open PDF in OCR editor is visible
+
+        """
+        console.log("Waiting for open ocr open pdf icon to be visible...")
+        visible = WaitingProcedures.is_ocr_open_odf_visible()
+        while not visible:
+            console.log("Waiting for open ocr open pdf icon to be visible...")
+            time.sleep(0.5)
+            visible = WaitingProcedures.is_ocr_open_odf_visible()
+
+    @staticmethod
+    def is_ocr_open_odf_visible() -> bool:
+        """
+        Checks if open PDF in the OCR editor is visible
+
+        :return: Is visible or not
+        """
+        result = Screen.locate_on_screen('ocr_open_pdf.png')
+        if result is None:
+            return False
+        return True
+
+    @staticmethod
+    def is_ocr_page_recognition_icon_visible() -> bool:
+        """
+        Checks if the OCR page recognition icon is visible
+
+        :return: Is visible or not
+        """
+        result = Screen.locate_on_screen('ocr_page_recognition.png')
+        if result is None:
+            return False
+        return True
 
     @staticmethod
     def is_undo_redo_ocr_greyed_out_visible() -> bool:
@@ -108,7 +161,7 @@ class WaitingProcedures:
 
         :return: Is visible or not
         """
-        result = Screen.locate_center_on_screen('open_pdf.png')
+        result = Screen.locate_center_on_screen('open_ocr_editor.png')
         if result is not None:
             return True
         return False

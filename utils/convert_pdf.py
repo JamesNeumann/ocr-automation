@@ -14,7 +14,7 @@ from utils.console import console
 from utils.file_utils import wait_until_file_is_unlocked
 
 
-def convert_pdf_to_image(path_to_pdf: str, attempts: int = 5) -> (List[Image], float, float):
+def convert_pdf_to_image(path_to_pdf: str, attempts: int = 5) -> (List[Image], float, float, int):
     """
     Converts each page of the given PDF to an image
 
@@ -28,31 +28,46 @@ def convert_pdf_to_image(path_to_pdf: str, attempts: int = 5) -> (List[Image], f
     while i < attempts:
         try:
             wait_until_file_is_unlocked(path_to_pdf)
-            pdf_file_reader = PdfFileReader(open(path_to_pdf, "rb"))
-            if pdf_file_reader is not None:
-                break
+            with open(path_to_pdf, "rb") as f:
+                pdf_file_reader = PdfFileReader(f)
+                if pdf_file_reader is not None:
+                    break
         except FileNotFoundError as e:
             console.log(e)
         i += 1
 
     if pdf_file_reader is None:
         console.log('[red]PDF konnte nicht gefunden werden')
-    _, _, upper_left, upper_right = pdf_file_reader.getPage(0).mediaBox
-    start_time = time()
-    console.log(f"{path_to_pdf} is being converted")
-    try:
-        converted_images = convert_from_path(
-            pdf_path=path_to_pdf,
-            output_folder=FINEREADER_WORKING_DIR,
-            poppler_path="./Poppler/Library/bin",
-            thread_count=multiprocessing.cpu_count(),
-            jpegopt=True
-        )
-        console.log(f"Needed {time() - start_time} seconds to convert {path_to_pdf} to images")
-    except Exception as e:
-        console.log(e, e)
 
-    return converted_images, upper_left, upper_right
+    min_height = 99999999
+    min_width = 99999999
+    min_index = 0
+
+    with open(path_to_pdf, "rb") as f:
+        pdf_file_reader = PdfFileReader(f)
+        for number in range(pdf_file_reader.getNumPages()):
+            _, _, width, height = pdf_file_reader.getPage(number).mediaBox
+            if width < min_width:
+                min_width = width
+                min_index = number
+            if height < min_height:
+                min_height = height
+
+        start_time = time()
+        console.log(f"{path_to_pdf} is being converted")
+        try:
+            converted_images = convert_from_path(
+                pdf_path=path_to_pdf,
+                output_folder=FINEREADER_WORKING_DIR,
+                poppler_path="./Poppler/Library/bin",
+                thread_count=multiprocessing.cpu_count(),
+                jpegopt=True
+            )
+            console.log(f"Needed {time() - start_time} seconds to convert {path_to_pdf} to images")
+        except Exception as e:
+            console.log(e, e)
+
+    return converted_images, min_width, min_height, min_index
 
 
 def convert_pil_images_to_cv2_format(pil_images: List[Image], progress_callback: Callable[[int], None]) -> List[

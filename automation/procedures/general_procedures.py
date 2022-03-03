@@ -89,12 +89,15 @@ class GeneralProcedures:
             press_key(key_combination='enter', delay_in_seconds=0.3)
             press_key(key_combination='tab', repetitions=7, delay_in_seconds=0.3)
             press_key(key_combination='enter', delay_in_seconds=0.3)
-            press_key(key_combination='tab', repetitions=6, delay_in_seconds=0.3)
+            press_key(key_combination='tab', repetitions=5, delay_in_seconds=0.3)
+            press_key(key_combination='-')
+            press_key(key_combination='tab')
             press_key(key_combination='enter', delay_in_seconds=0.5)
             press_key(key_combination='shift+tab')
             press_key(key_combination='enter', delay_in_seconds=1)
 
         WaitingProcedures.wait_until_saving_pdf_is_finished(path)
+
         console.log(Panel("[green]PDF saved"))
 
     @staticmethod
@@ -136,6 +139,19 @@ class GeneralProcedures:
             i += 1
 
     @staticmethod
+    def click_ocr_image_processing_icon(attempts: int = 5) -> None:
+        """
+        Clicks the OCR file icon
+        """
+        i = 0
+        while i < attempts:
+            result = Screen.locate_center_on_screen('ocr_image_processing_icon.png')
+            if result is not None:
+                pyautogui.click(result.x, result.y)
+                return
+            i += 1
+
+    @staticmethod
     def click_ocr_pages_header(attempts: int = 5) -> None:
         """
         Clicks the OCR pages header
@@ -173,6 +189,16 @@ class GeneralProcedures:
         i = 0
         while i < attempts:
             result = Screen.locate_center_on_screen('ocr_page_recognition.png')
+            if result is not None:
+                pyautogui.click(result.x, result.y)
+                return
+            i += 1
+
+    @staticmethod
+    def click_ocr_open_pdf_icon(attempts: int = 5):
+        i = 0
+        while i < attempts:
+            result = Screen.locate_center_on_screen('ocr_open_pdf.png')
             if result is not None:
                 pyautogui.click(result.x, result.y)
                 return

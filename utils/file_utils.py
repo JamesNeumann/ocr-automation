@@ -1,5 +1,8 @@
 import os
+import time
 from time import sleep
+
+from utils.console import console
 
 
 def is_file_locked(file_path):
@@ -34,4 +37,5 @@ def wait_until_file_is_unlocked(file_path) -> None:
     :param file_path: Path to the file to check
     """
     while is_file_locked(file_path):
-        pass
+        console.log("File is locked. Waiting...")
+        time.sleep(0.1)

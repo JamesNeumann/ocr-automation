@@ -2,6 +2,8 @@ import os
 
 from PyQt6.QtWidgets import QFileDialog, QWidget, QHBoxLayout, QPushButton, QLabel
 
+from utils.save_config import SaveConfig
+
 
 class FileSelection(QWidget):
 
@@ -21,11 +23,15 @@ class FileSelection(QWidget):
         self.setLayout(self.layout)
 
     def get_pdf_file(self):
-        path = self.file_folder if self.file_folder != "" else 'c:\\'
-        full_file_path = QFileDialog.getOpenFileName(self, path, "*.pdf")[0]
+        path = SaveConfig.STANDARD_SAVE_LOCATION
+        full_file_path = QFileDialog.getOpenFileName(self,
+                                                     directory=path,
+                                                     caption="Wähle eine PDF",
+                                                     filter="PDF-Dateien (*.pdf)")[0]
         if full_file_path != "":
             self.selected_file_name = os.path.basename(full_file_path)
             self.file_folder = os.path.dirname(full_file_path)
+            SaveConfig.save_folder_path(self.file_folder)
             self.selected_file_label.setText(self.selected_file_name)
 
     def file_path(self):

@@ -42,7 +42,7 @@ class Screen:
         :param folder: In which folder the image is saved
         :return: Any
         """
-        return pyautogui.locateCenterOnScreen(Screen.get_image_path(image_name, folder))
+        return pyautogui.locateCenterOnScreen(Screen.get_image_path(image_name, folder), confidence=0.95)
 
     @staticmethod
     def locate_on_screen(image_name: str, folder: FolderType = FolderType.ABBY) -> Any:
@@ -53,7 +53,7 @@ class Screen:
         :param folder: In which folder the image is saved
         :return: Any
         """
-        return pyautogui.locateOnScreen(Screen.get_image_path(image_name, folder))
+        return pyautogui.locateOnScreen(Screen.get_image_path(image_name, folder), confidence=0.95)
 
     @staticmethod
     def get_image_path(image_name: str, folder: FolderType = FolderType.ABBY) -> str:
