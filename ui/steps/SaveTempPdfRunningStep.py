@@ -6,6 +6,7 @@ from automation.finereader_automation import FineReaderAutomation
 from automation.procedures.general_procedures import GeneralProcedures
 from ui.components.progress_bar import ProgressBar
 from ui.steps.step import Step
+from utils.keyboard_util import press_key
 
 
 class SaveTempPdfRunningSignals(QObject):
@@ -20,7 +21,7 @@ class SaveTempPdfRunningWorker(QRunnable):
     @pyqtSlot()
     def run(self):
         path, name = GeneralProcedures.save_temp_pdf()
-        FineReaderAutomation.clean_up_ocr_instances()
+        FineReaderAutomation.close_ocr_project()
         self.signals.finished.emit(os.path.abspath(os.path.join(path, str(name) + ".pdf")))
 
 
