@@ -131,7 +131,7 @@ class FineReaderAutomation:
         time.sleep(1)
         if WaitingProcedures.is_close_button_visible():
             press_key(key_combination='alt+shift+s')
-        time.sleep(0.5)
+        time.sleep(0.3)
         path, file_name = GeneralProcedures.save_temp_pdf()
         FineReaderAutomation.clean_up_ocr_instances()
         progress_callback(100)

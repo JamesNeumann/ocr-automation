@@ -1,6 +1,7 @@
 import ctypes
 import sys
 
+from PyQt6 import QtCore
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QApplication
 from rich.traceback import install
@@ -23,6 +24,11 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon('./images/icon.ico'))
     window = MainWindow()
+    MainWindow.setWindowFlags(window,
+                              QtCore.Qt.WindowType.WindowCloseButtonHint |
+                              QtCore.Qt.WindowType.WindowMinimizeButtonHint
+                              )
+
     window.show()
 
     app.exec()

@@ -27,7 +27,7 @@ class CropWorker(QRunnable):
             images,
             lambda value: self.signals.progress.emit(50 + value)
         )
-        console.log(crop_box)
+        console.log("Result crop box: ", crop_box)
         self.signals.finished.emit(images, pts_width, pts_height, crop_box)
 
 

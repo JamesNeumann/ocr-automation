@@ -18,6 +18,7 @@ class SaveConfig:
         console.log("Saving path...")
         with open('path.save', 'w+', encoding='utf-8') as f:
             f.write(path_to_folder)
+        SaveConfig.STANDARD_SAVE_LOCATION = path_to_folder
 
     @staticmethod
     def read_saved_folder_path():
@@ -27,7 +28,7 @@ class SaveConfig:
                 console.log("Save file found. Path:", path)
                 return path
         except FileNotFoundError:
-            console.log("Did not find save file. Skipping...")
+            console.log("Save file not found. Skipping...")
             return None
 
     @staticmethod

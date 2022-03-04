@@ -113,10 +113,10 @@ class WaitingProcedures:
         Waits until open PDF in OCR editor is visible
 
         """
-        console.log("Waiting for open ocr open pdf icon to be visible...")
+        console.log("Waiting for ocr open pdf icon to be visible...")
         visible = WaitingProcedures.is_ocr_open_odf_visible()
         while not visible:
-            console.log("Waiting for open ocr open pdf icon to be visible...")
+            console.log("Waiting for ocr open pdf icon to be visible...")
             time.sleep(0.5)
             visible = WaitingProcedures.is_ocr_open_odf_visible()
 

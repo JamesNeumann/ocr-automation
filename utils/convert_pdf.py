@@ -1,4 +1,5 @@
 import multiprocessing
+from pathlib import Path
 from time import time
 from typing import List, Callable
 
@@ -43,6 +44,7 @@ def convert_pdf_to_image(path_to_pdf: str, attempts: int = 5) -> (List[Image], f
     min_width = 99999999
     min_index = 0
 
+    file_name = Path(path_to_pdf).stem
     with open(path_to_pdf, "rb") as f:
         pdf_file_reader = PdfFileReader(f)
         for number in range(pdf_file_reader.getNumPages()):
@@ -54,7 +56,7 @@ def convert_pdf_to_image(path_to_pdf: str, attempts: int = 5) -> (List[Image], f
                 min_height = height
 
         start_time = time()
-        console.log(f"{path_to_pdf} is being converted")
+        console.log(f"{file_name} is being converted")
         try:
             converted_images = convert_from_path(
                 pdf_path=path_to_pdf,
@@ -63,7 +65,7 @@ def convert_pdf_to_image(path_to_pdf: str, attempts: int = 5) -> (List[Image], f
                 thread_count=multiprocessing.cpu_count(),
                 jpegopt=True
             )
-            console.log(f"Needed {time() - start_time} seconds to convert {path_to_pdf} to images")
+            console.log(f"Needed {time() - start_time} seconds to convert {file_name} to images")
         except Exception as e:
             console.log(e, e)
 

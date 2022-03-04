@@ -7,7 +7,7 @@ from PyQt6.QtWidgets import QWidget, QStackedLayout, QMainWindow
 from rich.panel import Panel
 
 from automation.finereader_automation import FineReaderAutomation
-from config import FINEREADER_WORKING_DIR
+from config import FINEREADER_WORKING_DIR, VERSION
 from ui.steps.SaveTempPdfRunningStep import SaveTempPdfRunningStep
 from ui.steps.check_pdf_orientation_running_step import CheckPdfOrientationRunningStep
 from ui.steps.check_pdf_orientation_step import CheckPdfOrientationStep
@@ -23,6 +23,7 @@ from ui.steps.procedure_selection_step import ProcedureSelectionStep
 from ui.steps.save_pdf_running_step import SavePDFRunningStep
 from ui.steps.step import Step
 from utils.console import console
+from utils.save_config import SaveConfig
 
 
 class MainWindow(QMainWindow):
@@ -30,7 +31,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("FineReader Automation")
+        self.setWindowTitle(f"FineReader Automation v{VERSION}")
         self.resize(1024, 800)
 
         self.layout = QStackedLayout()
@@ -43,7 +44,7 @@ class MainWindow(QMainWindow):
         )
 
         self.open_finereader_step = OpenFineReaderStep(
-            text="Es wird gewartet, bis der FineReader und der OCR-Editor vollständig geöffnet wurde",
+            text="Es wird gewartet bis der OCR-Editor vollständig geöffnet wurde",
         )
         self.open_finereader_step.finished_signal.connect(self.open_procedure_step)
 
@@ -155,8 +156,6 @@ class MainWindow(QMainWindow):
     def open_crop_step(self, path: str):
         self.open_next_step()
         self.window().activateWindow()
-        # path = os.path.abspath(f"{FINEREADER_WORKING_DIR}\\{str(file_name)}.pdf")
-        console.log(path)
         self.crop_amount_step.open_pdf_pages(path)
 
     def open_crop_step_after_rotation(self):
@@ -193,6 +192,7 @@ class MainWindow(QMainWindow):
             self.open_crop_step(path)
         else:
             self.open_next_step()
+            self.activateWindow()
 
     def open_procedure_step(self):
         self.open_next_step()
@@ -212,7 +212,8 @@ class MainWindow(QMainWindow):
         self.window().activateWindow()
 
     def open_save_location_step(self):
-        self.open_next_step(),
+        self.open_next_step()
+        self.choose_save_location_step.folder_selection.set_folder(SaveConfig.STANDARD_SAVE_LOCATION)
         self.choose_save_location_step.set_previous_name(self.file_selection_step.file_selection.selected_file_name)
 
     def save_pdf(self):

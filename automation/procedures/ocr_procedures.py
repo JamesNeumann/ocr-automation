@@ -60,7 +60,7 @@ class OcrProcedures:
         """
         Crops the PDF to the given values
         """
-        with ProcedureContext("cropping pdf"):
+        with ProcedureContext("PDF crop"):
             if should_tab_in:
                 press_key(key_combination='alt+tab', delay_in_seconds=1)
 
