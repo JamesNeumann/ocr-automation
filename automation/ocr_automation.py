@@ -172,8 +172,9 @@ class FineReaderAutomation:
         press_key(key_combination='i', delay_in_seconds=0.3)
         GeneralProcedures.click_ocr_image_processing_icon()
         press_key(key_combination='tab', repetitions=3, delay_in_seconds=0.1)
-        press_key(key_combination='-', delay_in_seconds=0.1)
+        press_key(key_combination='-', delay_in_seconds=0.3)
         press_key(key_combination='tab', repetitions=5, delay_in_seconds=0.1)
+        press_key(key_combination='-', delay_in_seconds=0.3)
         press_key(key_combination='enter', delay_in_seconds=0.3)
 
     @staticmethod
