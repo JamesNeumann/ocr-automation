@@ -16,7 +16,12 @@ from utils.rectangle import Rectangle
 class OcrAutomation:
 
     @staticmethod
-    def open_pdf_in_ocr_editor(path_to_pdf: str):
+    def open_pdf_in_ocr_editor(path_to_pdf: str) -> None:
+        """
+        Opens the given PDF in the OCR editor
+
+        :param path_to_pdf: path to the PDF that should be opened
+        """
         os.startfile(OCR_EDITOR_LNK_PATH)
         WaitingProcedures.wait_util_ocr_open_pdf_is_visible()
         time.sleep(1)
@@ -131,6 +136,9 @@ class OcrAutomation:
 
     @staticmethod
     def disable_initial_ocr() -> None:
+        """
+        Disables the initial OCR when opening a PDF
+        """
         console.log("Disabling initial ocr...")
         press_key(key_combination='alt+k', delay_in_seconds=0.2)
         press_key(key_combination='i', delay_in_seconds=0.3)
@@ -141,7 +149,10 @@ class OcrAutomation:
         press_key(key_combination='enter', delay_in_seconds=0.3)
 
     @staticmethod
-    def close_ocr_project():
+    def close_ocr_project() -> None:
+        """
+        Closes the OCR instance
+        """
         GeneralProcedures.click_ocr_pages_header()
         press_key(key_combination='alt+f4', delay_in_seconds=0.3)
         press_key(key_combination='alt+n')

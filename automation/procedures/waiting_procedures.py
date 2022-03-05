@@ -37,6 +37,7 @@ class WaitingProcedures:
         ocr_not_finished = Screen.locate_on_screen('ocr_not_done.png')
         while ocr_not_finished is None:
             console.log("Waiting until OCR is finished...")
+            time.sleep(0.5)
             ocr_not_finished = Screen.locate_on_screen('ocr_not_done.png')
 
     @staticmethod
@@ -48,6 +49,7 @@ class WaitingProcedures:
         ocr_not_finished = Screen.locate_on_screen('ocr_not_done.png')
         while ocr_not_finished is not None:
             console.log("Waiting until OCR is finished...")
+            time.sleep(0.5)
             ocr_not_finished = Screen.locate_on_screen('ocr_not_done.png')
 
     @staticmethod
