@@ -1,6 +1,6 @@
 from PyQt6.QtCore import pyqtSignal, QObject, QRunnable, pyqtSlot, QThreadPool
 
-from automation.finereader_automation import FineReaderAutomation
+from automation.ocr_automation import OcrAutomation
 from ui.components.progress_bar import ProgressBar
 from ui.steps.step import Step
 
@@ -16,7 +16,7 @@ class CleanUpRunningWorker(QRunnable):
 
     @pyqtSlot()
     def run(self) -> None:
-        FineReaderAutomation.clean_up()
+        OcrAutomation.clean_up()
         self.signals.finished.emit()
 
 

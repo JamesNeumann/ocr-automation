@@ -1,6 +1,6 @@
 from PyQt6.QtCore import QObject, pyqtSignal, QRunnable, QThreadPool, pyqtSlot
 
-from automation.finereader_automation import FineReaderAutomation
+from automation.ocr_automation import OcrAutomation
 from ui.components.progress_bar import ProgressBar
 from ui.steps.step import Step
 from utils.rectangle import Rectangle
@@ -20,7 +20,7 @@ class CropRunningWorker(QRunnable):
 
     @pyqtSlot()
     def run(self) -> None:
-        FineReaderAutomation.crop_pdf(path_to_pdf=self.path_to_pdf, crop_rectangle=self.crop_rectangle)
+        OcrAutomation.crop_pdf(path_to_pdf=self.path_to_pdf, crop_rectangle=self.crop_rectangle)
         self.signals.finished.emit()
 
 

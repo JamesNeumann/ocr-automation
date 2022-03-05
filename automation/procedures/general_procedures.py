@@ -4,7 +4,7 @@ import pyautogui
 from rich.panel import Panel
 
 from automation.procedures.waiting_procedures import WaitingProcedures
-from config import FINEREADER_WORKING_DIR
+from config import OCR_WORKING_DIR
 from utils.console import console
 from utils.keyboard_util import press_key, write
 from utils.screen import Screen
@@ -62,10 +62,10 @@ class GeneralProcedures:
         """
 
         temp_uuid = uuid.uuid4()
-        path = f"{FINEREADER_WORKING_DIR}\\{temp_uuid}.pdf"
+        path = f"{OCR_WORKING_DIR}\\{temp_uuid}.pdf"
         GeneralProcedures._save_temp_pdf(path)
 
-        return FINEREADER_WORKING_DIR, temp_uuid
+        return OCR_WORKING_DIR, temp_uuid
 
     @staticmethod
     def _save_temp_pdf(path):
@@ -90,7 +90,7 @@ class GeneralProcedures:
             press_key(key_combination='tab', repetitions=7, delay_in_seconds=0.3)
             press_key(key_combination='enter', delay_in_seconds=0.3)
             press_key(key_combination='tab', repetitions=5, delay_in_seconds=0.3)
-            press_key(key_combination='-')
+            press_key(key_combination='-', delay_in_seconds=0.5)
             press_key(key_combination='tab')
             press_key(key_combination='enter', delay_in_seconds=0.5)
             press_key(key_combination='shift+tab')

@@ -1,6 +1,6 @@
 from PyQt6.QtCore import pyqtSignal, QObject, QRunnable, pyqtSlot, QThreadPool
 
-from automation.finereader_automation import FineReaderAutomation
+from automation.ocr_automation import OcrAutomation
 from ui.components.progress_bar import ProgressBar
 from ui.steps.step import Step
 from utils.analyze_pdf import analyze_pdf_orientation
@@ -29,7 +29,7 @@ class CheckPdfOrientationWorker(QRunnable):
         if len_landscaped > 0 and len_portraits > 0:
             result_indices = portraits if len_landscaped > len_portraits else landscaped
         if len(result_indices) > 0:
-            FineReaderAutomation.open_pdf_in_ocr_editor(self.path_to_pdf)
+            OcrAutomation.open_pdf_in_ocr_editor(self.path_to_pdf)
 
         self.signals.finished.emit(result_indices, self.path_to_pdf)
 

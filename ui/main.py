@@ -6,9 +6,8 @@ from uuid import UUID
 from PyQt6.QtWidgets import QWidget, QStackedLayout, QMainWindow
 from rich.panel import Panel
 
-from automation.finereader_automation import FineReaderAutomation
-from config import FINEREADER_WORKING_DIR, VERSION
-from ui.steps.SaveTempPdfRunningStep import SaveTempPdfRunningStep
+from automation.ocr_automation import OcrAutomation
+from config import OCR_WORKING_DIR, VERSION
 from ui.steps.check_pdf_orientation_running_step import CheckPdfOrientationRunningStep
 from ui.steps.check_pdf_orientation_step import CheckPdfOrientationStep
 from ui.steps.clean_up_running_step import CleanUpRunningStep
@@ -18,9 +17,10 @@ from ui.steps.file_name_selection_step import FileNameSelectionStep
 from ui.steps.file_selection_step import FileSelectionStep
 from ui.steps.ocr_language_selection_step import OcrLanguageSelectionStep
 from ui.steps.ocr_running_step import OcrRunningStep
-from ui.steps.open_finereader import OpenFineReaderStep
+from ui.steps.open_ocr_editor_step import OpenOcrEditorStep
 from ui.steps.procedure_selection_step import ProcedureSelectionStep
 from ui.steps.save_pdf_running_step import SavePDFRunningStep
+from ui.steps.save_temp_pdf_running import SaveTempPdfRunningStep
 from ui.steps.step import Step
 from utils.console import console
 from utils.save_config import SaveConfig
@@ -31,7 +31,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle(f"FineReader Automation v{VERSION}")
+        self.setWindowTitle(f"OCR Automation v{VERSION}")
         self.resize(1024, 800)
 
         self.layout = QStackedLayout()
@@ -40,13 +40,13 @@ class MainWindow(QMainWindow):
 
         self.file_selection_step = FileSelectionStep(
             text="Wähle eine PDF-Datei aus",
-            next_callback=self.open_finereader_and_ocr_editor
+            next_callback=self.open_ocr_editor
         )
 
-        self.open_finereader_step = OpenFineReaderStep(
+        self.open_ocr_editor_step = OpenOcrEditorStep(
             text="Es wird gewartet bis der OCR-Editor vollständig geöffnet wurde",
         )
-        self.open_finereader_step.finished_signal.connect(self.open_procedure_step)
+        self.open_ocr_editor_step.finished_signal.connect(self.open_procedure_step)
 
         self.procedures_step = ProcedureSelectionStep(
             text="Welche Optimierungen sollen durchgeführt werden?",
@@ -117,7 +117,7 @@ class MainWindow(QMainWindow):
 
         self.steps = [
             self.file_selection_step,
-            self.open_finereader_step,
+            self.open_ocr_editor_step,
             self.procedures_step,
             self.check_pdf_orientation_running_step,
             self.check_pdf_orientation_step,
@@ -147,11 +147,11 @@ class MainWindow(QMainWindow):
         self.current_index += 1
         self.layout.setCurrentIndex(self.current_index)
 
-    def open_finereader_and_ocr_editor(self):
+    def open_ocr_editor(self):
         if self.file_selection_step.file_selection.selected_file_name != "":
-            self.open_finereader_step.set_pdf_path(self.file_selection_step.file_selection.file_path())
+            self.open_ocr_editor_step.set_pdf_path(self.file_selection_step.file_selection.file_path())
             self.open_next_step()
-            self.open_finereader_step.start()
+            self.open_ocr_editor_step.start()
 
     def open_crop_step(self, path: str):
         self.open_next_step()
@@ -174,13 +174,13 @@ class MainWindow(QMainWindow):
         self.open_next_step()
 
     def open_image_improvement_tools(self):
-        FineReaderAutomation.open_image_improvement_tools()
+        OcrAutomation.open_image_improvement_tools()
         self.do_optimization()
         self.open_next_step()
 
     def open_check_pdf_orientation_running_step(self, file_name: UUID):
         self.open_next_step()
-        path = os.path.abspath(f"{FINEREADER_WORKING_DIR}\\{str(file_name)}.pdf")
+        path = os.path.abspath(f"{OCR_WORKING_DIR}\\{str(file_name)}.pdf")
         self.check_pdf_orientation_running_step.start(path)
 
     def open_check_pdf_orientation_step(self, indices: List[int], path: str):

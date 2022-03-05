@@ -6,7 +6,7 @@ import pyautogui
 
 
 class FolderType(Enum):
-    ABBY = 1
+    OCR = 1
     WIN = 2
 
 
@@ -34,7 +34,7 @@ class Screen:
             return False
 
     @staticmethod
-    def locate_center_on_screen(image_name: str, folder: FolderType = FolderType.ABBY) -> Any:
+    def locate_center_on_screen(image_name: str, folder: FolderType = FolderType.OCR) -> Any:
         """
         Locates the given image on screen. Then returns the center position of that image relative to its screen position
 
@@ -45,7 +45,7 @@ class Screen:
         return pyautogui.locateCenterOnScreen(Screen.get_image_path(image_name, folder), confidence=0.95)
 
     @staticmethod
-    def locate_on_screen(image_name: str, folder: FolderType = FolderType.ABBY) -> Any:
+    def locate_on_screen(image_name: str, folder: FolderType = FolderType.OCR) -> Any:
         """
         Locates the given image on screen. Then returns the position of that image  relative to its screen position
 
@@ -56,7 +56,7 @@ class Screen:
         return pyautogui.locateOnScreen(Screen.get_image_path(image_name, folder), confidence=0.95)
 
     @staticmethod
-    def get_image_path(image_name: str, folder: FolderType = FolderType.ABBY) -> str:
+    def get_image_path(image_name: str, folder: FolderType = FolderType.OCR) -> str:
         """
         Returns the full path to the given image
 
@@ -74,8 +74,8 @@ class Screen:
         :param folder: Type of the
         :return: The name of the FolderType
         """
-        if folder == FolderType.ABBY:
-            return 'FineReader'
+        if folder == FolderType.OCR:
+            return 'OCR'
         if folder == FolderType.WIN:
             if Screen.is_win_11():
                 return 'Win11'

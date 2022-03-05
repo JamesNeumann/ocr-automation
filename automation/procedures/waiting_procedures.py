@@ -157,7 +157,7 @@ class WaitingProcedures:
     @staticmethod
     def is_open_pdf_visible() -> bool:
         """
-        Checks if the open PDF button in Abby is visible
+        Checks if the open PDF button is visible
 
         :return: Is visible or not
         """

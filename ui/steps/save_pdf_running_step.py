@@ -1,6 +1,6 @@
 from PyQt6.QtCore import pyqtSignal, QObject, QRunnable, pyqtSlot, QThreadPool
 
-from automation.finereader_automation import FineReaderAutomation
+from automation.ocr_automation import OcrAutomation
 from ui.components.progress_bar import ProgressBar
 from ui.steps.step import Step
 from utils.edit_metadata import set_standard_metadata
@@ -19,7 +19,7 @@ class SavePDFRunningWorker(QRunnable):
 
     @pyqtSlot()
     def run(self) -> None:
-        FineReaderAutomation.save_pdf(self.pdf_path)
+        OcrAutomation.save_pdf(self.pdf_path)
         wait_until_file_is_unlocked(self.pdf_path)
         set_standard_metadata(self.pdf_path)
         self.signals.finished.emit()

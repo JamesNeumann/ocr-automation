@@ -6,7 +6,7 @@ from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QApplication
 from rich.traceback import install
 
-from config import initialize_directories
+from config import initialize_directories, VERSION
 from ui.main import MainWindow
 from utils.save_config import SaveConfig
 from utils.screen import Screen
@@ -14,8 +14,8 @@ from utils.screen import Screen
 if __name__ == '__main__':
     install(show_locals=True)
 
-    myappid = u'jamesneumann.FineReaderAutomation.v1.0'  # arbitrary string
-    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+    app_id = u'jamesneumann.OcrAutomation.v' + VERSION
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(app_id)
 
     SaveConfig.init()
 
