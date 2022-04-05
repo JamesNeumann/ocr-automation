@@ -204,6 +204,7 @@ class MainWindow(QMainWindow):
     def do_ocr(self):
         self.open_next_step()
         languages = self.ocr_language_selection_step.get_selected_language()
+        console.log(languages)
         self.ocr_running_step.start(languages)
 
     def ocr_running_finished(self):

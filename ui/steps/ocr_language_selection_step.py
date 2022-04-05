@@ -20,11 +20,21 @@ class OcrLanguageSelectionStep(Step):
 
         self.pre_defined_languages_layout = QVBoxLayout()
 
-        self.pre_defined_languages = ['Altdeutsch', 'Deutsch', 'Deutsch (Neue Rechtschreibung)', 'Englisch',
-                                      'Französisch', 'Italienisch', 'Spanisch']
+        # self.pre_defined_languages = ['Altdeutsch', 'Deutsch', 'Deutsch (Neue Rechtschreibung)', 'Englisch',
+        #                               'Französisch', 'Italienisch', 'Spanisch']
+
+        deutsch = "Deutsch;Englisch;Französisch;Lateinisch;"
+        altdeutsch = "Altdeutsch;Englisch;Französisch;Lateinisch;"
+        france = "Französisch;Deutsch;Englisch;Lateinisch;"
+        deutsch_new = "Deutsch (Neue Rechtschreibung);Französisch;Englisch;Lateinisch;"
+        english = "Englisch;Französisch;Deutsch;Lateinisch;"
+        italian = "Italienisch;Englisch;Französisch;Deutsch;Lateinisch;"
+        spanish = "Spanisch;Englisch;Französisch;Deutsch;Lateinisch;"
+
+        self.pre_defined_languages = [deutsch, altdeutsch, france, deutsch_new, english, italian, spanish]
 
         for index, language in enumerate(self.pre_defined_languages):
-            button = QRadioButton(language + '; Lateinisch')
+            button = QRadioButton(language)
             if index == 0:
                 button.setChecked(True)
             self.pre_defined_languages_layout.addWidget(button)
@@ -72,7 +82,7 @@ class OcrLanguageSelectionStep(Step):
     def get_selected_language(self):
         custom_languages = self.checkable_combo_box.currentData()
         if len(custom_languages) > 0:
-            return '; '.join(custom_languages)
+            return ';'.join(custom_languages) + ";"
         else:
             for button in self.pre_defined_languages_group_box.findChildren(QRadioButton):
                 if button.isChecked():
