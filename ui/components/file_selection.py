@@ -2,6 +2,7 @@ import os
 
 from PyQt6.QtWidgets import QFileDialog, QWidget, QHBoxLayout, QPushButton, QLabel
 
+from automation.store import Store
 from utils.save_config import SaveConfig
 
 
@@ -33,6 +34,8 @@ class FileSelection(QWidget):
             self.file_folder = os.path.dirname(full_file_path)
             SaveConfig.save_folder_path(self.file_folder)
             self.selected_file_label.setText(self.selected_file_name)
+
+        Store.SELECTED_FILE_PATH = os.path.abspath(self.file_path())
 
     def file_path(self):
         return self.file_folder + "/" + self.selected_file_name

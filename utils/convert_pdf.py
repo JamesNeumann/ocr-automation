@@ -63,7 +63,7 @@ def convert_pdf_to_image(path_to_pdf: str, attempts: int = 5) -> (List[Image], f
                 output_folder=OCR_WORKING_DIR,
                 poppler_path="./Poppler/Library/bin",
                 thread_count=multiprocessing.cpu_count(),
-                jpegopt=True
+                jpegopt=True,
             )
             console.log(f"Needed {time() - start_time} seconds to convert {file_name} to images")
         except Exception as e:

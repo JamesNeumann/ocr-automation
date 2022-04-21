@@ -1,6 +1,7 @@
 from PyQt6.QtCore import pyqtSignal, QObject, QRunnable, pyqtSlot, QThreadPool
 
 from automation.ocr_automation import OcrAutomation
+from automation.store import Store
 from ui.components.progress_bar import ProgressBar
 from ui.steps.step import Step
 from utils.analyze_pdf import analyze_pdf_orientation
@@ -8,19 +9,18 @@ from utils.analyze_pdf import analyze_pdf_orientation
 
 class CheckPdfOrientationSignals(QObject):
     progress = pyqtSignal(float)
-    finished = pyqtSignal(list, str)
+    finished = pyqtSignal()
 
 
 class CheckPdfOrientationWorker(QRunnable):
-    def __init__(self, path_to_pdf: str):
+    def __init__(self):
         super(CheckPdfOrientationWorker, self).__init__()
         self.signals = CheckPdfOrientationSignals()
-        self.path_to_pdf = path_to_pdf
 
     @pyqtSlot()
     def run(self) -> None:
         landscaped, portraits = analyze_pdf_orientation(
-            self.path_to_pdf, lambda value: self.signals.progress.emit(value)
+            Store.FILE_PATH_AFTER_PROCEDURES, lambda value: self.signals.progress.emit(value)
         )
 
         len_landscaped = len(landscaped)
@@ -29,13 +29,14 @@ class CheckPdfOrientationWorker(QRunnable):
         if len_landscaped > 0 and len_portraits > 0:
             result_indices = portraits if len_landscaped > len_portraits else landscaped
         if len(result_indices) > 0:
-            OcrAutomation.open_pdf_in_ocr_editor(self.path_to_pdf)
+            OcrAutomation.open_pdf_in_ocr_editor(Store.FILE_PATH_AFTER_PROCEDURES)
 
-        self.signals.finished.emit(result_indices, self.path_to_pdf)
+        Store.INDICES_TO_ROTATE = result_indices
+        self.signals.finished.emit()
 
 
 class CheckPdfOrientationRunningStep(Step):
-    finished = pyqtSignal(list, str)
+    finished = pyqtSignal()
 
     def __init__(self, *, text: str, previous_text="Zurück", previous_callback=None, next_text="Weiter",
                  next_callback=None, detail: str = ""):
@@ -55,9 +56,9 @@ class CheckPdfOrientationRunningStep(Step):
         self.threadpool = QThreadPool()
         self.worker = None
 
-    def start(self, path_to_pdf):
-        self.worker = CheckPdfOrientationWorker(path_to_pdf)
-        self.worker.signals.finished.connect(lambda indices, path: self.finished.emit(indices, path))
+    def start(self):
+        self.worker = CheckPdfOrientationWorker()
+        self.worker.signals.finished.connect(self.finished.emit)
         self.worker.signals.progress.connect(lambda value: self.progress_bar.setValue(int(value * 100)))
         self.threadpool.start(self.worker)
 

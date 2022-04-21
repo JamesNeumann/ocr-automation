@@ -1,3 +1,5 @@
+from typing import List
+
 from PyQt6.QtCore import QObject, pyqtSignal, QRunnable, QThreadPool, pyqtSlot
 
 from automation.ocr_automation import OcrAutomation
@@ -12,15 +14,17 @@ class CropRunningSignals(QObject):
 
 class CropRunningWorker(QRunnable):
 
-    def __init__(self, path_to_pdf: str, crop_rectangle: Rectangle):
+    def __init__(self, path_to_pdf: str, crop_rectangle: Rectangle, crop_rectangles: List[Rectangle]):
         super(CropRunningWorker, self).__init__()
         self.signals = CropRunningSignals()
         self.path_to_pdf = path_to_pdf
         self.crop_rectangle = crop_rectangle
+        self.crop_rectangles = crop_rectangles
 
     @pyqtSlot()
     def run(self) -> None:
-        OcrAutomation.crop_pdf(path_to_pdf=self.path_to_pdf, crop_rectangle=self.crop_rectangle)
+        # OcrAutomation.crop_pdf(path_to_pdf=self.path_to_pdf, crop_rectangle=self.crop_rectangle)
+        OcrAutomation.crop_pdf_single_pages(path_to_pdf=self.path_to_pdf, crop_rectangles=self.crop_rectangles)
         self.signals.finished.emit()
 
 
@@ -42,7 +46,7 @@ class CropRunningStep(Step):
         self.worker = None
         self.threadpool = QThreadPool()
 
-    def start(self, file_path, rectangle):
-        self.worker = CropRunningWorker(file_path, rectangle)
+    def start(self, file_path, rectangle, rectangles):
+        self.worker = CropRunningWorker(file_path, rectangle, rectangles)
         self.worker.signals.finished.connect(lambda: self.finished.emit())
         self.threadpool.start(self.worker)

@@ -27,6 +27,7 @@ class CropAmountSelection(QWidget):
         self.curr_image_index = 0
         self.q_images = []
         self.rectangle = None
+        self.rectangles = []
         self.pts_per_width = 0
         self.pts_per_height = 0
         self.width = 0
@@ -200,6 +201,9 @@ class CropAmountSelection(QWidget):
     def set_rectangle(self, rectangle: Rectangle) -> None:
         self.rectangle = rectangle
 
+    def set_rectangles(self, rectangles: List[Rectangle]):
+        self.rectangles = rectangles
+
     def set_width(self, width):
         self.width = width
 
@@ -249,6 +253,18 @@ class CropAmountSelection(QWidget):
             convert_to_pts(min(self.rectangle.height - self.rectangle.y + self.offset_top + self.offset_bottom,
                                self.height) * self.pts_per_height)
         )
+
+    def get_pts_rectangles(self):
+        pts_rectangles = []
+        for rectangle in self.rectangles:
+            temp_rectangle = Rectangle(
+                convert_to_pts(rectangle.x * self.pts_per_width),
+                convert_to_pts(rectangle.y * self.pts_per_height),
+                convert_to_pts(rectangle.width * self.pts_per_width),
+                convert_to_pts(rectangle.height * self.pts_per_height)
+            )
+            pts_rectangles.append(temp_rectangle)
+        return pts_rectangles
 
     def reset(self):
         self.images = []

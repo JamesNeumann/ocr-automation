@@ -3,6 +3,7 @@ import os.path
 from PyQt6.QtCore import QRunnable, QObject, pyqtSignal, pyqtSlot, QThreadPool
 
 from automation.ocr_automation import OcrAutomation
+from automation.store import Store
 from ui.steps.step import Step
 
 
@@ -12,14 +13,13 @@ class OpenOcrEditorWorkerSignals(QObject):
 
 class OpenOcrEditorWorker(QRunnable):
 
-    def __init__(self, path_to_pdf: str):
+    def __init__(self):
         super(OpenOcrEditorWorker, self).__init__()
-        self.path_to_pdf = path_to_pdf
         self.signals = OpenOcrEditorWorkerSignals()
 
     @pyqtSlot()
     def run(self) -> None:
-        OcrAutomation.open_pdf_in_ocr_editor(path_to_pdf=self.path_to_pdf)
+        OcrAutomation.open_pdf_in_ocr_editor(path_to_pdf=Store.SELECTED_FILE_PATH)
         self.signals.finished.emit()
 
 
@@ -38,9 +38,6 @@ class OpenOcrEditorStep(Step):
         self.threadpool = QThreadPool()
 
     def start(self):
-        self.worker = OpenOcrEditorWorker(self.path_to_pdf)
-        self.worker.signals.finished.connect(lambda: self.finished_signal.emit())
+        self.worker = OpenOcrEditorWorker()
+        self.worker.signals.finished.connect(self.finished_signal.emit)
         self.threadpool.start(self.worker)
-
-    def set_pdf_path(self, path_to_pdf: str):
-        self.path_to_pdf = os.path.abspath(path_to_pdf)

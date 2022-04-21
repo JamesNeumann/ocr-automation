@@ -7,11 +7,13 @@ from PyQt6.QtWidgets import QWidget, QStackedLayout, QMainWindow
 from rich.panel import Panel
 
 from automation.ocr_automation import OcrAutomation
+from automation.store import Store
 from config import OCR_WORKING_DIR, VERSION
 from ui.steps.check_pdf_orientation_running_step import CheckPdfOrientationRunningStep
 from ui.steps.check_pdf_orientation_step import CheckPdfOrientationStep
 from ui.steps.clean_up_running_step import CleanUpRunningStep
 from ui.steps.crop_amount_step import CropAmountStep
+from ui.steps.crop_pdf_question_step import CropPdfQuestionStep
 from ui.steps.crop_running_step import CropRunningStep
 from ui.steps.file_name_selection_step import FileNameSelectionStep
 from ui.steps.file_selection_step import FileSelectionStep
@@ -50,24 +52,38 @@ class MainWindow(QMainWindow):
 
         self.procedures_step = ProcedureSelectionStep(
             text="Welche Optimierungen sollen durchgeführt werden?",
-            next_callback=self.do_optimization
+            next_callback=self.start_procedures
         )
-        self.procedures_step.finished.connect(lambda file_name: self.open_check_pdf_orientation_running_step(file_name))
+        self.procedures_step.finished.connect(
+            lambda: (self.open_step(self.crop_pdf_question_step), self.window().activateWindow()))
+
+        self.crop_pdf_question_step = CropPdfQuestionStep(text="Soll die PDF zugeschnitten werden?",
+                                                          next_callback=self.crop_pdf_question_acceptance,
+                                                          previous_callback=lambda: self.open_step(
+                                                              self.ocr_language_selection_step))
+
+        self.save_temp_pdf_after_procedures = SaveTempPdfRunningStep(
+            text="PDF wird zwischengespeichert"
+        )
+
+        self.save_temp_pdf_after_procedures.finished.connect(
+            lambda file: self.save_temp_pdf_after_procedures_finished(file)
+        )
 
         self.check_pdf_orientation_running_step = CheckPdfOrientationRunningStep(
             text="Die PDF wird analyisiert"
         )
-        self.check_pdf_orientation_running_step.finished.connect(
-            lambda indices, path: self.open_check_pdf_orientation_step(indices, path))
-
-        self.save_temp_pdf_running_step = SaveTempPdfRunningStep(
-            text="PDF wird zwischengespeichert"
-        )
-        self.save_temp_pdf_running_step.finished.connect(lambda path: self.open_crop_step(path))
+        self.check_pdf_orientation_running_step.finished.connect(self.open_check_pdf_orientation_step)
 
         self.check_pdf_orientation_step = CheckPdfOrientationStep(
             text="Folgende Seiten müssen überprüft werden",
-            next_callback=self.open_crop_step_after_rotation
+            next_callback=self.save_pdf_after_orientation_fix
+        )
+        self.save_temp_pdf_running_step = SaveTempPdfRunningStep(
+            text="PDF wird zwischengespeichert"
+        )
+        self.save_temp_pdf_running_step.finished.connect(
+            lambda file: self.open_crop_step(file)
         )
 
         self.crop_amount_step = CropAmountStep(
@@ -119,6 +135,8 @@ class MainWindow(QMainWindow):
             self.file_selection_step,
             self.open_ocr_editor_step,
             self.procedures_step,
+            self.crop_pdf_question_step,
+            self.save_temp_pdf_after_procedures,
             self.check_pdf_orientation_running_step,
             self.check_pdf_orientation_step,
             self.save_temp_pdf_running_step,
@@ -147,18 +165,48 @@ class MainWindow(QMainWindow):
         self.current_index += 1
         self.layout.setCurrentIndex(self.current_index)
 
+    def open_step(self, step: Step):
+        index = self.steps.index(step)
+        self.current_index = index
+        self.layout.setCurrentIndex(self.current_index)
+
     def open_ocr_editor(self):
-        if self.file_selection_step.file_selection.selected_file_name != "":
-            self.open_ocr_editor_step.set_pdf_path(self.file_selection_step.file_selection.file_path())
-            self.open_next_step()
+        if Store.SELECTED_FILE_PATH != "":
+            self.open_step(self.open_ocr_editor_step)
             self.open_ocr_editor_step.start()
+
+    def start_procedures(self):
+        self.procedures_step.start()
+
+    def crop_pdf_question_acceptance(self):
+        self.open_step(self.save_temp_pdf_after_procedures)
+        self.save_temp_pdf_after_procedures.start()
+
+    def save_temp_pdf_after_procedures_finished(self, file):
+        Store.FILE_PATH_AFTER_PROCEDURES = file
+        self.open_step(self.check_pdf_orientation_running_step)
+        self.check_pdf_orientation_running_step.start()
+
+    def open_check_pdf_orientation_running_step(self):
+        self.open_step(self.check_pdf_orientation_running_step)
+        self.check_pdf_orientation_running_step.start()
+
+    def open_check_pdf_orientation_step(self):
+        self.check_pdf_orientation_step.set_indices(Store.INDICES_TO_ROTATE)
+        console.log(Store.INDICES_TO_ROTATE)
+        if len(Store.INDICES_TO_ROTATE) == 0:
+            self.open_step(self.save_temp_pdf_running_step)
+            self.open_crop_step(Store.FILE_PATH_AFTER_PROCEDURES)
+        else:
+            self.open_next_step()
+            self.activateWindow()
 
     def open_crop_step(self, path: str):
         self.open_next_step()
         self.window().activateWindow()
         self.crop_amount_step.open_pdf_pages(path)
 
-    def open_crop_step_after_rotation(self):
+    def save_pdf_after_orientation_fix(self):
         self.open_next_step()
         self.save_temp_pdf_running_step.start()
 
@@ -169,37 +217,19 @@ class MainWindow(QMainWindow):
     def crop_pdf(self):
         self.crop_running_step.start(
             self.crop_amount_step.path_to_pdf,
-            self.crop_amount_step.crop_amount_selection.get_pts_rectangle()
+            self.crop_amount_step.crop_amount_selection.get_pts_rectangle(),
+            self.crop_amount_step.crop_amount_selection.get_pts_rectangles()
         )
         self.open_next_step()
 
     def open_image_improvement_tools(self):
         OcrAutomation.open_image_improvement_tools()
-        self.do_optimization()
+        self.start_procedures()
         self.open_next_step()
-
-    def open_check_pdf_orientation_running_step(self, file_name: UUID):
-        self.open_next_step()
-        path = os.path.abspath(f"{OCR_WORKING_DIR}\\{str(file_name)}.pdf")
-        self.check_pdf_orientation_running_step.start(path)
-
-    def open_check_pdf_orientation_step(self, indices: List[int], path: str):
-        self.check_pdf_orientation_step.set_indices(indices)
-        self.check_pdf_orientation_step.set_path(path)
-        if len(indices) == 0:
-            self.open_next_step()
-            self.open_next_step()
-            self.open_crop_step(path)
-        else:
-            self.open_next_step()
-            self.activateWindow()
 
     def open_procedure_step(self):
-        self.open_next_step()
+        self.open_step(self.procedures_step)
         self.window().activateWindow()
-
-    def do_optimization(self):
-        self.procedures_step.start()
 
     def do_ocr(self):
         self.open_next_step()
@@ -240,3 +270,4 @@ class MainWindow(QMainWindow):
         self.window().activateWindow()
         self.open_next_step()
         self.clean_up_running_step.start()
+        Store.reset()

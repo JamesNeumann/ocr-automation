@@ -1,8 +1,10 @@
 import math
+import time
 from typing import Dict, List, Callable
 
 from automation.procedures.general_procedures import GeneralProcedures
 from automation.procedures.procedure_context import ProcedureContext
+from automation.procedures.waiting_procedures import WaitingProcedures
 from utils.keyboard_util import press_key
 
 
@@ -71,6 +73,22 @@ class OcrProcedures:
             press_key(key_combination='down', repetitions=3, delay_in_seconds=0.5)
             press_key(key_combination='alt+e', delay_in_seconds=1)
             press_key(key_combination='enter', delay_in_seconds=0.5)
+
+    @staticmethod
+    def do_crop_pdf_single_page(x: float, y: float, width: float, height: float, should_tab_in: bool = True) -> None:
+        if should_tab_in:
+            press_key(key_combination='alt+tab', delay_in_seconds=1)
+
+        press_key(key_combination='alt+c', delay_in_seconds=0.5)
+        GeneralProcedures.write_crop_values(1, 1, 0, 0)
+        GeneralProcedures.write_crop_values(math.floor(width), math.floor(height), math.ceil(x), math.ceil(y))
+        press_key(key_combination='alt+shift+.', delay_in_seconds=0.5)
+        press_key(key_combination='up', repetitions=3, delay_in_seconds=0.5)
+        press_key(key_combination='alt+e', delay_in_seconds=1)
+        press_key(key_combination='enter', delay_in_seconds=0.5)
+        time.sleep(0.5)
+        WaitingProcedures.wait_until_cropping_page_is_done()
+        # with ProcedureContext("PDF crop"):
 
     @staticmethod
     def get_available_procedures() -> Dict[str, Callable]:

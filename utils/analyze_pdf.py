@@ -11,7 +11,7 @@ from utils.rectangle import Rectangle
 
 
 def get_pdf_pages_as_images(path_to_pdf: str, progress_callback: Callable[[int], None]) -> (
-        List[ndarray], float, float):
+        List[ndarray], float, float, int):
     """
     Returns the pages of the given PDF as images. Also returns the width and height in pts
     :param path_to_pdf: Path to the PDF that should be converted
@@ -65,13 +65,83 @@ def get_crop_box_pixel(images: List[ndarray], progress_callback: Callable[[int],
                         global_min_y = y
                     if y + h > global_max_y:
                         global_max_y = y + h
+                    cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
     global_min_x = max(0, global_min_x)
     global_min_y = max(0, global_min_y)
     global_max_x = min(width, global_max_x)
     global_max_y = min(height, global_max_y)
+    for i, image in track(enumerate(images), description="Saving images...".ljust(40), total=len(images),
+                          console=console):
+        cv2.rectangle(image, (global_min_x, global_min_y), (global_max_x, global_max_y), (255, 0, 0), 2)
+        # cropped_image = image[global_min_y:global_max_y, global_min_x:global_max_x]
+        cv2.imwrite(f"converted_files/{i}.png", image)
+
     progress_callback(50)
     return Rectangle(global_min_x, global_min_y, global_max_x, global_max_y)
+
+
+def get_crop_boxes(images: List[ndarray], progress_callback: Callable[[int], None]) -> (List[Rectangle], Rectangle):
+    """
+       Calculates the crop box in pixel dimension
+       :param images: Images to analyze
+       :param progress_callback: Callback to visualize progress
+       :return: The crop box rectangle
+       """
+    image_crop_boxes = []
+    max_crop_box = Rectangle(0, 0, 0, 0)
+    height = 999999
+    width = 999999
+    for image in images:
+        if image.shape[0] < height:
+            height = image.shape[0]
+        if image.shape[1] < width:
+            width = image.shape[1]
+
+    for i, image in track(enumerate(images), description="Detecting text...".ljust(40), total=len(images),
+                          console=console):
+        progress = i / (len(images) * 2)
+        progress = round(progress, 2)
+
+        progress_callback(progress * 100)
+
+        image_crop_box = Rectangle(99999, 99999, 0, 0)
+
+        contours, hierarchy = find_contours_on_image(image)
+        for j, cnt in enumerate(contours):
+            if hierarchy[0][j][2] == -1:
+                if cv2.contourArea(cnt) > 1000:
+                    x, y, w, h = cv2.boundingRect(cnt)
+                    # console.log("x : ", x, "y: ", y, "w: ", w, "h: ", h)
+                    if x < image_crop_box.x:
+                        image_crop_box.x = x
+                    if x + w > image_crop_box.width:
+                        image_crop_box.width = (w + x)
+                    if y < image_crop_box.y:
+                        image_crop_box.y = y
+                    # console.log(y + h)
+                    if y + h > image_crop_box.height:
+                        image_crop_box.height = (y + h)
+                    cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+        image_crop_box.width = image_crop_box.width - image_crop_box.x
+        image_crop_box.height = image_crop_box.height - image_crop_box.y
+        cv2.rectangle(image, (image_crop_box.x, image_crop_box.y),
+                      (image_crop_box.width + image_crop_box.x, image_crop_box.height + image_crop_box.y),
+                      (0, 0, 255), 2)
+        image_crop_boxes.append(image_crop_box)
+        if image_crop_box.area() > max_crop_box.area():
+            max_crop_box = image_crop_box
+
+    for i, image in track(enumerate(images), description="Saving images...".ljust(40), total=len(images),
+                          console=console):
+        # cv2.rectangle(image, (max_crop_box.x, max_crop_box.y), (max_crop_box.width, max_crop_box.height), (255, 0, 0),
+        #               2)
+        # cropped_image = image[global_min_y:global_max_y, global_min_x:global_max_x]
+        cv2.imwrite(f"converted_files/{i}.png", image)
+
+    progress_callback(50)
+    return image_crop_boxes, max_crop_box
 
 
 def find_contours_on_image(image: ndarray):

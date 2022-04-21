@@ -1,17 +1,20 @@
 import math
+import os
 from uuid import UUID
 
 from PyQt6.QtCore import QObject, pyqtSignal, QRunnable, pyqtSlot, QThreadPool
 
 from automation.ocr_automation import OcrAutomation
 from automation.procedures.ocr_procedures import OcrProcedures
+from automation.store import Store
+from config import OCR_WORKING_DIR
 from ui.components.procedures_selection import ProcedureSelection
 from ui.components.progress_bar import ProgressBar
 from ui.steps.step import Step
 
 
 class ProcedureWorkerSignals(QObject):
-    finished = pyqtSignal(UUID)
+    finished = pyqtSignal()
     progress = pyqtSignal(float)
 
 
@@ -24,14 +27,15 @@ class ProcedureWorker(QRunnable):
 
     @pyqtSlot()
     def run(self):
-        _, filename = OcrAutomation.do_optimization(self.procedures, self.iterations,
+        OcrAutomation.do_optimization(self.procedures, self.iterations,
                                                     lambda value: self.signals.progress.emit(value))
 
-        self.signals.finished.emit(filename)
+        # Store.FILE_PATH_AFTER_PROCEDURES = os.path.abspath(f"{OCR_WORKING_DIR}\\{str(filename)}.pdf")
+        self.signals.finished.emit()
 
 
 class ProcedureSelectionStep(Step):
-    finished = pyqtSignal(UUID)
+    finished = pyqtSignal()
 
     def __init__(self, *, text: str, previous_text="Zurück", previous_callback=None, next_text="Weiter",
                  next_callback=None, detail: str = ""):
@@ -56,7 +60,7 @@ class ProcedureSelectionStep(Step):
         procedures = OcrProcedures.get_procedures(procedure_names)
         self.worker = ProcedureWorker(procedures, self.procedure_selection.get_iteration_amount())
         self.worker.signals.progress.connect(lambda value: self.progressbar.setValue(math.floor(value)))
-        self.worker.signals.finished.connect(lambda file_name: self.finished.emit(file_name))
+        self.worker.signals.finished.connect(self.finished.emit)
         self.threadpool.start(self.worker)
 
     def reset(self):

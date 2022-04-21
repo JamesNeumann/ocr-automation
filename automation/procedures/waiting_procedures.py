@@ -53,6 +53,15 @@ class WaitingProcedures:
             ocr_not_finished = Screen.locate_on_screen('ocr_not_done.png')
 
     @staticmethod
+    def wait_until_cropping_page_is_done() -> None:
+        console.log("Waiting until cropping page is done")
+        cropping_done = Screen.locate_on_screen("ocr_cropping_not_done.png", FolderType.WIN)
+        while cropping_done is not None:
+            console.log("Waiting until cropping page is done")
+            time.sleep(0.5)
+            cropping_done = Screen.locate_on_screen("ocr_cropping_not_done.png", FolderType.WIN)
+
+    @staticmethod
     def wait_until_close_button_visible(max_time: int = 3) -> None:
         """
         Waits until the close button of a dialog is visible

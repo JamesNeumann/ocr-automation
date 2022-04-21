@@ -101,10 +101,10 @@ class OcrAutomation:
         if WaitingProcedures.is_close_button_visible():
             press_key(key_combination='alt+shift+s')
         time.sleep(0.3)
-        path, file_name = GeneralProcedures.save_temp_pdf()
-        OcrAutomation.close_ocr_project()
+        # path, file_name = GeneralProcedures.save_temp_pdf()
+        # OcrAutomation.close_ocr_project()
         progress_callback(100)
-        return path, file_name
+        # return path, file_name
 
     @staticmethod
     def save_pdf(path: str) -> None:
@@ -133,6 +133,18 @@ class OcrAutomation:
         GeneralProcedures.click_light_bulb()
         OcrProcedures.do_crop_pdf(crop_rectangle.x, crop_rectangle.y, crop_rectangle.width, crop_rectangle.height,
                                   should_tab_in=False)
+
+    @staticmethod
+    def crop_pdf_single_pages(path_to_pdf: str, crop_rectangles: List[Rectangle]):
+        OcrAutomation.open_pdf_in_ocr_editor(path_to_pdf)
+        OcrAutomation.open_image_improvement_tools(should_tab_in=False)
+        time.sleep(0.5)
+        GeneralProcedures.click_light_bulb()
+        press_key(key_combination="ä")
+        press_key(key_combination="+")
+        for rectangle in crop_rectangles:
+            OcrProcedures.do_crop_pdf_single_page(rectangle.x, rectangle.y, rectangle.width, rectangle.height,
+                                                  should_tab_in=False)
 
     @staticmethod
     def disable_initial_ocr() -> None:
