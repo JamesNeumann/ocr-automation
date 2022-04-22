@@ -32,7 +32,8 @@ class FileSelection(QWidget):
         if full_file_path != "":
             self.selected_file_name = os.path.basename(full_file_path)
             self.file_folder = os.path.dirname(full_file_path)
-            SaveConfig.save_folder_path(self.file_folder)
+            # SaveConfig.save_folder_path(self.file_folder)
+            SaveConfig.update_default_save_location(self.file_folder)
             self.selected_file_label.setText(self.selected_file_name)
 
         Store.SELECTED_FILE_PATH = os.path.abspath(self.file_path())

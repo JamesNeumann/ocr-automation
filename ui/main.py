@@ -23,6 +23,7 @@ from ui.steps.open_ocr_editor_step import OpenOcrEditorStep
 from ui.steps.procedure_selection_step import ProcedureSelectionStep
 from ui.steps.save_pdf_running_step import SavePDFRunningStep
 from ui.steps.save_temp_pdf_running import SaveTempPdfRunningStep
+from ui.steps.settings_step import SettingsStep
 from ui.steps.step import Step
 from utils.console import console
 from utils.save_config import SaveConfig
@@ -42,6 +43,8 @@ class MainWindow(QMainWindow):
 
         self.file_selection_step = FileSelectionStep(
             text="Wähle eine PDF-Datei aus",
+            previous_text="Einstellungen",
+            previous_callback=self.open_settings,
             next_callback=self.open_ocr_editor
         )
 
@@ -131,6 +134,10 @@ class MainWindow(QMainWindow):
             previous_text="Neue PDF verarbeiten"
         )
 
+        self.settings_step = SettingsStep(text="Einstellungen",
+                                          previous_callback=lambda: self.open_step(self.file_selection_step),
+                                          next_callback=self.save_settings_callback)
+
         self.steps = [
             self.file_selection_step,
             self.open_ocr_editor_step,
@@ -148,7 +155,8 @@ class MainWindow(QMainWindow):
             self.choose_save_location_step,
             self.save_running_step,
             self.clean_up_running_step,
-            self.finished_step
+            self.finished_step,
+            self.settings_step,
         ]
 
         for step in self.steps:
@@ -169,6 +177,15 @@ class MainWindow(QMainWindow):
         index = self.steps.index(step)
         self.current_index = index
         self.layout.setCurrentIndex(self.current_index)
+
+    def open_settings(self):
+        self.settings_step.update_values()
+        self.open_step(self.settings_step)
+
+    def save_settings_callback(self):
+        top, right, bottom, left = self.settings_step.get_crop_box()
+        SaveConfig.update_default_crop_box_offset(top, right, bottom, left)
+        self.open_step(self.file_selection_step)
 
     def open_ocr_editor(self):
         if Store.SELECTED_FILE_PATH != "":

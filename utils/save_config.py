@@ -5,31 +5,71 @@ from utils.console import console
 
 
 class SaveConfig:
+    SAVE_CONFIG = {}
     STANDARD_SAVE_LOCATION = ''
 
     @staticmethod
     def init():
-        SaveConfig.STANDARD_SAVE_LOCATION = SaveConfig.read_default_dropbox_folder() \
-                                            or SaveConfig.read_saved_folder_path() \
-                                            or os.path.abspath("C:")
+        SaveConfig.SAVE_CONFIG = SaveConfig.load_save_file()
+        SaveConfig.STANDARD_SAVE_LOCATION = SaveConfig.get_default_save_location()
 
     @staticmethod
-    def save_folder_path(path_to_folder: str):
-        console.log("Saving path...")
-        with open('path.save', 'w+', encoding='utf-8') as f:
-            f.write(path_to_folder)
-        SaveConfig.STANDARD_SAVE_LOCATION = path_to_folder
-
-    @staticmethod
-    def read_saved_folder_path():
+    def load_save_file():
         try:
-            with open('path.save', 'r', encoding='utf-8') as f:
-                path = os.path.abspath(f.read())
-                console.log("Save file found. Path:", path)
+            with open('save.json', 'r', encoding='utf-8') as f:
+                path = json.load(f)
                 return path
         except FileNotFoundError:
             console.log("Save file not found. Skipping...")
-            return None
+
+    @staticmethod
+    def update_default_save_location(path_to_folder: str):
+        if not SaveConfig.SAVE_CONFIG:
+            SaveConfig.SAVE_CONFIG = {"path": path_to_folder}
+        else:
+            SaveConfig.SAVE_CONFIG["path"] = path_to_folder
+        SaveConfig.save_file()
+
+    @staticmethod
+    def update_default_crop_box_offset(top: int, right: int, bottom: int, left: int):
+        offset_values = {
+            "top": top,
+            "right": right,
+            "bottom": bottom,
+            "left": left
+        }
+        if not SaveConfig.SAVE_CONFIG:
+            SaveConfig.SAVE_CONFIG = {
+                "offset": offset_values
+            }
+        else:
+            SaveConfig.SAVE_CONFIG["offset"] = offset_values
+        SaveConfig.save_file()
+
+    @staticmethod
+    def get_default_crop_box_offset() -> (int, int, int, int):
+        if not SaveConfig.SAVE_CONFIG or "offset" not in SaveConfig.SAVE_CONFIG:
+            offset = {
+                "top": 7,
+                "right": 7,
+                "bottom": 10,
+                "left": 7
+            }
+        else:
+            offset = SaveConfig.SAVE_CONFIG["offset"]
+        return offset["top"], offset["right"], offset["bottom"], offset["left"]
+
+    @staticmethod
+    def get_default_save_location():
+        if not SaveConfig.SAVE_CONFIG:
+            return 'C:'
+        return SaveConfig.SAVE_CONFIG["path"] or SaveConfig.read_default_dropbox_folder()
+
+    @staticmethod
+    def save_file():
+        console.log("Saving settings...")
+        with open('save.json', 'w+', encoding='utf-8') as f:
+            f.write(json.dumps(SaveConfig.SAVE_CONFIG))
 
     @staticmethod
     def read_default_dropbox_folder():

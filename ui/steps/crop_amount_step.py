@@ -90,6 +90,7 @@ class CropAmountStep(Step):
         self.crop_amount_selection.set_pts_height_per_pixel(pts_height / images[0].shape[0])
         self.crop_amount_selection.set_spinner_max()
         self.crop_amount_selection.show_pix_map()
+        self.crop_amount_selection.update_default_offset()
         self.progress_bar.hide()
         self.window().activateWindow()
 

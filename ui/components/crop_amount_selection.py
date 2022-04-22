@@ -1,23 +1,26 @@
 import math
-from typing import List
+from typing import List, Callable
 
 from PyQt6.QtCore import Qt, QRect
 from PyQt6.QtGui import QPixmap, QImage, QPainter, QPen
 from PyQt6.QtWidgets import QWidget, QLabel, QHBoxLayout, QPushButton, QVBoxLayout, QGroupBox, QSpinBox
 from numpy import ndarray
 
+from ui.components.mm_spinbox import create_mm_spinbox
 from utils.conversion import pts_to_pixel, convert_to_pts
 from utils.rectangle import Rectangle
+from utils.save_config import SaveConfig
 
 
 class CropAmountSelection(QWidget):
-    DEFAULT_OFFSET_TOP = 5
-    DEFAULT_OFFSET_BOTTOM = 15
-    DEFAULT_OFFSET_LEFT = 5
-    DEFAULT_OFFSET_RIGHT = 5
 
     def __init__(self):
         super().__init__()
+
+        self.default_offset_top = 0
+        self.default_offset_right = 0
+        self.default_offset_bottom = 0
+        self.default_offset_left = 0
 
         self.offset_top = 0
         self.offset_bottom = 0
@@ -61,50 +64,36 @@ class CropAmountSelection(QWidget):
         self.crop_adjustment_box = QGroupBox()
         self.crop_adjustment_layout = QVBoxLayout()
 
-        self.top_offset_box = QGroupBox("Oberer Rand:")
-        self.top_offset_layout = QHBoxLayout()
-        self.top_offset_spinbox = QSpinBox()
-        self.top_offset_spinbox.setSuffix(" mm")
-        self.top_offset_spinbox.setMinimum(-9999)
-        self.top_offset_spinbox.setValue(CropAmountSelection.DEFAULT_OFFSET_TOP)
-        self.top_offset_spinbox.valueChanged.connect(self.top_spinbox_changed)
-        self.top_offset_layout.addWidget(self.top_offset_spinbox)
-        self.top_offset_box.setLayout(self.top_offset_layout)
+        self.update_default_offset()
 
-        self.bottom_offset_box = QGroupBox("Unterer Rand:")
-        self.bottom_offset_layout = QHBoxLayout()
-        self.bottom_offset_spinbox = QSpinBox()
-        self.bottom_offset_spinbox.setSuffix(" mm")
-        self.bottom_offset_spinbox.setMinimum(-9999)
-        self.bottom_offset_spinbox.setValue(CropAmountSelection.DEFAULT_OFFSET_BOTTOM)
-        self.bottom_offset_spinbox.valueChanged.connect(self.bottom_spinbox_changed)
-        self.bottom_offset_layout.addWidget(self.bottom_offset_spinbox)
-        self.bottom_offset_box.setLayout(self.bottom_offset_layout)
+        self.top_offset_box, self.top_offset_spinbox = CropAmountSelection._create_spinbox(
+            default_value=self.default_offset_top,
+            label="Oberer Rand:",
+            spin_box_callback=self.top_spinbox_changed
+        )
 
-        self.left_offset_box = QGroupBox("Linker Rand:")
-        self.left_offset_layout = QHBoxLayout()
-        self.left_offset_spinbox = QSpinBox()
-        self.left_offset_spinbox.setSuffix(" mm")
-        self.left_offset_spinbox.setMinimum(-9999)
-        self.left_offset_spinbox.setValue(CropAmountSelection.DEFAULT_OFFSET_LEFT)
-        self.left_offset_spinbox.valueChanged.connect(self.left_spinbox_changed)
-        self.left_offset_layout.addWidget(self.left_offset_spinbox)
-        self.left_offset_box.setLayout(self.left_offset_layout)
+        self.right_offset_box, self.right_offset_spinbox = CropAmountSelection._create_spinbox(
+            default_value=self.default_offset_right,
+            label="Rechnter Rand:",
+            spin_box_callback=self.right_spinbox_changed
+        )
 
-        self.right_offset_box = QGroupBox("Rechter Rand:")
-        self.right_offset_layout = QHBoxLayout()
-        self.right_offset_spinbox = QSpinBox()
-        self.right_offset_spinbox.setSuffix(" mm")
-        self.right_offset_spinbox.setMinimum(-9999)
-        self.right_offset_spinbox.valueChanged.connect(self.right_spinbox_changed)
-        self.right_offset_spinbox.setValue(CropAmountSelection.DEFAULT_OFFSET_RIGHT)
-        self.right_offset_layout.addWidget(self.right_offset_spinbox)
-        self.right_offset_box.setLayout(self.right_offset_layout)
+        self.bottom_offset_box, self.bottom_offset_spinbox = CropAmountSelection._create_spinbox(
+            default_value=self.default_offset_bottom,
+            label="Unterer Rand:",
+            spin_box_callback=self.bottom_spinbox_changed
+        )
+
+        self.left_offset_box, self.left_offset_spinbox = CropAmountSelection._create_spinbox(
+            default_value=self.default_offset_left,
+            label="Linker Rand:",
+            spin_box_callback=self.left_spinbox_changed
+        )
 
         self.crop_adjustment_layout.addWidget(self.top_offset_box)
+        self.crop_adjustment_layout.addWidget(self.right_offset_box)
         self.crop_adjustment_layout.addWidget(self.bottom_offset_box)
         self.crop_adjustment_layout.addWidget(self.left_offset_box)
-        self.crop_adjustment_layout.addWidget(self.right_offset_box)
         self.crop_adjustment_box.setLayout(self.crop_adjustment_layout)
 
         self.layout.addWidget(self.crop_adjustment_box)
@@ -227,22 +216,22 @@ class CropAmountSelection(QWidget):
         self.top_offset_spinbox.setMaximum(max_top)
         self.bottom_offset_spinbox.setMaximum(max_bottom)
 
-        if max_left < CropAmountSelection.DEFAULT_OFFSET_LEFT:
+        if max_left < self.default_offset_left:
             self.left_offset_spinbox.setValue(self.offset_left)
         else:
-            self.left_offset_spinbox.setValue(CropAmountSelection.DEFAULT_OFFSET_LEFT)
-        if max_right < CropAmountSelection.DEFAULT_OFFSET_RIGHT:
+            self.left_offset_spinbox.setValue(self.default_offset_left)
+        if max_right < self.default_offset_right:
             self.right_offset_spinbox.setValue(self.offset_right)
         else:
-            self.right_offset_spinbox.setValue(CropAmountSelection.DEFAULT_OFFSET_RIGHT)
-        if max_top < CropAmountSelection.DEFAULT_OFFSET_TOP:
+            self.right_offset_spinbox.setValue(self.default_offset_right)
+        if max_top < self.default_offset_top:
             self.top_offset_spinbox.setValue(max_top)
         else:
-            self.top_offset_spinbox.setValue(CropAmountSelection.DEFAULT_OFFSET_TOP)
-        if max_bottom < CropAmountSelection.DEFAULT_OFFSET_BOTTOM:
+            self.top_offset_spinbox.setValue(self.default_offset_top)
+        if max_bottom < self.default_offset_bottom:
             self.bottom_offset_spinbox.setValue(max_bottom)
         else:
-            self.bottom_offset_spinbox.setValue(CropAmountSelection.DEFAULT_OFFSET_BOTTOM)
+            self.bottom_offset_spinbox.setValue(self.default_offset_bottom)
 
     def get_pts_rectangle(self):
         return Rectangle(
@@ -287,3 +276,18 @@ class CropAmountSelection(QWidget):
         self.offset_bottom = 0
         self.offset_left = 0
         self.offset_right = 0
+
+    def update_default_offset(self):
+        self.default_offset_top, self.default_offset_right, self.default_offset_bottom, self.default_offset_left = \
+            SaveConfig.get_default_crop_box_offset()
+
+    @staticmethod
+    def _create_spinbox(*, default_value: int, label: str, spin_box_callback: Callable) -> (QHBoxLayout, QSpinBox):
+        offset_box = QGroupBox(label)
+        crop_box_layout = QHBoxLayout()
+        crop_box_spinner = create_mm_spinbox(default_value=default_value)
+        crop_box_spinner.valueChanged.connect(spin_box_callback)
+        offset_box.setLayout(crop_box_layout)
+        crop_box_layout.addWidget(crop_box_spinner)
+
+        return offset_box, crop_box_spinner
