@@ -22,7 +22,7 @@ class OcrAutomation:
         :param path_to_pdf: path to the PDF that should be opened
         """
         # os.startfile(OCR_EDITOR_LNK_PATH)
-        os.system(OCR_EDITOR_LNK_PATH)
+        os.system(f'cmd /k "${OCR_EDITOR_LNK_PATH}"')
         WaitingProcedures.wait_util_ocr_open_pdf_is_visible()
         time.sleep(1)
         press_key(key_combination="alt+n")
