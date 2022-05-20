@@ -39,9 +39,9 @@ class CheckableComboBox(QComboBox):
         self.updateText()
         super().resizeEvent(event)
 
-    def eventFilter(self, object, event):
+    def eventFilter(self, event_object, event):
 
-        if object == self.lineEdit():
+        if event_object == self.lineEdit():
             if event.type() == QEvent.Type.MouseButtonRelease:
                 if self.closeOnLineEditClick:
                     self.hidePopup()
@@ -50,7 +50,7 @@ class CheckableComboBox(QComboBox):
                 return True
             return False
 
-        if object == self.view().viewport():
+        if event_object == self.view().viewport():
             if event.type() == QEvent.Type.MouseButtonRelease:
                 index = self.view().indexAt(event.pos())
                 item = self.model().item(index.row())

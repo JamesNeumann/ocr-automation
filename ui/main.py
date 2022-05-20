@@ -1,8 +1,5 @@
 import os
 import time
-from sys import exit
-from typing import List
-from uuid import UUID
 
 from PyQt6.QtWidgets import QWidget, QStackedLayout, QMainWindow
 from rich.panel import Panel
@@ -10,7 +7,7 @@ from rich.panel import Panel
 from automation.ocr_automation import OcrAutomation
 from automation.procedures.general_procedures import GeneralProcedures
 from automation.store import Store
-from config import OCR_WORKING_DIR, VERSION
+from config import VERSION
 from ui.steps.check_pdf_orientation_running_step import CheckPdfOrientationRunningStep
 from ui.steps.check_pdf_orientation_step import CheckPdfOrientationStep
 from ui.steps.clean_up_running_step import CleanUpRunningStep
@@ -28,7 +25,6 @@ from ui.steps.save_temp_pdf_running import SaveTempPdfRunningStep
 from ui.steps.settings_step import SettingsStep
 from ui.steps.step import Step
 from utils.console import console
-from utils.keyboard_util import press_key
 from utils.save_config import SaveConfig
 
 
@@ -77,7 +73,7 @@ class MainWindow(QMainWindow):
         )
 
         self.save_temp_pdf_after_procedures.finished.connect(
-            lambda file: self.save_temp_pdf_after_procedures_finished(file)
+            self.save_temp_pdf_after_procedures_finished
         )
 
         self.check_pdf_orientation_running_step = CheckPdfOrientationRunningStep(
@@ -94,9 +90,7 @@ class MainWindow(QMainWindow):
         self.save_temp_pdf_running_step = SaveTempPdfRunningStep(
             text="PDF wird zwischengespeichert"
         )
-        self.save_temp_pdf_running_step.finished.connect(
-            lambda file: self.open_crop_step(file)
-        )
+        self.save_temp_pdf_running_step.finished.connect(self.open_crop_step)
 
         self.crop_amount_step = CropAmountStep(
             text="Die PDF wird analysiert", next_callback=self.crop_pdf

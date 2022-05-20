@@ -28,7 +28,7 @@ class CropWorker(QRunnable):
     @pyqtSlot()
     def run(self):
         images, pts_width, pts_height, index = get_pdf_pages_as_images(
-            self.path_to_pdf, lambda value: self.signals.progress.emit(value)
+            self.path_to_pdf, self.signals.progress.emit
         )
         # crop_box = get_crop_box_pixel(
         #     images,
@@ -92,9 +92,7 @@ class CropAmountStep(Step):
             self.progress_bar.show()
         self.worker = CropWorker(path_to_pdf)
         self.worker.signals.finished.connect(self.update_ui)
-        self.worker.signals.progress.connect(
-            lambda value: self.progress_bar.setValue(value)
-        )
+        self.worker.signals.progress.connect(self.progress_bar.setValue)
         self.threadpool.start(self.worker)
 
     def update_ui(

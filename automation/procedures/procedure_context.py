@@ -14,7 +14,6 @@ class ProcedureContext:
 
     def __init__(self, context_name: str):
         self.context_name = context_name
-        pass
 
     def __enter__(self):
         self.start = time.time()

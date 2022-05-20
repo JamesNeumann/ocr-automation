@@ -21,7 +21,7 @@ class CheckPdfOrientationWorker(QRunnable):
     def run(self) -> None:
         landscaped, portraits = analyze_pdf_orientation(
             Store.FILE_PATH_AFTER_PROCEDURES,
-            lambda value: self.signals.progress.emit(value),
+            self.signals.progress.emit,
         )
 
         len_landscaped = len(landscaped)

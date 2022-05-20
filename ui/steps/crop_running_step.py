@@ -79,5 +79,5 @@ class CropRunningStep(Step):
 
     def start(self, file_path, rectangle, rectangles):
         self.worker = CropRunningWorker(file_path, rectangle, rectangles)
-        self.worker.signals.finished.connect(lambda: self.finished.emit())
+        self.worker.signals.finished.connect(self.finished.emit)
         self.threadpool.start(self.worker)

@@ -28,10 +28,7 @@ class Screen:
 
         :return: Is Windows 11 or not
         """
-        if sys.getwindowsversion().build > 20000:
-            return True
-        else:
-            return False
+        return sys.getwindowsversion().build > 20000
 
     @staticmethod
     def locate_center_on_screen(
@@ -85,5 +82,4 @@ class Screen:
         if folder == FolderType.WIN:
             if Screen.is_win_11():
                 return "Win11"
-            else:
-                return "Win10"
+            return "Win10"

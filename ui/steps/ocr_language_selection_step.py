@@ -94,12 +94,10 @@ class OcrLanguageSelectionStep(Step):
         custom_languages = self.checkable_combo_box.currentData()
         if len(custom_languages) > 0:
             return ";".join(custom_languages) + ";"
-        else:
-            for button in self.pre_defined_languages_group_box.findChildren(
-                QRadioButton
-            ):
-                if button.isChecked():
-                    return button.text()
+
+        for button in self.pre_defined_languages_group_box.findChildren(QRadioButton):
+            if button.isChecked():
+                return button.text()
 
     def reset(self):
         self.checkable_combo_box.reset()

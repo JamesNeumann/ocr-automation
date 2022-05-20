@@ -30,7 +30,7 @@ class ProcedureWorker(QRunnable):
         OcrAutomation.do_optimization(
             self.procedures,
             self.iterations,
-            lambda value: self.signals.progress.emit(value),
+            self.signals.progress.emit,
         )
 
         # Store.FILE_PATH_AFTER_PROCEDURES = os.path.abspath(f"{OCR_WORKING_DIR}\\{str(filename)}.pdf")
