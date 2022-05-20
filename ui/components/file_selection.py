@@ -7,7 +7,6 @@ from utils.save_config import SaveConfig
 
 
 class FileSelection(QWidget):
-
     def __init__(self):
         super().__init__()
 
@@ -25,10 +24,9 @@ class FileSelection(QWidget):
 
     def get_pdf_file(self):
         path = SaveConfig.STANDARD_SAVE_LOCATION
-        full_file_path = QFileDialog.getOpenFileName(self,
-                                                     directory=path,
-                                                     caption="Wähle eine PDF",
-                                                     filter="PDF-Dateien (*.pdf)")[0]
+        full_file_path = QFileDialog.getOpenFileName(
+            self, directory=path, caption="Wähle eine PDF", filter="PDF-Dateien (*.pdf)"
+        )[0]
         if full_file_path != "":
             self.selected_file_name = os.path.basename(full_file_path)
             self.file_folder = os.path.dirname(full_file_path)

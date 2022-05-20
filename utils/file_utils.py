@@ -14,7 +14,7 @@ def is_file_locked(file_path):
             file can be read, but not written to or deleted.
     """
     try:
-        f = open(file_path, 'r')
+        f = open(file_path, "r")
         f.close()
     except IOError:
         return True

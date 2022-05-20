@@ -33,7 +33,6 @@ from utils.save_config import SaveConfig
 
 
 class MainWindow(QMainWindow):
-
     def __init__(self):
         super().__init__()
 
@@ -48,7 +47,7 @@ class MainWindow(QMainWindow):
             text="Wähle eine PDF-Datei aus",
             previous_text="Einstellungen",
             previous_callback=self.open_settings,
-            next_callback=self.open_ocr_editor
+            next_callback=self.open_ocr_editor,
         )
 
         self.open_ocr_editor_step = OpenOcrEditorStep(
@@ -58,14 +57,20 @@ class MainWindow(QMainWindow):
 
         self.procedures_step = ProcedureSelectionStep(
             text="Welche Optimierungen sollen durchgeführt werden?",
-            next_callback=self.start_procedures
+            next_callback=self.start_procedures,
         )
         self.procedures_step.finished.connect(
-            lambda: (self.open_step(self.crop_pdf_question_step), self.window().activateWindow()))
+            lambda: (
+                self.open_step(self.crop_pdf_question_step),
+                self.window().activateWindow(),
+            )
+        )
 
-        self.crop_pdf_question_step = CropPdfQuestionStep(text="Soll die PDF zugeschnitten werden?",
-                                                          next_callback=self.crop_pdf_question_acceptance,
-                                                          previous_callback=self.open_ocr_language_selection_step)
+        self.crop_pdf_question_step = CropPdfQuestionStep(
+            text="Soll die PDF zugeschnitten werden?",
+            next_callback=self.crop_pdf_question_acceptance,
+            previous_callback=self.open_ocr_language_selection_step,
+        )
 
         self.save_temp_pdf_after_procedures = SaveTempPdfRunningStep(
             text="PDF wird zwischengespeichert"
@@ -78,11 +83,13 @@ class MainWindow(QMainWindow):
         self.check_pdf_orientation_running_step = CheckPdfOrientationRunningStep(
             text="Die PDF wird analyisiert"
         )
-        self.check_pdf_orientation_running_step.finished.connect(self.open_check_pdf_orientation_step)
+        self.check_pdf_orientation_running_step.finished.connect(
+            self.open_check_pdf_orientation_step
+        )
 
         self.check_pdf_orientation_step = CheckPdfOrientationStep(
             text="Folgende Seiten müssen überprüft werden",
-            next_callback=self.save_pdf_after_orientation_fix
+            next_callback=self.save_pdf_after_orientation_fix,
         )
         self.save_temp_pdf_running_step = SaveTempPdfRunningStep(
             text="PDF wird zwischengespeichert"
@@ -92,18 +99,14 @@ class MainWindow(QMainWindow):
         )
 
         self.crop_amount_step = CropAmountStep(
-            text="Die PDF wird analysiert",
-            next_callback=self.crop_pdf
+            text="Die PDF wird analysiert", next_callback=self.crop_pdf
         )
 
-        self.crop_running_step = CropRunningStep(
-            text="Die PDF wird zugeschnitten"
-        )
+        self.crop_running_step = CropRunningStep(text="Die PDF wird zugeschnitten")
         self.crop_running_step.finished.connect(self.crop_finished)
 
         self.ocr_language_selection_step = OcrLanguageSelectionStep(
-            text="Wähle die OCR-Sprachen für die PDF",
-            next_callback=self.do_ocr
+            text="Wähle die OCR-Sprachen für die PDF", next_callback=self.do_ocr
         )
 
         self.ocr_running_step = OcrRunningStep(text="OCR läuft")
@@ -112,22 +115,17 @@ class MainWindow(QMainWindow):
             text="OCR abgeschlossen. Bitte überprüfen und dann auf weiter.",
             next_callback=self.open_save_location_step,
             previous_text="OCR wiederholen",
-            previous_callback=lambda: self.open_step(self.ocr_language_selection_step)
+            previous_callback=lambda: self.open_step(self.ocr_language_selection_step),
         )
 
         self.choose_save_location_step = FileNameSelectionStep(
-            text="Wähle Speicherort und Name der PDF",
-            next_callback=self.save_pdf
+            text="Wähle Speicherort und Name der PDF", next_callback=self.save_pdf
         )
 
-        self.save_running_step = SavePDFRunningStep(
-            text="PDF wird gespeichert"
-        )
+        self.save_running_step = SavePDFRunningStep(text="PDF wird gespeichert")
         self.save_running_step.finished.connect(self.clean_up)
 
-        self.clean_up_running_step = CleanUpRunningStep(
-            text="Es wird augeräumt"
-        )
+        self.clean_up_running_step = CleanUpRunningStep(text="Es wird augeräumt")
         self.clean_up_running_step.finished.connect(self.clean_up_finished)
 
         self.finished_step = Step(
@@ -135,12 +133,14 @@ class MainWindow(QMainWindow):
             next_callback=lambda: exit(0),
             next_text="Schließen",
             previous_callback=self.reset,
-            previous_text="Neue PDF verarbeiten"
+            previous_text="Neue PDF verarbeiten",
         )
 
-        self.settings_step = SettingsStep(text="Einstellungen",
-                                          previous_callback=lambda: self.open_step(self.file_selection_step),
-                                          next_callback=self.save_settings_callback)
+        self.settings_step = SettingsStep(
+            text="Einstellungen",
+            previous_callback=lambda: self.open_step(self.file_selection_step),
+            next_callback=self.save_settings_callback,
+        )
 
         self.steps = [
             self.file_selection_step,
@@ -239,7 +239,7 @@ class MainWindow(QMainWindow):
         self.crop_running_step.start(
             self.crop_amount_step.path_to_pdf,
             self.crop_amount_step.crop_amount_selection.get_pts_rectangle(),
-            self.crop_amount_step.crop_amount_selection.get_pts_rectangles()
+            self.crop_amount_step.crop_amount_selection.get_pts_rectangles(),
         )
         self.open_next_step()
 
@@ -265,8 +265,12 @@ class MainWindow(QMainWindow):
 
     def open_save_location_step(self):
         self.open_next_step()
-        self.choose_save_location_step.folder_selection.set_folder(SaveConfig.STANDARD_SAVE_LOCATION)
-        self.choose_save_location_step.set_previous_name(self.file_selection_step.file_selection.selected_file_name)
+        self.choose_save_location_step.folder_selection.set_folder(
+            SaveConfig.STANDARD_SAVE_LOCATION
+        )
+        self.choose_save_location_step.set_previous_name(
+            self.file_selection_step.file_selection.selected_file_name
+        )
 
     def open_ocr_language_selection_step(self):
         GeneralProcedures.click_ocr_pages_header()

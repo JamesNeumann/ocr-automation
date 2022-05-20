@@ -13,11 +13,17 @@ class WaitingProcedures:
         Waits until one procedure is finished
         """
         console.log("Operation is running...")
-        finished = WaitingProcedures.is_undo_redo_visible() or WaitingProcedures.is_close_button_visible()
+        finished = (
+            WaitingProcedures.is_undo_redo_visible()
+            or WaitingProcedures.is_close_button_visible()
+        )
         while not finished:
             console.log("Operation is running...")
             time.sleep(0.5)
-            finished = WaitingProcedures.is_undo_redo_visible() or WaitingProcedures.is_close_button_visible()
+            finished = (
+                WaitingProcedures.is_undo_redo_visible()
+                or WaitingProcedures.is_close_button_visible()
+            )
 
     @staticmethod
     def wait_until_ocr_is_finished() -> None:
@@ -34,11 +40,11 @@ class WaitingProcedures:
         Waits until OCR not done banner is visible
         """
         console.log("Waiting until OCR is finished...")
-        ocr_not_finished = Screen.locate_on_screen('ocr_not_done.png')
+        ocr_not_finished = Screen.locate_on_screen("ocr_not_done.png")
         while ocr_not_finished is None:
             console.log("Waiting until OCR is finished...")
             time.sleep(0.5)
-            ocr_not_finished = Screen.locate_on_screen('ocr_not_done.png')
+            ocr_not_finished = Screen.locate_on_screen("ocr_not_done.png")
 
     @staticmethod
     def wait_until_ocr_not_done_is_not_visible() -> None:
@@ -46,20 +52,24 @@ class WaitingProcedures:
         Waits until ocr not done banner is visible
         """
         console.log("Waiting until OCR is finished...")
-        ocr_not_finished = Screen.locate_on_screen('ocr_not_done.png')
+        ocr_not_finished = Screen.locate_on_screen("ocr_not_done.png")
         while ocr_not_finished is not None:
             console.log("Waiting until OCR is finished...")
             time.sleep(0.5)
-            ocr_not_finished = Screen.locate_on_screen('ocr_not_done.png')
+            ocr_not_finished = Screen.locate_on_screen("ocr_not_done.png")
 
     @staticmethod
     def wait_until_cropping_page_is_done() -> None:
         console.log("Waiting until cropping page is done")
-        cropping_done = Screen.locate_on_screen("ocr_cropping_not_done.png", FolderType.WIN)
+        cropping_done = Screen.locate_on_screen(
+            "ocr_cropping_not_done.png", FolderType.WIN
+        )
         while cropping_done is not None:
             console.log("Waiting until cropping page is done")
             time.sleep(0.5)
-            cropping_done = Screen.locate_on_screen("ocr_cropping_not_done.png", FolderType.WIN)
+            cropping_done = Screen.locate_on_screen(
+                "ocr_cropping_not_done.png", FolderType.WIN
+            )
 
     @staticmethod
     def wait_until_close_button_visible(max_time: int = 3) -> None:
@@ -138,7 +148,7 @@ class WaitingProcedures:
 
         :return: Is visible or not
         """
-        result = Screen.locate_on_screen('ocr_open_pdf.png')
+        result = Screen.locate_on_screen("ocr_open_pdf.png")
         if result is None:
             return False
         return True
@@ -150,7 +160,7 @@ class WaitingProcedures:
 
         :return: Is visible or not
         """
-        result = Screen.locate_on_screen('ocr_page_recognition.png')
+        result = Screen.locate_on_screen("ocr_page_recognition.png")
         if result is None:
             return False
         return True
@@ -162,7 +172,7 @@ class WaitingProcedures:
 
         :return Is visible or not
         """
-        arrow_is_greyed_out = Screen.locate_on_screen('operation_running.png')
+        arrow_is_greyed_out = Screen.locate_on_screen("operation_running.png")
         return arrow_is_greyed_out is not None
 
     @staticmethod
@@ -172,7 +182,7 @@ class WaitingProcedures:
 
         :return: Is visible or not
         """
-        result = Screen.locate_center_on_screen('open_ocr_editor.png')
+        result = Screen.locate_center_on_screen("open_ocr_editor.png")
         if result is not None:
             return True
         return False
@@ -184,20 +194,27 @@ class WaitingProcedures:
 
         :return Is visible or not
         """
-        focused_closed_button_visible = Screen.locate_on_screen('close_dialog_button.png', FolderType.WIN)
+        focused_closed_button_visible = Screen.locate_on_screen(
+            "close_dialog_button.png", FolderType.WIN
+        )
         if focused_closed_button_visible is not None:
             return True
 
-        focused_closed_button_not_highlighted = Screen.locate_on_screen('close_dialog_button_not_highlighted.png',
-                                                                        FolderType.WIN)
+        focused_closed_button_not_highlighted = Screen.locate_on_screen(
+            "close_dialog_button_not_highlighted.png", FolderType.WIN
+        )
         if focused_closed_button_not_highlighted is not None:
             return True
 
-        close_button_visible = Screen.locate_on_screen('close_dialog_button_not_focused.png', FolderType.WIN)
+        close_button_visible = Screen.locate_on_screen(
+            "close_dialog_button_not_focused.png", FolderType.WIN
+        )
         if close_button_visible is not None:
             return True
 
-        highlighted_button_visible = Screen.locate_on_screen('close_dialog_button_highlighted.png', FolderType.WIN)
+        highlighted_button_visible = Screen.locate_on_screen(
+            "close_dialog_button_highlighted.png", FolderType.WIN
+        )
         if highlighted_button_visible is not None:
             return True
         return False
@@ -209,7 +226,7 @@ class WaitingProcedures:
 
         :return Is visible or not
         """
-        result_greyed_out = Screen.locate_on_screen('operation_finished.png')
+        result_greyed_out = Screen.locate_on_screen("operation_finished.png")
         return result_greyed_out is not None
 
     @staticmethod
@@ -218,7 +235,7 @@ class WaitingProcedures:
         Checks if warning symbol is visible
         """
         for i in range(attempts):
-            result = Screen.locate_on_screen('warning_symbol.png')
+            result = Screen.locate_on_screen("warning_symbol.png")
             if result is not None:
                 return True
         return False

@@ -24,7 +24,10 @@ class ProcedureContext:
         WaitingProcedures.wait_until_procedure_finished()
         time.sleep(0.5)
         WaitingProcedures.wait_until_procedure_finished()
-        press_key(key_combination='alt+shift+s')
+        press_key(key_combination="alt+shift+s")
         self.end = time.time()
         console.log(
-            Panel(f"[green]Finished [white]{self.context_name} [green]in [cyan]{self.end - self.start} seconds"))
+            Panel(
+                f"[green]Finished [white]{self.context_name} [green]in [cyan]{self.end - self.start} seconds"
+            )
+        )

@@ -20,7 +20,8 @@ class CheckPdfOrientationWorker(QRunnable):
     @pyqtSlot()
     def run(self) -> None:
         landscaped, portraits = analyze_pdf_orientation(
-            Store.FILE_PATH_AFTER_PROCEDURES, lambda value: self.signals.progress.emit(value)
+            Store.FILE_PATH_AFTER_PROCEDURES,
+            lambda value: self.signals.progress.emit(value),
         )
 
         len_landscaped = len(landscaped)
@@ -38,14 +39,23 @@ class CheckPdfOrientationWorker(QRunnable):
 class CheckPdfOrientationRunningStep(Step):
     finished = pyqtSignal()
 
-    def __init__(self, *, text: str, previous_text="Zurück", previous_callback=None, next_text="Weiter",
-                 next_callback=None, detail: str = ""):
+    def __init__(
+        self,
+        *,
+        text: str,
+        previous_text="Zurück",
+        previous_callback=None,
+        next_text="Weiter",
+        next_callback=None,
+        detail: str = ""
+    ):
         super().__init__(
             text=text,
             previous_text=previous_text,
             previous_callback=previous_callback,
             next_text=next_text,
-            next_callback=next_callback, detail=detail
+            next_callback=next_callback,
+            detail=detail,
         )
 
         self.progress_bar = ProgressBar(text_visible=True)
@@ -59,7 +69,9 @@ class CheckPdfOrientationRunningStep(Step):
     def start(self):
         self.worker = CheckPdfOrientationWorker()
         self.worker.signals.finished.connect(self.finished.emit)
-        self.worker.signals.progress.connect(lambda value: self.progress_bar.setValue(int(value * 100)))
+        self.worker.signals.progress.connect(
+            lambda value: self.progress_bar.setValue(int(value * 100))
+        )
         self.threadpool.start(self.worker)
 
     def reset(self):

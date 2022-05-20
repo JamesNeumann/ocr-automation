@@ -6,7 +6,7 @@ PIXEL_TO_PTS_CONSTANT = 0.352778
 def convert_to_pts(pixel: float) -> float:
     """
     Converts the given pixel count to pts
-    
+
     :param pixel: The amount of pixel
     :return: Pixel in pts
     """

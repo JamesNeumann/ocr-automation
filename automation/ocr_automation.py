@@ -14,7 +14,6 @@ from utils.rectangle import Rectangle
 
 
 class OcrAutomation:
-
     @staticmethod
     def open_pdf_in_ocr_editor(path_to_pdf: str) -> None:
         """
@@ -25,13 +24,13 @@ class OcrAutomation:
         os.startfile(OCR_EDITOR_LNK_PATH)
         WaitingProcedures.wait_util_ocr_open_pdf_is_visible()
         time.sleep(1)
-        press_key(key_combination='alt+n')
+        press_key(key_combination="alt+n")
         time.sleep(1)
         OcrAutomation.disable_initial_ocr()
         GeneralProcedures.click_ocr_open_pdf_icon()
         time.sleep(0.5)
         write(path_to_pdf)
-        press_key(key_combination='enter', delay_in_seconds=0.3)
+        press_key(key_combination="enter", delay_in_seconds=0.3)
         WaitingProcedures.wait_until_ocr_page_recognition_icon_is_visible()
 
     @staticmethod
@@ -40,17 +39,17 @@ class OcrAutomation:
         Opens the OCR improvement tools
         """
         if should_tab_in:
-            press_key(key_combination='alt+tab', delay_in_seconds=1)
+            press_key(key_combination="alt+tab", delay_in_seconds=1)
         GeneralProcedures.click_ocr_pages_header()
-        press_key(key_combination='ctrl+a')
-        press_key(key_combination='ctrl+i')
+        press_key(key_combination="ctrl+a")
+        press_key(key_combination="ctrl+i")
 
     @staticmethod
     def close_image_improvement_tools() -> None:
         """
         Closes the OCR improvement tools
         """
-        press_key(key_combination='ctrl+i')
+        press_key(key_combination="ctrl+i")
 
     @staticmethod
     def run_ocr(languages: str) -> None:
@@ -62,25 +61,28 @@ class OcrAutomation:
         GeneralProcedures.click_ocr_file_icon()
         # OcrAutomation.close_image_improvement_tools()
         time.sleep(0.5)
-        press_key(key_combination='alt+k')
-        press_key(key_combination='i')
+        press_key(key_combination="alt+k")
+        press_key(key_combination="i")
         time.sleep(0.5)
         GeneralProcedures.click_ocr_language_selection()
-        press_key(key_combination='alt+s', delay_in_seconds=0.3)
-        press_key(key_combination='shift+tab', delay_in_seconds=0.3)
+        press_key(key_combination="alt+s", delay_in_seconds=0.3)
+        press_key(key_combination="shift+tab", delay_in_seconds=0.3)
         write(text=languages)
-        press_key(key_combination='enter', repetitions=2, delay_in_seconds=0.3)
-        press_key(key_combination='tab', repetitions=7, delay_in_seconds=0.1)
-        press_key(key_combination='enter')
+        press_key(key_combination="enter", repetitions=2, delay_in_seconds=0.3)
+        press_key(key_combination="tab", repetitions=7, delay_in_seconds=0.1)
+        press_key(key_combination="enter")
         GeneralProcedures.click_ocr_pages_header()
-        press_key(key_combination='ctrl+a')
+        press_key(key_combination="ctrl+a")
         GeneralProcedures.click_ocr_page_recognition_icon()
         WaitingProcedures.wait_until_ocr_is_finished()
-        press_key(key_combination='alt+shift+s', delay_in_seconds=0.3)
+        press_key(key_combination="alt+shift+s", delay_in_seconds=0.3)
 
     @staticmethod
-    def do_optimization(procedures: List[Callable], iterations: int, progress_callback: Callable[[int], None]) \
-            -> [str, UUID]:
+    def do_optimization(
+        procedures: List[Callable],
+        iterations: int,
+        progress_callback: Callable[[int], None],
+    ) -> [str, UUID]:
         """
         Executes all the given procedures and crops the pdf afterwards.
 
@@ -99,7 +101,7 @@ class OcrAutomation:
                 progress_callback(curr_step)
         time.sleep(1)
         if WaitingProcedures.is_close_button_visible():
-            press_key(key_combination='alt+shift+s')
+            press_key(key_combination="alt+shift+s")
         time.sleep(0.3)
         # path, file_name = GeneralProcedures.save_temp_pdf()
         # OcrAutomation.close_ocr_project()
@@ -133,8 +135,13 @@ class OcrAutomation:
         time.sleep(0.5)
         GeneralProcedures.click_light_bulb()
         GeneralProcedures.click_light_bulb()
-        OcrProcedures.do_crop_pdf(crop_rectangle.x, crop_rectangle.y, crop_rectangle.width, crop_rectangle.height,
-                                  should_tab_in=False)
+        OcrProcedures.do_crop_pdf(
+            crop_rectangle.x,
+            crop_rectangle.y,
+            crop_rectangle.width,
+            crop_rectangle.height,
+            should_tab_in=False,
+        )
 
     @staticmethod
     def crop_pdf_single_pages(path_to_pdf: str, crop_rectangles: List[Rectangle]):
@@ -145,8 +152,13 @@ class OcrAutomation:
         press_key(key_combination="ä")
         press_key(key_combination="+")
         for rectangle in crop_rectangles:
-            OcrProcedures.do_crop_pdf_single_page(rectangle.x, rectangle.y, rectangle.width, rectangle.height,
-                                                  should_tab_in=False)
+            OcrProcedures.do_crop_pdf_single_page(
+                rectangle.x,
+                rectangle.y,
+                rectangle.width,
+                rectangle.height,
+                should_tab_in=False,
+            )
 
     @staticmethod
     def disable_initial_ocr() -> None:
@@ -156,23 +168,23 @@ class OcrAutomation:
         console.log("Disabling initial ocr...")
         GeneralProcedures.open_options()
         GeneralProcedures.click_ocr_image_processing_icon()
-        press_key(key_combination='tab', repetitions=3, delay_in_seconds=0.1)
-        press_key(key_combination='-', delay_in_seconds=0.3)
-        press_key(key_combination='tab', repetitions=5, delay_in_seconds=0.1)
-        press_key(key_combination='enter', delay_in_seconds=0.3)
+        press_key(key_combination="tab", repetitions=3, delay_in_seconds=0.1)
+        press_key(key_combination="-", delay_in_seconds=0.3)
+        press_key(key_combination="tab", repetitions=5, delay_in_seconds=0.1)
+        press_key(key_combination="enter", delay_in_seconds=0.3)
 
     @staticmethod
     def enable_abby_precise_scan():
         GeneralProcedures.open_options()
         GeneralProcedures.click_format_settings_icon()
-        press_key(key_combination='tab', repetitions=8, delay_in_seconds=0.3)
-        press_key(key_combination='+', delay_in_seconds=0.3)
-        press_key(key_combination='tab', delay_in_seconds=0.3)
-        press_key(key_combination='+', delay_in_seconds=0.3)
-        press_key(key_combination='tab', repetitions=5, delay_in_seconds=0.3)
-        press_key(key_combination='-', delay_in_seconds=0.3)
-        press_key(key_combination='tab')
-        press_key(key_combination='enter', delay_in_seconds=0.3)
+        press_key(key_combination="tab", repetitions=8, delay_in_seconds=0.3)
+        press_key(key_combination="+", delay_in_seconds=0.3)
+        press_key(key_combination="tab", delay_in_seconds=0.3)
+        press_key(key_combination="+", delay_in_seconds=0.3)
+        press_key(key_combination="tab", repetitions=5, delay_in_seconds=0.3)
+        press_key(key_combination="-", delay_in_seconds=0.3)
+        press_key(key_combination="tab")
+        press_key(key_combination="enter", delay_in_seconds=0.3)
 
     @staticmethod
     def close_ocr_project() -> None:
@@ -180,8 +192,8 @@ class OcrAutomation:
         Closes the OCR instance
         """
         GeneralProcedures.click_ocr_pages_header()
-        press_key(key_combination='alt+f4', delay_in_seconds=0.3)
-        press_key(key_combination='alt+n')
+        press_key(key_combination="alt+f4", delay_in_seconds=0.3)
+        press_key(key_combination="alt+n")
 
     @staticmethod
     def clean_up() -> None:
@@ -199,4 +211,4 @@ class OcrAutomation:
                 elif os.path.isdir(file_path):
                     shutil.rmtree(file_path)
             except Exception as e:
-                print('Failed to delete %s. Reason: %s' % (file_path, e))
+                print("Failed to delete %s. Reason: %s" % (file_path, e))

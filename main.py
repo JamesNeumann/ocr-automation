@@ -17,8 +17,8 @@ from utils.screen import Screen
 
 def test():
     images, width, height, index = get_pdf_pages_as_images(
-        "./files/Lorem ipsum dolor sit amet.pdf",
-        lambda value: None)
+        "./files/Lorem ipsum dolor sit amet.pdf", lambda value: None
+    )
     console.log(len(images), width, height, index)
 
     rectangles, max_rectangle = get_crop_boxes(images, lambda value: None)
@@ -44,7 +44,7 @@ def test():
 def main():
     install(show_locals=True)
 
-    app_id = u'jamesneumann.OcrAutomation.v' + VERSION
+    app_id = "jamesneumann.OcrAutomation.v" + VERSION
     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(app_id)
 
     SaveConfig.init()
@@ -52,17 +52,18 @@ def main():
     Screen.set_screen_resolution_string()
     initialize_directories()
     app = QApplication(sys.argv)
-    app.setWindowIcon(QIcon('./images/icon.ico'))
+    app.setWindowIcon(QIcon("./images/icon.ico"))
     window = MainWindow()
-    MainWindow.setWindowFlags(window,
-                              QtCore.Qt.WindowType.WindowCloseButtonHint |
-                              QtCore.Qt.WindowType.WindowMinimizeButtonHint
-                              )
+    MainWindow.setWindowFlags(
+        window,
+        QtCore.Qt.WindowType.WindowCloseButtonHint
+        | QtCore.Qt.WindowType.WindowMinimizeButtonHint,
+    )
 
     window.show()
 
     app.exec()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -10,8 +10,9 @@ from utils.convert_pdf import convert_pdf_to_image, convert_pil_images_to_cv2_fo
 from utils.rectangle import Rectangle
 
 
-def get_pdf_pages_as_images(path_to_pdf: str, progress_callback: Callable[[int], None]) -> (
-        List[ndarray], float, float, int):
+def get_pdf_pages_as_images(
+    path_to_pdf: str, progress_callback: Callable[[int], None]
+) -> (List[ndarray], float, float, int):
     """
     Returns the pages of the given PDF as images. Also returns the width and height in pts
     :param path_to_pdf: Path to the PDF that should be converted
@@ -23,7 +24,9 @@ def get_pdf_pages_as_images(path_to_pdf: str, progress_callback: Callable[[int],
     return cv2_images, pts_width, pts_height, index
 
 
-def get_crop_box_pixel(images: List[ndarray], progress_callback: Callable[[int], None]) -> Rectangle:
+def get_crop_box_pixel(
+    images: List[ndarray], progress_callback: Callable[[int], None]
+) -> Rectangle:
     """
     Calculates the crop box in pixel dimension
     :param images: Images to analyze
@@ -44,8 +47,12 @@ def get_crop_box_pixel(images: List[ndarray], progress_callback: Callable[[int],
     global_max_x = 0
     global_max_y = 0
 
-    for i, image in track(enumerate(images), description="Detecting text...".ljust(40), total=len(images),
-                          console=console):
+    for i, image in track(
+        enumerate(images),
+        description="Detecting text...".ljust(40),
+        total=len(images),
+        console=console,
+    ):
 
         progress = i / (len(images) * 2)
         progress = round(progress, 2)
@@ -71,9 +78,19 @@ def get_crop_box_pixel(images: List[ndarray], progress_callback: Callable[[int],
     global_min_y = max(0, global_min_y)
     global_max_x = min(width, global_max_x)
     global_max_y = min(height, global_max_y)
-    for i, image in track(enumerate(images), description="Saving images...".ljust(40), total=len(images),
-                          console=console):
-        cv2.rectangle(image, (global_min_x, global_min_y), (global_max_x, global_max_y), (255, 0, 0), 2)
+    for i, image in track(
+        enumerate(images),
+        description="Saving images...".ljust(40),
+        total=len(images),
+        console=console,
+    ):
+        cv2.rectangle(
+            image,
+            (global_min_x, global_min_y),
+            (global_max_x, global_max_y),
+            (255, 0, 0),
+            2,
+        )
         # cropped_image = image[global_min_y:global_max_y, global_min_x:global_max_x]
         cv2.imwrite(f"converted_files/{i}.png", image)
 
@@ -81,16 +98,21 @@ def get_crop_box_pixel(images: List[ndarray], progress_callback: Callable[[int],
     return Rectangle(global_min_x, global_min_y, global_max_x, global_max_y)
 
 
-def get_crop_boxes(images: List[ndarray], progress_callback: Callable[[int], None], *,
-                   render_debug_lines: bool = False, save_images: bool = False) -> (List[Rectangle], Rectangle):
+def get_crop_boxes(
+    images: List[ndarray],
+    progress_callback: Callable[[int], None],
+    *,
+    render_debug_lines: bool = False,
+    save_images: bool = False,
+) -> (List[Rectangle], Rectangle):
     """
-       Calculates the crop box in pixel dimension
-       :param images: Images to analyze
-       :param progress_callback: Callback to visualize progress
-       :param render_debug_lines: If debug lines should be rendered on the image
-       :param save_images: If the images should be saved
-       :return: The crop box rectangle
-       """
+    Calculates the crop box in pixel dimension
+    :param images: Images to analyze
+    :param progress_callback: Callback to visualize progress
+    :param render_debug_lines: If debug lines should be rendered on the image
+    :param save_images: If the images should be saved
+    :return: The crop box rectangle
+    """
     image_crop_boxes = []
     max_crop_box = Rectangle(0, 0, 0, 0)
     height = 999999
@@ -101,8 +123,12 @@ def get_crop_boxes(images: List[ndarray], progress_callback: Callable[[int], Non
         if image.shape[1] < width:
             width = image.shape[1]
 
-    for i, image in track(enumerate(images), description="Detecting text...".ljust(40), total=len(images),
-                          console=console):
+    for i, image in track(
+        enumerate(images),
+        description="Detecting text...".ljust(40),
+        total=len(images),
+        console=console,
+    ):
         progress = i / (len(images) * 2)
         progress = round(progress, 2)
 
@@ -119,12 +145,12 @@ def get_crop_boxes(images: List[ndarray], progress_callback: Callable[[int], Non
                     if x < image_crop_box.x:
                         image_crop_box.x = x
                     if x + w > image_crop_box.width:
-                        image_crop_box.width = (w + x)
+                        image_crop_box.width = w + x
                     if y < image_crop_box.y:
                         image_crop_box.y = y
                     # console.log(y + h)
                     if y + h > image_crop_box.height:
-                        image_crop_box.height = (y + h)
+                        image_crop_box.height = y + h
 
                     if render_debug_lines:
                         cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
@@ -132,16 +158,27 @@ def get_crop_boxes(images: List[ndarray], progress_callback: Callable[[int], Non
         image_crop_box.width = image_crop_box.width - image_crop_box.x
         image_crop_box.height = image_crop_box.height - image_crop_box.y
         if render_debug_lines:
-            cv2.rectangle(image, (image_crop_box.x, image_crop_box.y),
-                          (image_crop_box.width + image_crop_box.x, image_crop_box.height + image_crop_box.y),
-                          (0, 0, 255), 2)
+            cv2.rectangle(
+                image,
+                (image_crop_box.x, image_crop_box.y),
+                (
+                    image_crop_box.width + image_crop_box.x,
+                    image_crop_box.height + image_crop_box.y,
+                ),
+                (0, 0, 255),
+                2,
+            )
         image_crop_boxes.append(image_crop_box)
         if image_crop_box.area() > max_crop_box.area():
             max_crop_box = image_crop_box
 
     if save_images:
-        for i, image in track(enumerate(images), description="Saving images...".ljust(40), total=len(images),
-                              console=console):
+        for i, image in track(
+            enumerate(images),
+            description="Saving images...".ljust(40),
+            total=len(images),
+            console=console,
+        ):
             # cv2.rectangle(image, (max_crop_box.x, max_crop_box.y), (max_crop_box.width, max_crop_box.height), (255, 0, 0),
             #               2)
             # cropped_image = image[global_min_y:global_max_y, global_min_x:global_max_x]
@@ -161,17 +198,23 @@ def find_contours_on_image(image: ndarray):
     """
     gray_scale_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blur = cv2.GaussianBlur(gray_scale_image, (7, 7), 0)
-    ret, threshold = cv2.threshold(blur, 20, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+    ret, threshold = cv2.threshold(
+        blur, 20, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU
+    )
     rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (16, 16))
 
     dilation = cv2.dilate(threshold, rect_kernel, iterations=1)
 
-    contours, hierarchy = cv2.findContours(dilation, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    contours, hierarchy = cv2.findContours(
+        dilation, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE
+    )
 
     return contours, hierarchy
 
 
-def analyze_pdf_orientation(path_to_pdf: str, progress_callback: Callable[[float], None]) -> (List[int], List[int]):
+def analyze_pdf_orientation(
+    path_to_pdf: str, progress_callback: Callable[[float], None]
+) -> (List[int], List[int]):
     """
     Analyzes PDF orientation
 
@@ -189,7 +232,10 @@ def analyze_pdf_orientation(path_to_pdf: str, progress_callback: Callable[[float
 
         for index in range(num_pdf_files):
             box = pdf_file_reader.getPage(index).mediaBox
-            if box.getUpperRight_x() - box.getUpperLeft_x() > box.getUpperRight_y() - box.getLowerRight_y():
+            if (
+                box.getUpperRight_x() - box.getUpperLeft_x()
+                > box.getUpperRight_y() - box.getLowerRight_y()
+            ):
                 landscaped.append(index)
             else:
                 portraits.append(index)

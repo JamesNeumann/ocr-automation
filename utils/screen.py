@@ -34,7 +34,9 @@ class Screen:
             return False
 
     @staticmethod
-    def locate_center_on_screen(image_name: str, folder: FolderType = FolderType.OCR) -> Any:
+    def locate_center_on_screen(
+        image_name: str, folder: FolderType = FolderType.OCR
+    ) -> Any:
         """
         Locates the given image on screen. Then returns the center position of that image relative to its screen position
 
@@ -42,7 +44,9 @@ class Screen:
         :param folder: In which folder the image is saved
         :return: Any
         """
-        return pyautogui.locateCenterOnScreen(Screen.get_image_path(image_name, folder), confidence=0.95)
+        return pyautogui.locateCenterOnScreen(
+            Screen.get_image_path(image_name, folder), confidence=0.95
+        )
 
     @staticmethod
     def locate_on_screen(image_name: str, folder: FolderType = FolderType.OCR) -> Any:
@@ -53,7 +57,9 @@ class Screen:
         :param folder: In which folder the image is saved
         :return: Any
         """
-        return pyautogui.locateOnScreen(Screen.get_image_path(image_name, folder), confidence=0.95)
+        return pyautogui.locateOnScreen(
+            Screen.get_image_path(image_name, folder), confidence=0.95
+        )
 
     @staticmethod
     def get_image_path(image_name: str, folder: FolderType = FolderType.OCR) -> str:
@@ -75,9 +81,9 @@ class Screen:
         :return: The name of the FolderType
         """
         if folder == FolderType.OCR:
-            return 'OCR'
+            return "OCR"
         if folder == FolderType.WIN:
             if Screen.is_win_11():
-                return 'Win11'
+                return "Win11"
             else:
-                return 'Win10'
+                return "Win10"

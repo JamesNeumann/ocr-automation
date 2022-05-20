@@ -1,11 +1,13 @@
 import os
 
-TEMP_PATH = os.environ['USERPROFILE'] + "\\AppData\\Local\\Temp"
+TEMP_PATH = os.environ["USERPROFILE"] + "\\AppData\\Local\\Temp"
 OCR_AUTOMATION_TEMP_FOLDER = "OcrAutomation"
 OCR_WORKING_DIR = os.path.join(TEMP_PATH, OCR_AUTOMATION_TEMP_FOLDER)
 
-OCR_EDITOR_LNK_PATH = '"C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\' \
-                      'ABBYY FineReader PDF 15\\ABBYY FineReader 15 OCR-Editor.lnk"'
+OCR_EDITOR_LNK_PATH = (
+    '"C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\'
+    'ABBYY FineReader PDF 15\\ABBYY FineReader 15 OCR-Editor.lnk"'
+)
 
 VERSION = "1.0.0"
 

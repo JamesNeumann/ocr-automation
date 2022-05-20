@@ -27,8 +27,11 @@ class ProcedureWorker(QRunnable):
 
     @pyqtSlot()
     def run(self):
-        OcrAutomation.do_optimization(self.procedures, self.iterations,
-                                                    lambda value: self.signals.progress.emit(value))
+        OcrAutomation.do_optimization(
+            self.procedures,
+            self.iterations,
+            lambda value: self.signals.progress.emit(value),
+        )
 
         # Store.FILE_PATH_AFTER_PROCEDURES = os.path.abspath(f"{OCR_WORKING_DIR}\\{str(filename)}.pdf")
         self.signals.finished.emit()
@@ -37,14 +40,23 @@ class ProcedureWorker(QRunnable):
 class ProcedureSelectionStep(Step):
     finished = pyqtSignal()
 
-    def __init__(self, *, text: str, previous_text="Zurück", previous_callback=None, next_text="Weiter",
-                 next_callback=None, detail: str = ""):
+    def __init__(
+        self,
+        *,
+        text: str,
+        previous_text="Zurück",
+        previous_callback=None,
+        next_text="Weiter",
+        next_callback=None,
+        detail: str = ""
+    ):
         super().__init__(
             text=text,
             previous_text=previous_text,
             previous_callback=previous_callback,
             next_text=next_text,
-            next_callback=next_callback, detail=detail
+            next_callback=next_callback,
+            detail=detail,
         )
         self.procedure_selection = ProcedureSelection()
         self.layout.addWidget(self.procedure_selection, 2, 0, 2, 4)
@@ -58,8 +70,12 @@ class ProcedureSelectionStep(Step):
         self.progressbar.show()
         procedure_names = self.procedure_selection.get_selected_procedures()
         procedures = OcrProcedures.get_procedures(procedure_names)
-        self.worker = ProcedureWorker(procedures, self.procedure_selection.get_iteration_amount())
-        self.worker.signals.progress.connect(lambda value: self.progressbar.setValue(math.floor(value)))
+        self.worker = ProcedureWorker(
+            procedures, self.procedure_selection.get_iteration_amount()
+        )
+        self.worker.signals.progress.connect(
+            lambda value: self.progressbar.setValue(math.floor(value))
+        )
         self.worker.signals.finished.connect(self.finished.emit)
         self.threadpool.start(self.worker)
 

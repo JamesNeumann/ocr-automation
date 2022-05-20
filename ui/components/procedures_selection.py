@@ -1,13 +1,20 @@
 from typing import List
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QWidget, QGroupBox, QCheckBox, QVBoxLayout, QHBoxLayout, QLabel, QSlider
+from PyQt6.QtWidgets import (
+    QWidget,
+    QGroupBox,
+    QCheckBox,
+    QVBoxLayout,
+    QHBoxLayout,
+    QLabel,
+    QSlider,
+)
 
 from automation.procedures.ocr_procedures import OcrProcedures
 
 
 class ProcedureSelection(QWidget):
-
     def __init__(self):
         super().__init__()
 
@@ -29,7 +36,9 @@ class ProcedureSelection(QWidget):
 
         self.iterations_vbox = QVBoxLayout()
 
-        self.iteration_label = QLabel("Wie viele Iterationen sollen durchgeführt werden?")
+        self.iteration_label = QLabel(
+            "Wie viele Iterationen sollen durchgeführt werden?"
+        )
         self.iterations_vbox.addWidget(self.iteration_label)
 
         self.slider = QSlider(Qt.Orientation.Horizontal)

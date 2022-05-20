@@ -14,7 +14,7 @@ def set_standard_metadata(path_to_pdf: str) -> None:
     :param path_to_pdf: Path to the PDF
     """
 
-    file_in = open(path_to_pdf, 'rb')
+    file_in = open(path_to_pdf, "rb")
     pdf_reader = PdfFileReader(file_in)
     pdf_reader.getXmpMetadata()
     writer = PdfFileWriter()
@@ -30,15 +30,15 @@ def set_standard_metadata(path_to_pdf: str) -> None:
     file_name = Path(path_to_pdf).stem
 
     new_metadata = {
-        '/Creator': "BE4-BDLK2-V2",
-        '/Title': file_name,
-        '/ModDate': "",
-        '/CreationDate': metadata_time_string,
-        '/Producer': "libimg Image Output V6.92G (c) Image Access"
+        "/Creator": "BE4-BDLK2-V2",
+        "/Title": file_name,
+        "/ModDate": "",
+        "/CreationDate": metadata_time_string,
+        "/Producer": "libimg Image Output V6.92G (c) Image Access",
     }
     writer.addMetadata(new_metadata)
 
-    file_out = open(path_to_pdf, 'ab')
+    file_out = open(path_to_pdf, "ab")
     writer.write(file_out)
     file_in.close()
     file_out.close()

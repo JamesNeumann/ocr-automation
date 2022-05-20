@@ -15,7 +15,9 @@ from utils.console import console
 from utils.file_utils import wait_until_file_is_unlocked
 
 
-def convert_pdf_to_image(path_to_pdf: str, attempts: int = 5) -> (List[Image], float, float, int):
+def convert_pdf_to_image(
+    path_to_pdf: str, attempts: int = 5
+) -> (List[Image], float, float, int):
     """
     Converts each page of the given PDF to an image
 
@@ -38,7 +40,7 @@ def convert_pdf_to_image(path_to_pdf: str, attempts: int = 5) -> (List[Image], f
         i += 1
 
     if pdf_file_reader is None:
-        console.log('[red]PDF konnte nicht gefunden werden')
+        console.log("[red]PDF konnte nicht gefunden werden")
 
     min_height = 99999999
     min_width = 99999999
@@ -65,15 +67,18 @@ def convert_pdf_to_image(path_to_pdf: str, attempts: int = 5) -> (List[Image], f
                 thread_count=multiprocessing.cpu_count(),
                 jpegopt=True,
             )
-            console.log(f"Needed {time() - start_time} seconds to convert {file_name} to images")
+            console.log(
+                f"Needed {time() - start_time} seconds to convert {file_name} to images"
+            )
         except Exception as e:
             console.log(e, e)
 
     return converted_images, min_width, min_height, min_index
 
 
-def convert_pil_images_to_cv2_format(pil_images: List[Image], progress_callback: Callable[[int], None]) -> List[
-    ndarray]:
+def convert_pil_images_to_cv2_format(
+    pil_images: List[Image], progress_callback: Callable[[int], None]
+) -> List[ndarray]:
     """
     Converts Image in PIL format to cv2 format
 
@@ -82,8 +87,12 @@ def convert_pil_images_to_cv2_format(pil_images: List[Image], progress_callback:
     :return List of all images in cv2 format
     """
     cv2_images = []
-    for i, image in track(enumerate(pil_images), description="Converting image to cv2 format...".ljust(40),
-                          console=console, total=len(pil_images)):
+    for i, image in track(
+        enumerate(pil_images),
+        description="Converting image to cv2 format...".ljust(40),
+        console=console,
+        total=len(pil_images),
+    ):
         progress = i / (len(pil_images) * 2)
         progress = round(progress, 2)
         progress_callback(progress * 100)

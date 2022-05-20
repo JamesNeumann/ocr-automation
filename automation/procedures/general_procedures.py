@@ -11,14 +11,13 @@ from utils.screen import Screen
 
 
 class GeneralProcedures:
-
     @staticmethod
     def do_select_all_pages() -> None:
         """
         Selects the "all pages" option in the dropdown to apply one procedure to all pages.
         """
-        press_key(key_combination='tab')
-        press_key(key_combination='down', repetitions=3)
+        press_key(key_combination="tab")
+        press_key(key_combination="down", repetitions=3)
 
     @staticmethod
     def write_crop_values(width: int, height: int, x: int, y: int) -> None:
@@ -32,26 +31,26 @@ class GeneralProcedures:
         """
 
         # Width
-        press_key(key_combination='alt+ß', delay_in_seconds=0.3)
-        press_key(key_combination='ctrl+a', delay_in_seconds=0.1)
+        press_key(key_combination="alt+ß", delay_in_seconds=0.3)
+        press_key(key_combination="ctrl+a", delay_in_seconds=0.1)
         write(width, 0.1)
 
         # Height
-        press_key(key_combination='tab', delay_in_seconds=0.3)
-        press_key(key_combination='ctrl+a', delay_in_seconds=0.1)
+        press_key(key_combination="tab", delay_in_seconds=0.3)
+        press_key(key_combination="ctrl+a", delay_in_seconds=0.1)
         write(height, 0.1)
 
         # X
-        press_key(key_combination='tab', delay_in_seconds=0.3)
-        press_key(key_combination='ctrl+a', delay_in_seconds=0.1)
+        press_key(key_combination="tab", delay_in_seconds=0.3)
+        press_key(key_combination="ctrl+a", delay_in_seconds=0.1)
         write(x, 0.1)
 
         # Y
-        press_key(key_combination='tab', delay_in_seconds=0.3)
-        press_key(key_combination='ctrl+a', delay_in_seconds=0.1)
+        press_key(key_combination="tab", delay_in_seconds=0.3)
+        press_key(key_combination="ctrl+a", delay_in_seconds=0.1)
         write(y, 0.1)
 
-        press_key(key_combination='tab', delay_in_seconds=0.3)
+        press_key(key_combination="tab", delay_in_seconds=0.3)
 
     @staticmethod
     def save_temp_pdf() -> (str, str):
@@ -70,31 +69,31 @@ class GeneralProcedures:
     @staticmethod
     def _save_temp_pdf(path):
         console.log("Saving temp pdf...")
-        arrow_down = Screen.locate_center_on_screen('save_pdf_dropdown.png')
+        arrow_down = Screen.locate_center_on_screen("save_pdf_dropdown.png")
         if arrow_down is None:
             return
         pyautogui.click(arrow_down.x, arrow_down.y)
-        press_key(key_combination='down', repetitions=2, delay_in_seconds=0.5)
-        press_key(key_combination='enter')
+        press_key(key_combination="down", repetitions=2, delay_in_seconds=0.5)
+        press_key(key_combination="enter")
         write(text=path)
-        press_key(key_combination='tab', repetitions=2, delay_in_seconds=0.3)
-        press_key(key_combination='-', delay_in_seconds=0.3)
-        press_key(key_combination='tab', repetitions=4, delay_in_seconds=0.3)
-        press_key(key_combination='enter', delay_in_seconds=1)
+        press_key(key_combination="tab", repetitions=2, delay_in_seconds=0.3)
+        press_key(key_combination="-", delay_in_seconds=0.3)
+        press_key(key_combination="tab", repetitions=4, delay_in_seconds=0.3)
+        press_key(key_combination="enter", delay_in_seconds=1)
 
         if WaitingProcedures.is_warning_symbol_visible():
             console.log("Warning is visible")
             console.log("Setting save settings...")
-            press_key(key_combination='tab')
-            press_key(key_combination='enter', delay_in_seconds=0.3)
-            press_key(key_combination='tab', repetitions=7, delay_in_seconds=0.3)
-            press_key(key_combination='enter', delay_in_seconds=0.3)
-            press_key(key_combination='tab', repetitions=5, delay_in_seconds=0.3)
-            press_key(key_combination='-', delay_in_seconds=0.3)
-            press_key(key_combination='tab')
-            press_key(key_combination='enter', delay_in_seconds=0.3)
-            press_key(key_combination='shift+tab')
-            press_key(key_combination='enter', delay_in_seconds=1)
+            press_key(key_combination="tab")
+            press_key(key_combination="enter", delay_in_seconds=0.3)
+            press_key(key_combination="tab", repetitions=7, delay_in_seconds=0.3)
+            press_key(key_combination="enter", delay_in_seconds=0.3)
+            press_key(key_combination="tab", repetitions=5, delay_in_seconds=0.3)
+            press_key(key_combination="-", delay_in_seconds=0.3)
+            press_key(key_combination="tab")
+            press_key(key_combination="enter", delay_in_seconds=0.3)
+            press_key(key_combination="shift+tab")
+            press_key(key_combination="enter", delay_in_seconds=1)
 
         WaitingProcedures.wait_until_saving_pdf_is_finished(path)
 
@@ -102,20 +101,20 @@ class GeneralProcedures:
 
     @staticmethod
     def open_options():
-        press_key(key_combination='alt+k', delay_in_seconds=0.2)
-        press_key(key_combination='i', delay_in_seconds=0.3)
+        press_key(key_combination="alt+k", delay_in_seconds=0.2)
+        press_key(key_combination="i", delay_in_seconds=0.3)
 
     @staticmethod
     def open_save_pdf_dialog():
         """
         Opens the save PDF dialog for saving a searchable PDF
         """
-        arrow_down = Screen.locate_center_on_screen('save_pdf_dropdown.png')
+        arrow_down = Screen.locate_center_on_screen("save_pdf_dropdown.png")
         if arrow_down is None:
             return
         pyautogui.click(arrow_down.x, arrow_down.y)
-        press_key(key_combination='down', repetitions=1)
-        press_key(key_combination='enter', delay_in_seconds=0.5)
+        press_key(key_combination="down", repetitions=1)
+        press_key(key_combination="enter", delay_in_seconds=0.5)
 
     @staticmethod
     def click_format_settings_icon(attempts: int = 5) -> None:
@@ -124,7 +123,7 @@ class GeneralProcedures:
         """
         i = 0
         while i < attempts:
-            result = Screen.locate_center_on_screen('format_settings_icon.png')
+            result = Screen.locate_center_on_screen("format_settings_icon.png")
             if result is not None:
                 pyautogui.click(result.x, result.y)
                 return
@@ -137,7 +136,7 @@ class GeneralProcedures:
         """
         i = 0
         while i < attempts:
-            result = Screen.locate_center_on_screen('light_bulb.png')
+            result = Screen.locate_center_on_screen("light_bulb.png")
             if result is not None:
                 pyautogui.click(result.x, result.y)
                 return
@@ -150,7 +149,7 @@ class GeneralProcedures:
         """
         i = 0
         while i < attempts:
-            x, y = Screen.locate_center_on_screen('ocr_file_icon.png')
+            x, y = Screen.locate_center_on_screen("ocr_file_icon.png")
             if x is not None and y is not None:
                 pyautogui.click(x, y)
                 return
@@ -163,7 +162,7 @@ class GeneralProcedures:
         """
         i = 0
         while i < attempts:
-            result = Screen.locate_center_on_screen('ocr_image_processing_icon.png')
+            result = Screen.locate_center_on_screen("ocr_image_processing_icon.png")
             if result is not None:
                 pyautogui.click(result.x, result.y)
                 return
@@ -189,8 +188,10 @@ class GeneralProcedures:
         """
         i = 0
         while i < attempts:
-            result = Screen.locate_center_on_screen('ocr_language_selection.png')
-            result_selected = Screen.locate_center_on_screen('ocr_language_selection_selected.png')
+            result = Screen.locate_center_on_screen("ocr_language_selection.png")
+            result_selected = Screen.locate_center_on_screen(
+                "ocr_language_selection_selected.png"
+            )
             if result is not None:
                 pyautogui.click(result.x, result.y)
                 return
@@ -206,7 +207,7 @@ class GeneralProcedures:
         """
         i = 0
         while i < attempts:
-            result = Screen.locate_center_on_screen('ocr_page_recognition.png')
+            result = Screen.locate_center_on_screen("ocr_page_recognition.png")
             if result is not None:
                 pyautogui.click(result.x, result.y)
                 return
@@ -216,7 +217,7 @@ class GeneralProcedures:
     def click_ocr_open_pdf_icon(attempts: int = 5):
         i = 0
         while i < attempts:
-            result = Screen.locate_center_on_screen('ocr_open_pdf.png')
+            result = Screen.locate_center_on_screen("ocr_open_pdf.png")
             if result is not None:
                 pyautogui.click(result.x, result.y)
                 return
