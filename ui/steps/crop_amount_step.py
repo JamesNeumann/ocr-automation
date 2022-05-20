@@ -30,8 +30,8 @@ class CropWorker(QRunnable):
         #     lambda value: self.signals.progress.emit(50 + value)
         # )
 
-        crop_boxes, max_box = get_crop_boxes(images,
-                                             lambda value: self.signals.progress.emit(50 + value))
+        crop_boxes, max_box = get_crop_boxes(images, lambda value: self.signals.progress.emit(50 + value),
+                                             render_debug_lines=True, save_images=True)
         result_boxes = []
         for rectangle in crop_boxes:
             transformed = rectangle.move_to_center(max_box)

@@ -5,6 +5,7 @@ from PyQt6.QtCore import QObject, pyqtSignal, QRunnable, QThreadPool, pyqtSlot
 from automation.ocr_automation import OcrAutomation
 from ui.components.progress_bar import ProgressBar
 from ui.steps.step import Step
+from utils.console import console
 from utils.rectangle import Rectangle
 
 
@@ -23,8 +24,19 @@ class CropRunningWorker(QRunnable):
 
     @pyqtSlot()
     def run(self) -> None:
-        # OcrAutomation.crop_pdf(path_to_pdf=self.path_to_pdf, crop_rectangle=self.crop_rectangle)
-        OcrAutomation.crop_pdf_single_pages(path_to_pdf=self.path_to_pdf, crop_rectangles=self.crop_rectangles)
+        max_x_center_diff = 0
+        for crop_rect in self.crop_rectangles:
+            for crop_rect_inner in self.crop_rectangles:
+                x_center_diff = abs(crop_rect.center_x - crop_rect_inner.center_x)
+                if x_center_diff > max_x_center_diff:
+                    max_x_center_diff = x_center_diff
+
+        console.log("Max center x diff", max_x_center_diff)
+
+        if max_x_center_diff < 5:
+            OcrAutomation.crop_pdf(path_to_pdf=self.path_to_pdf, crop_rectangle=self.crop_rectangle)
+        else:
+            OcrAutomation.crop_pdf_single_pages(path_to_pdf=self.path_to_pdf, crop_rectangles=self.crop_rectangles)
         self.signals.finished.emit()
 
 

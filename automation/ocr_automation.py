@@ -60,7 +60,7 @@ class OcrAutomation:
         :param languages: Languages which should be used for ocr
         """
         GeneralProcedures.click_ocr_file_icon()
-        OcrAutomation.close_image_improvement_tools()
+        # OcrAutomation.close_image_improvement_tools()
         time.sleep(0.5)
         press_key(key_combination='alt+k')
         press_key(key_combination='i')
@@ -113,6 +113,8 @@ class OcrAutomation:
 
         :param path: Path where the PDF should be saved
         """
+        GeneralProcedures.click_ocr_pages_header()
+        OcrAutomation.enable_abby_precise_scan()
         GeneralProcedures.open_save_pdf_dialog()
         write(path)
         press_key(key_combination="enter")
@@ -152,12 +154,24 @@ class OcrAutomation:
         Disables the initial OCR when opening a PDF
         """
         console.log("Disabling initial ocr...")
-        press_key(key_combination='alt+k', delay_in_seconds=0.2)
-        press_key(key_combination='i', delay_in_seconds=0.3)
+        GeneralProcedures.open_options()
         GeneralProcedures.click_ocr_image_processing_icon()
         press_key(key_combination='tab', repetitions=3, delay_in_seconds=0.1)
         press_key(key_combination='-', delay_in_seconds=0.3)
         press_key(key_combination='tab', repetitions=5, delay_in_seconds=0.1)
+        press_key(key_combination='enter', delay_in_seconds=0.3)
+
+    @staticmethod
+    def enable_abby_precise_scan():
+        GeneralProcedures.open_options()
+        GeneralProcedures.click_format_settings_icon()
+        press_key(key_combination='tab', repetitions=8, delay_in_seconds=0.3)
+        press_key(key_combination='+', delay_in_seconds=0.3)
+        press_key(key_combination='tab', delay_in_seconds=0.3)
+        press_key(key_combination='+', delay_in_seconds=0.3)
+        press_key(key_combination='tab', repetitions=5, delay_in_seconds=0.3)
+        press_key(key_combination='-', delay_in_seconds=0.3)
+        press_key(key_combination='tab')
         press_key(key_combination='enter', delay_in_seconds=0.3)
 
     @staticmethod

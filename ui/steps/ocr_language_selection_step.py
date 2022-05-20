@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import QGroupBox, QVBoxLayout, QRadioButton
 
 from ui.components.checkable_combo_box import CheckableComboBox
 from ui.steps.step import Step
+from utils.ocr_languages import predefined_ocr_languages, custom_languages
 
 
 class OcrLanguageSelectionStep(Step):
@@ -23,15 +24,20 @@ class OcrLanguageSelectionStep(Step):
         # self.pre_defined_languages = ['Altdeutsch', 'Deutsch', 'Deutsch (Neue Rechtschreibung)', 'Englisch',
         #                               'Französisch', 'Italienisch', 'Spanisch']
 
-        deutsch = "Deutsch;Englisch;Französisch;Lateinisch;"
-        altdeutsch = "Altdeutsch;Englisch;Französisch;Lateinisch;"
-        france = "Französisch;Deutsch;Englisch;Lateinisch;"
-        deutsch_new = "Deutsch (Neue Rechtschreibung);Französisch;Englisch;Lateinisch;"
-        english = "Englisch;Französisch;Deutsch;Lateinisch;"
-        italian = "Italienisch;Englisch;Französisch;Deutsch;Lateinisch;"
-        spanish = "Spanisch;Englisch;Französisch;Deutsch;Lateinisch;"
 
-        self.pre_defined_languages = [deutsch, altdeutsch, france, deutsch_new, english, italian, spanish]
+
+
+        # deutsch = "Deutsch;Englisch;Französisch;Lateinisch;"
+        # altdeutsch = "Altdeutsch;Englisch;Französisch;Lateinisch;"
+        # france = "Französisch;Deutsch;Englisch;Lateinisch;"
+        # deutsch_new = "Deutsch (Neue Rechtschreibung);Französisch;Englisch;Lateinisch;"
+        # english = "Englisch;Französisch;Deutsch;Lateinisch;"
+        # italian = "Italienisch;Englisch;Französisch;Deutsch;Lateinisch;"
+        # spanish = "Spanisch;Englisch;Französisch;Deutsch;Lateinisch;"
+
+        # self.pre_defined_languages = [deutsch, altdeutsch, france, deutsch_new, english, italian, spanish]
+
+        self.pre_defined_languages = [';'.join(language) for language in predefined_ocr_languages]
 
         for index, language in enumerate(self.pre_defined_languages):
             button = QRadioButton(language)
@@ -45,17 +51,7 @@ class OcrLanguageSelectionStep(Step):
 
         self.custom_language_selection_group_box = QGroupBox("Wähle eine andere Sprachen")
         self.custom_language_layout = QVBoxLayout()
-        self.custom_languages = ["Altdeutsch", "Altenglisch", "Altfranzösisch", "Altitalienisch", "Altspanisch",
-                                 "Deutsch", "Deutsch (Neue Rechtschreibung)", "Englisch", "Französisch", "Spanisch",
-                                 "Arabisch (Saudi-Arabien)", "Armenisch (Ostarmenisch)", "Armenisch (Grabar)",
-                                 "Armenisch (Westarmenisch)", "Baschkirisch", "Aserbaidschanisch (Lateinisch)",
-                                 "Bulgarisch", "Dänisch", "Estnisch", "Finnisch", "Griechisch", "Hebräisch",
-                                 "Indonesisch", "Italienisch", "Katalanisch", "Kroatisch", "Lateinisch", "Lettisch",
-                                 "Litauisch", "Niederländisch", "Norwegisch (Bokmal)", "Norwegisch (Nynorsk)",
-                                 "Polnisch", "Portugiesisch", "Portugiesisch (Brasilianisch)", "Rumänisch", "Russisch",
-                                 "Russisch (Alte Rechtschreibung)", "Russisch mit Betonungszeichen", "Schwedisch",
-                                 "Slowenisch", "Slowakisch", "Tatarisch", "Tschechisch", "Türkisch", "Ukrainisch",
-                                 "Ungarisch", "Vietnamesisch"]
+        self.custom_languages = custom_languages
 
         self.checkable_combo_box = CheckableComboBox()
         self.checkable_combo_box.addItems(self.custom_languages)

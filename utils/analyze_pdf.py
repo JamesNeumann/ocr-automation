@@ -81,11 +81,14 @@ def get_crop_box_pixel(images: List[ndarray], progress_callback: Callable[[int],
     return Rectangle(global_min_x, global_min_y, global_max_x, global_max_y)
 
 
-def get_crop_boxes(images: List[ndarray], progress_callback: Callable[[int], None]) -> (List[Rectangle], Rectangle):
+def get_crop_boxes(images: List[ndarray], progress_callback: Callable[[int], None], *,
+                   render_debug_lines: bool = False, save_images: bool = False) -> (List[Rectangle], Rectangle):
     """
        Calculates the crop box in pixel dimension
        :param images: Images to analyze
        :param progress_callback: Callback to visualize progress
+       :param render_debug_lines: If debug lines should be rendered on the image
+       :param save_images: If the images should be saved
        :return: The crop box rectangle
        """
     image_crop_boxes = []
@@ -122,25 +125,30 @@ def get_crop_boxes(images: List[ndarray], progress_callback: Callable[[int], Non
                     # console.log(y + h)
                     if y + h > image_crop_box.height:
                         image_crop_box.height = (y + h)
-                    cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+                    if render_debug_lines:
+                        cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
         image_crop_box.width = image_crop_box.width - image_crop_box.x
         image_crop_box.height = image_crop_box.height - image_crop_box.y
-        cv2.rectangle(image, (image_crop_box.x, image_crop_box.y),
-                      (image_crop_box.width + image_crop_box.x, image_crop_box.height + image_crop_box.y),
-                      (0, 0, 255), 2)
+        if render_debug_lines:
+            cv2.rectangle(image, (image_crop_box.x, image_crop_box.y),
+                          (image_crop_box.width + image_crop_box.x, image_crop_box.height + image_crop_box.y),
+                          (0, 0, 255), 2)
         image_crop_boxes.append(image_crop_box)
         if image_crop_box.area() > max_crop_box.area():
             max_crop_box = image_crop_box
 
-    for i, image in track(enumerate(images), description="Saving images...".ljust(40), total=len(images),
-                          console=console):
-        # cv2.rectangle(image, (max_crop_box.x, max_crop_box.y), (max_crop_box.width, max_crop_box.height), (255, 0, 0),
-        #               2)
-        # cropped_image = image[global_min_y:global_max_y, global_min_x:global_max_x]
-        cv2.imwrite(f"converted_files/{i}.png", image)
+    if save_images:
+        for i, image in track(enumerate(images), description="Saving images...".ljust(40), total=len(images),
+                              console=console):
+            # cv2.rectangle(image, (max_crop_box.x, max_crop_box.y), (max_crop_box.width, max_crop_box.height), (255, 0, 0),
+            #               2)
+            # cropped_image = image[global_min_y:global_max_y, global_min_x:global_max_x]
+            cv2.imwrite(f"converted_files/{i}.png", image)
 
     progress_callback(50)
+
     return image_crop_boxes, max_crop_box
 
 

@@ -90,15 +90,20 @@ class GeneralProcedures:
             press_key(key_combination='tab', repetitions=7, delay_in_seconds=0.3)
             press_key(key_combination='enter', delay_in_seconds=0.3)
             press_key(key_combination='tab', repetitions=5, delay_in_seconds=0.3)
-            press_key(key_combination='-', delay_in_seconds=0.5)
+            press_key(key_combination='-', delay_in_seconds=0.3)
             press_key(key_combination='tab')
-            press_key(key_combination='enter', delay_in_seconds=0.5)
+            press_key(key_combination='enter', delay_in_seconds=0.3)
             press_key(key_combination='shift+tab')
             press_key(key_combination='enter', delay_in_seconds=1)
 
         WaitingProcedures.wait_until_saving_pdf_is_finished(path)
 
         console.log(Panel("[green]PDF saved"))
+
+    @staticmethod
+    def open_options():
+        press_key(key_combination='alt+k', delay_in_seconds=0.2)
+        press_key(key_combination='i', delay_in_seconds=0.3)
 
     @staticmethod
     def open_save_pdf_dialog():
@@ -111,6 +116,19 @@ class GeneralProcedures:
         pyautogui.click(arrow_down.x, arrow_down.y)
         press_key(key_combination='down', repetitions=1)
         press_key(key_combination='enter', delay_in_seconds=0.5)
+
+    @staticmethod
+    def click_format_settings_icon(attempts: int = 5) -> None:
+        """
+        Clicks the format settings icon
+        """
+        i = 0
+        while i < attempts:
+            result = Screen.locate_center_on_screen('format_settings_icon.png')
+            if result is not None:
+                pyautogui.click(result.x, result.y)
+                return
+            i += 1
 
     @staticmethod
     def click_light_bulb(attempts: int = 5) -> None:

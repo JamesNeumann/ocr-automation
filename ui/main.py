@@ -1,4 +1,5 @@
 import os
+import time
 from sys import exit
 from typing import List
 from uuid import UUID
@@ -7,6 +8,7 @@ from PyQt6.QtWidgets import QWidget, QStackedLayout, QMainWindow
 from rich.panel import Panel
 
 from automation.ocr_automation import OcrAutomation
+from automation.procedures.general_procedures import GeneralProcedures
 from automation.store import Store
 from config import OCR_WORKING_DIR, VERSION
 from ui.steps.check_pdf_orientation_running_step import CheckPdfOrientationRunningStep
@@ -26,6 +28,7 @@ from ui.steps.save_temp_pdf_running import SaveTempPdfRunningStep
 from ui.steps.settings_step import SettingsStep
 from ui.steps.step import Step
 from utils.console import console
+from utils.keyboard_util import press_key
 from utils.save_config import SaveConfig
 
 
@@ -62,8 +65,7 @@ class MainWindow(QMainWindow):
 
         self.crop_pdf_question_step = CropPdfQuestionStep(text="Soll die PDF zugeschnitten werden?",
                                                           next_callback=self.crop_pdf_question_acceptance,
-                                                          previous_callback=lambda: self.open_step(
-                                                              self.ocr_language_selection_step))
+                                                          previous_callback=self.open_ocr_language_selection_step)
 
         self.save_temp_pdf_after_procedures = SaveTempPdfRunningStep(
             text="PDF wird zwischengespeichert"
@@ -108,7 +110,9 @@ class MainWindow(QMainWindow):
         self.ocr_running_step.finished.connect(self.ocr_running_finished)
         self.ocr_finished_step = Step(
             text="OCR abgeschlossen. Bitte überprüfen und dann auf weiter.",
-            next_callback=self.open_save_location_step
+            next_callback=self.open_save_location_step,
+            previous_text="OCR wiederholen",
+            previous_callback=lambda: self.open_step(self.ocr_language_selection_step)
         )
 
         self.choose_save_location_step = FileNameSelectionStep(
@@ -263,6 +267,14 @@ class MainWindow(QMainWindow):
         self.open_next_step()
         self.choose_save_location_step.folder_selection.set_folder(SaveConfig.STANDARD_SAVE_LOCATION)
         self.choose_save_location_step.set_previous_name(self.file_selection_step.file_selection.selected_file_name)
+
+    def open_ocr_language_selection_step(self):
+        GeneralProcedures.click_ocr_pages_header()
+        time.sleep(0.3)
+        OcrAutomation.close_image_improvement_tools()
+        time.sleep(0.3)
+        self.activateWindow()
+        self.open_step(self.ocr_language_selection_step)
 
     def save_pdf(self):
         if self.choose_save_location_step.folder_selection.selected_folder != "":

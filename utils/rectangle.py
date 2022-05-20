@@ -21,6 +21,10 @@ class Rectangle:
     def area(self) -> float:
         return self.width * self.height
 
+    @property
+    def center_x(self):
+        return self.x + self.width / 2
+
     def move_to_center(self, rectangle):
         w2 = rectangle.width
         h2 = rectangle.height
