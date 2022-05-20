@@ -2,7 +2,7 @@ converted_files/
 path.save
 save.json
 *.pdf
-Poppler/
+#Poppler/
 # Created by .ignore support plugin (hsz.mobi)
 ### Python template
 # Byte-compiled / optimized / DLL files
