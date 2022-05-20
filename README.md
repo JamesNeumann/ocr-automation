@@ -1,5 +1,7 @@
 # OCR Automation
 
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 Tool for automating the OCR editor. Offers a PyQt GUI which guides through the different automation steps. The user does
 not have to interact once with the OCR editor.
 
