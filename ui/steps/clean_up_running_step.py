@@ -51,5 +51,5 @@ class CleanUpRunningStep(Step):
 
     def start(self):
         self.worker = CleanUpRunningWorker()
-        self.worker.signals.finished.connect(lambda: self.finished.emit())
+        self.worker.signals.finished.connect(self.finished.emit)
         self.threadpool.start(self.worker)

@@ -59,5 +59,5 @@ class SaveTempPdfRunningStep(Step):
 
     def start(self):
         self.worker = SaveTempPdfRunningWorker()
-        self.worker.signals.finished.connect(lambda file: self.finished.emit(file))
+        self.worker.signals.finished.connect(self.finished.emit)
         self.threadpool.start(self.worker)

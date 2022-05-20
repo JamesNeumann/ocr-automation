@@ -52,5 +52,5 @@ class OcrRunningStep(Step):
 
     def start(self, languages):
         self.worker = OcrRunningWorker(languages)
-        self.worker.signals.finished.connect(lambda: self.finished.emit())
+        self.worker.signals.finished.connect(self.finished.emit)
         self.threadpool.start(self.worker)

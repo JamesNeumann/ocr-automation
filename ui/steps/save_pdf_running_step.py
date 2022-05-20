@@ -56,5 +56,5 @@ class SavePDFRunningStep(Step):
 
     def start(self, path_to_pdf):
         self.worker = SavePDFRunningWorker(path_to_pdf)
-        self.worker.signals.finished.connect(lambda: self.finished.emit())
+        self.worker.signals.finished.connect(self.finished.emit)
         self.threadpool.start(self.worker)
