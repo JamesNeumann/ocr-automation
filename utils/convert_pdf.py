@@ -10,14 +10,15 @@ from numpy import ndarray
 from pdf2image import convert_from_path
 from rich.progress import track
 
-from config import OCR_WORKING_DIR
+from config import OCR_WORKING_DIR, DPI
 from utils.console import console
 from utils.file_utils import wait_until_file_is_unlocked
+from utils.rectangle import Rectangle
 
 
 def convert_pdf_to_image(
     path_to_pdf: str, attempts: int = 5
-) -> (List[Image], float, float, int):
+) -> (List[Image], float, float, int, List[Rectangle]):
     """
     Converts each page of the given PDF to an image
 
@@ -46,11 +47,16 @@ def convert_pdf_to_image(
     min_width = 99999999
     min_index = 0
 
+    pts_dimensions = []
+
     file_name = Path(path_to_pdf).stem
     with open(path_to_pdf, "rb") as f:
         pdf_file_reader = PdfFileReader(f)
         for number in range(pdf_file_reader.getNumPages()):
-            _, _, width, height = pdf_file_reader.getPage(number).mediaBox
+            x, y, width, height = pdf_file_reader.getPage(number).mediaBox
+
+            pts_dimensions.append(Rectangle(x, y, width, height))
+
             if width < min_width:
                 min_width = width
                 min_index = number
@@ -66,6 +72,7 @@ def convert_pdf_to_image(
                 poppler_path="./Poppler/Library/bin",
                 thread_count=multiprocessing.cpu_count(),
                 jpegopt=True,
+                dpi=DPI,
             )
             console.log(
                 f"Needed {time() - start_time} seconds to convert {file_name} to images"
@@ -73,7 +80,7 @@ def convert_pdf_to_image(
         except Exception as e:
             console.log(e, e)
 
-    return converted_images, min_width, min_height, min_index
+    return converted_images, min_width, min_height, min_index, pts_dimensions
 
 
 def convert_pil_images_to_cv2_format(

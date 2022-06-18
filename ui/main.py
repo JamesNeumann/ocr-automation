@@ -208,7 +208,6 @@ class MainWindow(QMainWindow):
 
     def open_check_pdf_orientation_step(self):
         self.check_pdf_orientation_step.set_indices(Store.INDICES_TO_ROTATE)
-        console.log(Store.INDICES_TO_ROTATE)
         if len(Store.INDICES_TO_ROTATE) == 0:
             self.open_step(self.save_temp_pdf_running_step)
             self.open_crop_step(Store.FILE_PATH_AFTER_PROCEDURES)
@@ -226,14 +225,19 @@ class MainWindow(QMainWindow):
         self.save_temp_pdf_running_step.start()
 
     def crop_finished(self):
+        GeneralProcedures.click_ocr_pages_header()
+        time.sleep(0.3)
+        OcrAutomation.close_image_improvement_tools()
+        time.sleep(0.3)
         self.open_next_step()
         self.window().activateWindow()
 
     def crop_pdf(self):
         self.crop_running_step.start(
             self.crop_amount_step.path_to_pdf,
-            self.crop_amount_step.crop_amount_selection.get_pts_rectangle(),
-            self.crop_amount_step.crop_amount_selection.get_pts_rectangles(),
+            self.crop_amount_step.crop_amount_selection_controller.get_max_crop_box_pts(),
+            self.crop_amount_step.crop_amount_selection_controller.get_transformed_crop_boxes_pts(),
+            self.crop_amount_step.crop_amount_selection_controller.is_single_image_crop_mode,
         )
         self.open_next_step()
 
@@ -267,10 +271,6 @@ class MainWindow(QMainWindow):
         )
 
     def open_ocr_language_selection_step(self):
-        GeneralProcedures.click_ocr_pages_header()
-        time.sleep(0.3)
-        OcrAutomation.close_image_improvement_tools()
-        time.sleep(0.3)
         self.activateWindow()
         self.open_step(self.ocr_language_selection_step)
 

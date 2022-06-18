@@ -1,6 +1,7 @@
 import json
 import os.path
 
+from utils.offset import Offset
 from utils.console import console
 
 
@@ -40,12 +41,12 @@ class SaveConfig:
         SaveConfig.save_file()
 
     @staticmethod
-    def get_default_crop_box_offset() -> (int, int, int, int):
+    def get_default_crop_box_offset() -> Offset:
         if not SaveConfig.SAVE_CONFIG or "offset" not in SaveConfig.SAVE_CONFIG:
             offset = {"top": 7, "right": 7, "bottom": 10, "left": 7}
         else:
             offset = SaveConfig.SAVE_CONFIG["offset"]
-        return offset["top"], offset["right"], offset["bottom"], offset["left"]
+        return Offset(offset["top"], offset["right"], offset["bottom"], offset["left"])
 
     @staticmethod
     def get_default_save_location():

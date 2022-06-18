@@ -17,12 +17,10 @@ from utils.screen import Screen
 
 def test():
     images, width, height, index = get_pdf_pages_as_images(
-        "./files/Lorem ipsum dolor sit amet.pdf", lambda value: None
+        "./files/Lorem ipsum dolor sit amet OCR.pdf", lambda value: None
     )
-    console.log(len(images), width, height, index)
 
     rectangles, max_rectangle = get_crop_boxes(images, lambda value: None)
-    console.log(max_rectangle)
 
     for i, image in enumerate(images):
         centered_rectangle = rectangles[i].move_to_center(max_rectangle)
@@ -67,3 +65,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    # test()

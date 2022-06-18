@@ -11,7 +11,7 @@ spanish = "Spanisch"
 predefined_ocr_languages = [
     [german_old, latin, french],
     [german_old, latin, english],
-    [german_old, italian],
+    [german_old, latin, italian],
     [german, latin, french],
     [german, latin, english],
     [german, latin, italian],

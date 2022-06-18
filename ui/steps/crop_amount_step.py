@@ -4,7 +4,9 @@ from PyQt6.QtCore import pyqtSignal, QRunnable, pyqtSlot, QThreadPool, QObject
 
 from ui.components.crop_amount_selection import CropAmountSelection
 from ui.components.progress_bar import ProgressBar
+from ui.controller.crop_amount_selection_controller import CropAmountSelectionController
 from ui.steps.step import Step
+from utils.analysis_result import AnalysisResult
 from utils.analyze_pdf import (
     get_pdf_pages_as_images,
     get_crop_box_pixel,
@@ -15,7 +17,7 @@ from utils.rectangle import Rectangle
 
 
 class CropWorkerSignals(QObject):
-    finished = pyqtSignal(list, float, float, Rectangle, list)
+    finished = pyqtSignal(AnalysisResult)
     progress = pyqtSignal(int)
 
 
@@ -27,31 +29,42 @@ class CropWorker(QRunnable):
 
     @pyqtSlot()
     def run(self):
-        images, pts_width, pts_height, index = get_pdf_pages_as_images(
+        images, pts_width, pts_height, index, pts_dimensions = get_pdf_pages_as_images(
             self.path_to_pdf, self.signals.progress.emit
         )
-        # crop_box = get_crop_box_pixel(
-        #     images,
-        #     lambda value: self.signals.progress.emit(50 + value)
-        # )
 
-        crop_boxes, max_box = get_crop_boxes(
+        crop_boxes, max_box, max_index = get_crop_boxes(
             images,
             lambda value: self.signals.progress.emit(50 + value),
             render_debug_lines=True,
-            save_images=True,
+            save_images=False,
         )
-        result_boxes = []
+
+        transformed_boxes = []
         for rectangle in crop_boxes:
             transformed = rectangle.move_to_center(max_box)
             transformed.x = int(transformed.x)
-            transformed.y = int(transformed.y)
-            result_boxes.append(transformed)
-        console.log(crop_boxes[0])
-        console.log(result_boxes[0])
-        console.log(max_box)
-        console.log("Result crop box: ", max_box)
-        self.signals.finished.emit(images, pts_width, pts_height, max_box, result_boxes)
+            transformed.y = rectangle.y
+            transformed_boxes.append(transformed)
+
+        # console.log("Maximum crop box", max_box)
+        # console.log("Boxes of individual pages", [str(box) for box in crop_boxes])
+        # console.log(
+        #     "Boxes of transformed pages", [str(box) for box in transformed_boxes]
+        # )
+
+        analysis_result = AnalysisResult(
+            images=images,
+            pts_width=pts_width,
+            pts_height=pts_height,
+            min_index=max_index,
+            max_box=max_box,
+            crop_boxes=crop_boxes,
+            transformed_boxes=transformed_boxes,
+            pts_dimensions=pts_dimensions,
+        )
+
+        self.signals.finished.emit(analysis_result)
 
 
 class CropAmountStep(Step):
@@ -73,11 +86,14 @@ class CropAmountStep(Step):
             next_callback=next_callback,
             detail=detail,
         )
-        self.crop_amount_selection = CropAmountSelection()
+
+        self.crop_amount_selection_controller = CropAmountSelectionController()
 
         self.progress_bar = ProgressBar()
         self.layout.addWidget(self.progress_bar, 2, 0, 2, 4)
-        self.layout.addWidget(self.crop_amount_selection, 2, 0, 2, 4)
+        self.layout.addWidget(
+            self.crop_amount_selection_controller.crop_amount_selection, 2, 0, 2, 4
+        )
         self.threadpool = QThreadPool()
         self.worker = None
         self.path_to_pdf = ""
@@ -85,8 +101,8 @@ class CropAmountStep(Step):
     def open_pdf_pages(self, path_to_pdf: str) -> None:
         self.label.setText("<h1>Die PDF wird analysiert</h1>")
         self.path_to_pdf = path_to_pdf
-        if self.crop_amount_selection.isVisible():
-            self.crop_amount_selection.hide()
+        if self.crop_amount_selection_controller.crop_amount_selection.isVisible():
+            self.crop_amount_selection_controller.crop_amount_selection.hide()
         self.progress_bar.setValue(0)
         if self.progress_bar.isHidden():
             self.progress_bar.show()
@@ -95,32 +111,31 @@ class CropAmountStep(Step):
         self.worker.signals.progress.connect(self.progress_bar.setValue)
         self.threadpool.start(self.worker)
 
-    def update_ui(
-        self,
-        images: list,
-        pts_width: int,
-        pts_height: int,
-        crop_box: Rectangle,
-        crop_boxes: List[Rectangle],
-    ):
-        self.crop_amount_selection.reset()
+    def update_ui(self, analysis_result: AnalysisResult):
+        self.crop_amount_selection_controller.reset()
         self.label.setText("<h1>Wie soll die PDF zugeschnitten werden?")
-        self.crop_amount_selection.set_images(images)
-        self.crop_amount_selection.set_width(images[0].shape[1])
-        self.crop_amount_selection.set_height(images[0].shape[0])
-        self.crop_amount_selection.set_rectangle(crop_box)
-        self.crop_amount_selection.set_rectangles(crop_boxes)
-        self.crop_amount_selection.set_pts_width_per_pixel(
-            pts_width / images[0].shape[1]
-        )
-        self.crop_amount_selection.set_pts_height_per_pixel(
-            pts_height / images[0].shape[0]
-        )
-        self.crop_amount_selection.set_spinner_max()
-        self.crop_amount_selection.show_pix_map()
-        self.crop_amount_selection.update_default_offset()
+
+        self.crop_amount_selection_controller.set_analysis_result(analysis_result)
+        self.crop_amount_selection_controller.show()
+
+        # self.crop_amount_selection.set_images(images)
+        # self.crop_amount_selection.set_width(images[0].shape[1])
+        # self.crop_amount_selection.set_height(images[0].shape[0])
+        # self.crop_amount_selection.set_rectangle(crop_box)
+        # self.crop_amount_selection.set_transformed_rectangles(crop_boxes)
+        # self.crop_amount_selection.set_pts_width_per_pixel(
+        #     pts_width / images[0].shape[1]
+        # )
+        # self.crop_amount_selection.set_pts_height_per_pixel(
+        #     pts_height / images[0].shape[0]
+        # )
+
+        # self.crop_amount_selection.set_spinner_max()
+        # self.crop_amount_selection.show_pix_map()
+        # self.crop_amount_selection.update_default_offset()
+        # self.crop_amount_selection.show_crop_hint()
         self.progress_bar.hide()
         self.window().activateWindow()
 
     def reset(self):
-        self.crop_amount_selection.reset()
+        self.crop_amount_selection_controller.reset()

@@ -30,4 +30,11 @@ class Rectangle:
         h2 = rectangle.height
         x2 = max(self.x + ((self.width - w2) / 2), 0)
         y2 = max(self.y + ((self.height - h2) / 2), 0)
+
+        # if y2 < self.y or y2 + h2 > self.y + self.height:
+        #     if abs(self.y - y2) > abs(h2 - self.height):
+        #         y2 = y2 + abs(y2 - self.y)
+        #     else:
+        #         y2 = y2 + abs(y2 - self.y)
+
         return Rectangle(x2, y2, w2, h2)

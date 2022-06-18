@@ -9,6 +9,8 @@ OCR_EDITOR_LNK_PATH = (
     'ABBYY FineReader PDF 15\\ABBYY FineReader 15 OCR-Editor.lnk"'
 )
 
+DPI = 600
+
 VERSION = "1.0.0"
 
 

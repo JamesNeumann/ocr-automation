@@ -19,12 +19,14 @@ class CropRunningWorker(QRunnable):
         path_to_pdf: str,
         crop_rectangle: Rectangle,
         crop_rectangles: List[Rectangle],
+        crop_pages_single: bool,
     ):
         super(CropRunningWorker, self).__init__()
         self.signals = CropRunningSignals()
         self.path_to_pdf = path_to_pdf
         self.crop_rectangle = crop_rectangle
         self.crop_rectangles = crop_rectangles
+        self.crop_pages_single = crop_pages_single
 
     @pyqtSlot()
     def run(self) -> None:
@@ -35,16 +37,24 @@ class CropRunningWorker(QRunnable):
                 if x_center_diff > max_x_center_diff:
                     max_x_center_diff = x_center_diff
 
-        console.log("Max center x diff", max_x_center_diff)
-
-        if max_x_center_diff < 5:
-            OcrAutomation.crop_pdf(
-                path_to_pdf=self.path_to_pdf, crop_rectangle=self.crop_rectangle
-            )
-        else:
+        if self.crop_pages_single:
             OcrAutomation.crop_pdf_single_pages(
                 path_to_pdf=self.path_to_pdf, crop_rectangles=self.crop_rectangles
             )
+        else:
+            OcrAutomation.crop_pdf(
+                path_to_pdf=self.path_to_pdf, crop_rectangle=self.crop_rectangle
+            )
+
+        # if max_x_center_diff < 5:
+        #     OcrAutomation.crop_pdf(
+        #         path_to_pdf=self.path_to_pdf, crop_rectangle=self.crop_rectangle
+        #     )
+        # else:
+        #     OcrAutomation.crop_pdf_single_pages(
+        #         path_to_pdf=self.path_to_pdf, crop_rectangles=self.crop_rectangles
+        #     )
+
         self.signals.finished.emit()
 
 
@@ -77,7 +87,15 @@ class CropRunningStep(Step):
         self.worker = None
         self.threadpool = QThreadPool()
 
-    def start(self, file_path, rectangle, rectangles):
-        self.worker = CropRunningWorker(file_path, rectangle, rectangles)
+    def start(
+        self,
+        file_path: str,
+        rectangle: Rectangle,
+        rectangles: List[Rectangle],
+        crop_pages_single,
+    ):
+        self.worker = CropRunningWorker(
+            file_path, rectangle, rectangles, crop_pages_single
+        )
         self.worker.signals.finished.connect(self.finished.emit)
         self.threadpool.start(self.worker)
