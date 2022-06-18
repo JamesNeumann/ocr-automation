@@ -1,19 +1,13 @@
-from typing import List
-
 from PyQt6.QtCore import pyqtSignal, QRunnable, pyqtSlot, QThreadPool, QObject
 
-from ui.components.crop_amount_selection import CropAmountSelection
 from ui.components.progress_bar import ProgressBar
 from ui.controller.crop_amount_selection_controller import CropAmountSelectionController
 from ui.steps.step import Step
 from utils.analysis_result import AnalysisResult
 from utils.analyze_pdf import (
     get_pdf_pages_as_images,
-    get_crop_box_pixel,
     get_crop_boxes,
 )
-from utils.console import console
-from utils.rectangle import Rectangle
 
 
 class CropWorkerSignals(QObject):
@@ -44,7 +38,7 @@ class CropWorker(QRunnable):
         for rectangle in crop_boxes:
             transformed = rectangle.move_to_center(max_box)
             transformed.x = int(transformed.x)
-            transformed.y = rectangle.y
+            transformed.y = max_box.y
             transformed_boxes.append(transformed)
 
         # console.log("Maximum crop box", max_box)

@@ -271,6 +271,10 @@ class MainWindow(QMainWindow):
         )
 
     def open_ocr_language_selection_step(self):
+        GeneralProcedures.click_ocr_pages_header()
+        time.sleep(0.3)
+        OcrAutomation.close_image_improvement_tools()
+        time.sleep(0.3)
         self.activateWindow()
         self.open_step(self.ocr_language_selection_step)
 
