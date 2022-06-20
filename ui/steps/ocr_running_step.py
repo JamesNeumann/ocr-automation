@@ -52,6 +52,7 @@ class OcrRunningStep(Step):
         self.worker = None
 
     def start(self, languages):
+        Config.STOP_STUCK_RUNNING = False
         self.worker = OcrRunningWorker(languages)
         self.worker.autoDelete()
         self.worker.signals.finished.connect(self.finished.emit)
