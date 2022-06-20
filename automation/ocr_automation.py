@@ -109,14 +109,19 @@ class OcrAutomation:
         # return path, file_name
 
     @staticmethod
-    def save_pdf(path: str) -> None:
+    def save_pdf(path: str, enable_precise_scan: bool) -> None:
         """
         Saves the pdf in the given folder
 
         :param path: Path where the PDF should be saved
+        :param enable_precise_scan: If Abby Precise Scan should be enabled
+
         """
         GeneralProcedures.click_ocr_pages_header()
-        OcrAutomation.enable_abby_precise_scan()
+        if enable_precise_scan:
+            OcrAutomation.enable_abby_precise_scan()
+        else:
+            OcrAutomation.disable_abby_precise_scan()
         GeneralProcedures.open_save_pdf_dialog()
         write(path)
         press_key(key_combination="enter")
@@ -181,6 +186,19 @@ class OcrAutomation:
         press_key(key_combination="+", delay_in_seconds=0.3)
         press_key(key_combination="tab", delay_in_seconds=0.3)
         press_key(key_combination="+", delay_in_seconds=0.3)
+        press_key(key_combination="tab", repetitions=5, delay_in_seconds=0.3)
+        press_key(key_combination="-", delay_in_seconds=0.3)
+        press_key(key_combination="tab")
+        press_key(key_combination="enter", delay_in_seconds=0.3)
+
+    @staticmethod
+    def disable_abby_precise_scan():
+        GeneralProcedures.open_options()
+        GeneralProcedures.click_format_settings_icon()
+        press_key(key_combination="tab", repetitions=8, delay_in_seconds=0.3)
+        press_key(key_combination="-", delay_in_seconds=0.3)
+        press_key(key_combination="tab", delay_in_seconds=0.3)
+        press_key(key_combination="-", delay_in_seconds=0.3)
         press_key(key_combination="tab", repetitions=5, delay_in_seconds=0.3)
         press_key(key_combination="-", delay_in_seconds=0.3)
         press_key(key_combination="tab")

@@ -103,8 +103,11 @@ class MainWindow(QMainWindow):
             text="Wähle die OCR-Sprachen für die PDF", next_callback=self.do_ocr
         )
 
-        self.ocr_running_step = OcrRunningStep(text="OCR läuft", next_text="OCR ist bereits abgeschlossen",
-                                               next_callback=self.ocr_skip_still_running)
+        self.ocr_running_step = OcrRunningStep(
+            text="OCR läuft",
+            next_text="OCR ist bereits abgeschlossen",
+            next_callback=self.ocr_skip_still_running,
+        )
         self.ocr_running_step.finished.connect(self.ocr_running_finished)
         self.ocr_finished_step = Step(
             text="OCR abgeschlossen. Bitte überprüfen und dann auf weiter.",
@@ -114,7 +117,11 @@ class MainWindow(QMainWindow):
         )
 
         self.choose_save_location_step = FileNameSelectionStep(
-            text="Wähle Speicherort und Name der PDF", next_callback=self.save_pdf
+            text="Wähle Speicherort und Name der PDF",
+            previous_text="Ohne Precise Scan speichern",
+            previous_callback=lambda: self.save_pdf(False),
+            next_text="Mit Precise Scan speichern",
+            next_callback=lambda: self.save_pdf(True),
         )
 
         self.save_running_step = SavePDFRunningStep(text="PDF wird gespeichert")
@@ -282,14 +289,14 @@ class MainWindow(QMainWindow):
         self.activateWindow()
         self.open_step(self.ocr_language_selection_step)
 
-    def save_pdf(self):
+    def save_pdf(self, enable_precise_scan: bool):
         if self.choose_save_location_step.folder_selection.selected_folder != "":
             self.open_next_step()
             folder = self.choose_save_location_step.folder_selection.selected_folder
             file_name = self.choose_save_location_step.file_name_field.text()
             suffix = "" if ".pdf" in file_name else ".pdf"
             path = os.path.abspath(folder + "\\" + file_name + suffix)
-            self.save_running_step.start(path)
+            self.save_running_step.start(path, enable_precise_scan)
 
     def reset(self):
         for step in self.steps:

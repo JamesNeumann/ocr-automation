@@ -42,7 +42,9 @@ class CropWorker(QRunnable):
         for rectangle in crop_boxes:
             transformed = rectangle.move_to_center(max_box)
             transformed.x = int(transformed.x)
-            console.log("Area:", rectangle.area(), max_box_area, rectangle.area() / max_box_area)
+            console.log(
+                "Area:", rectangle.area(), max_box_area, rectangle.area() / max_box_area
+            )
             if rectangle.area() < max_box_area * Config.CROP_Y_AXIS_THRESHOLD:
                 transformed.y = max_box.y
             transformed_boxes.append(transformed)
@@ -69,14 +71,14 @@ class CropWorker(QRunnable):
 
 class CropAmountStep(Step):
     def __init__(
-            self,
-            *,
-            text: str,
-            previous_text="Zurück",
-            previous_callback=None,
-            next_text="Weiter",
-            next_callback=None,
-            detail: str = ""
+        self,
+        *,
+        text: str,
+        previous_text="Zurück",
+        previous_callback=None,
+        next_text="Weiter",
+        next_callback=None,
+        detail: str = ""
     ):
         super().__init__(
             text=text,

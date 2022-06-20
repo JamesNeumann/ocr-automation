@@ -12,14 +12,15 @@ class SavePDFRunningSignals(QObject):
 
 
 class SavePDFRunningWorker(QRunnable):
-    def __init__(self, pdf_path):
+    def __init__(self, pdf_path: str, enable_precise_scan: bool):
         super(SavePDFRunningWorker, self).__init__()
         self.signals = SavePDFRunningSignals()
         self.pdf_path = pdf_path
+        self.enable_precise_scan = enable_precise_scan
 
     @pyqtSlot()
     def run(self) -> None:
-        OcrAutomation.save_pdf(self.pdf_path)
+        OcrAutomation.save_pdf(self.pdf_path, self.enable_precise_scan)
         wait_until_file_is_unlocked(self.pdf_path)
         set_standard_metadata(self.pdf_path)
         self.signals.finished.emit()
@@ -54,7 +55,7 @@ class SavePDFRunningStep(Step):
         self.threadpool = QThreadPool()
         self.worker = None
 
-    def start(self, path_to_pdf):
-        self.worker = SavePDFRunningWorker(path_to_pdf)
+    def start(self, path_to_pdf: str, enable_precise_scan: bool):
+        self.worker = SavePDFRunningWorker(path_to_pdf, enable_precise_scan)
         self.worker.signals.finished.connect(self.finished.emit)
         self.threadpool.start(self.worker)
