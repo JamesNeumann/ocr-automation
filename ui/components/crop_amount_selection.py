@@ -21,15 +21,15 @@ from utils.rectangle import Rectangle
 
 class CropAmountSelection(QWidget):
     def __init__(
-        self,
-        top_spin_box_callback: Callable,
-        right_spin_box_callback: Callable,
-        bottom_spin_box_callback: Callable,
-        left_spin_box_callback: Callable,
-        previous_image_button_callback: Callable,
-        next_image_button_callback: Callable,
-        on_all_pages_toggled: Callable,
-        on_single_pages_toggled: Callable,
+            self,
+            top_spin_box_callback: Callable,
+            right_spin_box_callback: Callable,
+            bottom_spin_box_callback: Callable,
+            left_spin_box_callback: Callable,
+            previous_image_button_callback: Callable,
+            next_image_button_callback: Callable,
+            on_all_pages_toggled: Callable,
+            on_single_pages_toggled: Callable,
     ):
         super().__init__()
 
@@ -114,6 +114,12 @@ class CropAmountSelection(QWidget):
         self.bottom_spin_box.blockSignals(False)
         self.left_spin_box.blockSignals(False)
 
+    def reset(self):
+        self.radio_button_all_pages.setChecked(True)
+        self.radio_button_single_pages.setChecked(False)
+        self.next_image_button.setDisabled(False)
+        self.previous_image_button.setDisabled(True)
+
     def _create_ui(self):
         self.main_layout = QHBoxLayout()
 
@@ -155,16 +161,16 @@ class CropAmountSelection(QWidget):
 
     def _create_crop_mode_buttons(self):
         grid_layout = QGridLayout()
-        radio_button_all_pages = QRadioButton("Alle Seiten zusammen beschneiden")
-        radio_button_all_pages.setChecked(True)
-        radio_button_all_pages.toggled.connect(self.on_all_pages_toggled)
+        self.radio_button_all_pages = QRadioButton("Alle Seiten zusammen beschneiden")
+        self.radio_button_all_pages.setChecked(True)
+        self.radio_button_all_pages.toggled.connect(self.on_all_pages_toggled)
 
-        grid_layout.addWidget(radio_button_all_pages, 0, 0)
+        grid_layout.addWidget(self.radio_button_all_pages, 0, 0)
 
-        radio_button_single_pages = QRadioButton("Seiten einzeln beschneiden")
-        radio_button_single_pages.setChecked(False)
-        radio_button_single_pages.toggled.connect(self.on_single_pages_toggled)
-        grid_layout.addWidget(radio_button_single_pages, 0, 1)
+        self.radio_button_single_pages = QRadioButton("Seiten einzeln beschneiden")
+        self.radio_button_single_pages.setChecked(False)
+        self.radio_button_single_pages.toggled.connect(self.on_single_pages_toggled)
+        grid_layout.addWidget(self.radio_button_single_pages, 0, 1)
         return grid_layout
 
     def _create_spin_boxes(self):
@@ -203,7 +209,7 @@ class CropAmountSelection(QWidget):
 
     @staticmethod
     def _create_spinbox(
-        *, default_value: int, label: str, spin_box_callback: Callable
+            *, default_value: int, label: str, spin_box_callback: Callable
     ) -> (QHBoxLayout, QSpinBox):
         offset_box = QGroupBox(label)
         crop_box_layout = QHBoxLayout()

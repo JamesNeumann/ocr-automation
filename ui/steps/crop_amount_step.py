@@ -1,5 +1,6 @@
 from PyQt6.QtCore import pyqtSignal, QRunnable, pyqtSlot, QThreadPool, QObject
 
+from config import Config
 from ui.components.progress_bar import ProgressBar
 from ui.controller.crop_amount_selection_controller import CropAmountSelectionController
 from ui.steps.step import Step
@@ -8,6 +9,7 @@ from utils.analyze_pdf import (
     get_pdf_pages_as_images,
     get_crop_boxes,
 )
+from utils.console import console
 
 
 class CropWorkerSignals(QObject):
@@ -35,10 +37,14 @@ class CropWorker(QRunnable):
         )
 
         transformed_boxes = []
+
+        max_box_area = max_box.area()
         for rectangle in crop_boxes:
             transformed = rectangle.move_to_center(max_box)
             transformed.x = int(transformed.x)
-            transformed.y = max_box.y
+            console.log("Area:", rectangle.area(), max_box_area, rectangle.area() / max_box_area)
+            if rectangle.area() < max_box_area * Config.CROP_Y_AXIS_THRESHOLD:
+                transformed.y = max_box.y
             transformed_boxes.append(transformed)
 
         # console.log("Maximum crop box", max_box)
@@ -63,14 +69,14 @@ class CropWorker(QRunnable):
 
 class CropAmountStep(Step):
     def __init__(
-        self,
-        *,
-        text: str,
-        previous_text="Zurück",
-        previous_callback=None,
-        next_text="Weiter",
-        next_callback=None,
-        detail: str = ""
+            self,
+            *,
+            text: str,
+            previous_text="Zurück",
+            previous_callback=None,
+            next_text="Weiter",
+            next_callback=None,
+            detail: str = ""
     ):
         super().__init__(
             text=text,

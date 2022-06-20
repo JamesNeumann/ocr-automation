@@ -7,7 +7,7 @@ from uuid import UUID
 from automation.procedures.general_procedures import GeneralProcedures
 from automation.procedures.ocr_procedures import OcrProcedures
 from automation.procedures.waiting_procedures import WaitingProcedures
-from config import OCR_WORKING_DIR, OCR_EDITOR_LNK_PATH
+from config import Config
 from utils.console import console
 from utils.keyboard_util import press_key, write
 from utils.rectangle import Rectangle
@@ -21,7 +21,7 @@ class OcrAutomation:
 
         :param path_to_pdf: path to the PDF that should be opened
         """
-        os.startfile(OCR_EDITOR_LNK_PATH)
+        os.startfile(Config.OCR_EDITOR_LNK_PATH)
         WaitingProcedures.wait_util_ocr_open_pdf_is_visible()
         time.sleep(1)
         press_key(key_combination="alt+n")
@@ -202,7 +202,7 @@ class OcrAutomation:
         """
         OcrAutomation.close_ocr_project()
         time.sleep(2)
-        folder = OCR_WORKING_DIR
+        folder = Config.OCR_WORKING_DIR
         for filename in os.listdir(folder):
             file_path = os.path.join(folder, filename)
             try:

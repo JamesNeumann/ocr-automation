@@ -1,6 +1,7 @@
 import os.path
 import time
 
+from config import Config
 from utils.console import console
 from utils.file_utils import is_file_locked
 from utils.screen import Screen, FolderType
@@ -14,15 +15,15 @@ class WaitingProcedures:
         """
         console.log("Operation is running...")
         finished = (
-            WaitingProcedures.is_undo_redo_visible()
-            or WaitingProcedures.is_close_button_visible()
+                WaitingProcedures.is_undo_redo_visible()
+                or WaitingProcedures.is_close_button_visible()
         )
         while not finished:
             console.log("Operation is running...")
             time.sleep(0.5)
             finished = (
-                WaitingProcedures.is_undo_redo_visible()
-                or WaitingProcedures.is_close_button_visible()
+                    WaitingProcedures.is_undo_redo_visible()
+                    or WaitingProcedures.is_close_button_visible()
             )
 
     @staticmethod
@@ -31,8 +32,10 @@ class WaitingProcedures:
         Waits until ocr is finished
         """
         WaitingProcedures.wait_until_ocr_not_done_is_visible()
-        time.sleep(1)
-        WaitingProcedures.wait_until_ocr_not_done_is_not_visible()
+
+        if not Config.STOP_STUCK_RUNNING:
+            time.sleep(1)
+            WaitingProcedures.wait_until_ocr_not_done_is_not_visible()
 
     @staticmethod
     def wait_until_ocr_not_done_is_visible() -> None:
@@ -41,7 +44,7 @@ class WaitingProcedures:
         """
         console.log("Waiting until OCR is finished...")
         ocr_not_finished = Screen.locate_on_screen("ocr_not_done.png")
-        while ocr_not_finished is None:
+        while ocr_not_finished is None and not Config.STOP_STUCK_RUNNING:
             console.log("Waiting until OCR is finished...")
             time.sleep(0.5)
             ocr_not_finished = Screen.locate_on_screen("ocr_not_done.png")
@@ -53,7 +56,7 @@ class WaitingProcedures:
         """
         console.log("Waiting until OCR is finished...")
         ocr_not_finished = Screen.locate_on_screen("ocr_not_done.png")
-        while ocr_not_finished is not None:
+        while ocr_not_finished is not None and not Config.STOP_STUCK_RUNNING:
             console.log("Waiting until OCR is finished...")
             time.sleep(0.5)
             ocr_not_finished = Screen.locate_on_screen("ocr_not_done.png")

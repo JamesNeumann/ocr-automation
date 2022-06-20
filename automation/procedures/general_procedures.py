@@ -4,7 +4,7 @@ import pyautogui
 from rich.panel import Panel
 
 from automation.procedures.waiting_procedures import WaitingProcedures
-from config import OCR_WORKING_DIR
+from config import Config
 from utils.console import console
 from utils.keyboard_util import press_key, write
 from utils.screen import Screen
@@ -61,10 +61,10 @@ class GeneralProcedures:
         """
 
         temp_uuid = uuid.uuid4()
-        path = f"{OCR_WORKING_DIR}\\{temp_uuid}.pdf"
+        path = f"{Config.OCR_WORKING_DIR}\\{temp_uuid}.pdf"
         GeneralProcedures._save_temp_pdf(path)
 
-        return OCR_WORKING_DIR, temp_uuid
+        return Config.OCR_WORKING_DIR, temp_uuid
 
     @staticmethod
     def _save_temp_pdf(path):

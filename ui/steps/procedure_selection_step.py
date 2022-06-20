@@ -1,13 +1,9 @@
 import math
-import os
-from uuid import UUID
 
 from PyQt6.QtCore import QObject, pyqtSignal, QRunnable, pyqtSlot, QThreadPool
 
 from automation.ocr_automation import OcrAutomation
 from automation.procedures.ocr_procedures import OcrProcedures
-from automation.store import Store
-from config import OCR_WORKING_DIR
 from ui.components.procedures_selection import ProcedureSelection
 from ui.components.progress_bar import ProgressBar
 from ui.steps.step import Step
@@ -41,14 +37,14 @@ class ProcedureSelectionStep(Step):
     finished = pyqtSignal()
 
     def __init__(
-        self,
-        *,
-        text: str,
-        previous_text="Zurück",
-        previous_callback=None,
-        next_text="Weiter",
-        next_callback=None,
-        detail: str = ""
+            self,
+            *,
+            text: str,
+            previous_text="Zurück",
+            previous_callback=None,
+            next_text="Weiter",
+            next_callback=None,
+            detail: str = ""
     ):
         super().__init__(
             text=text,

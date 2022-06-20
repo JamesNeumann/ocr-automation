@@ -10,7 +10,7 @@ from numpy import ndarray
 from pdf2image import convert_from_path
 from rich.progress import track
 
-from config import OCR_WORKING_DIR, DPI
+from config import Config
 from utils.console import console
 from utils.file_utils import wait_until_file_is_unlocked
 from utils.rectangle import Rectangle
@@ -68,11 +68,11 @@ def convert_pdf_to_image(
         try:
             converted_images = convert_from_path(
                 pdf_path=path_to_pdf,
-                output_folder=OCR_WORKING_DIR,
+                output_folder=Config.OCR_WORKING_DIR,
                 poppler_path="./Poppler/Library/bin",
                 thread_count=multiprocessing.cpu_count(),
                 jpegopt=True,
-                dpi=DPI,
+                dpi=Config.DPI,
             )
             console.log(
                 f"Needed {time() - start_time} seconds to convert {file_name} to images"

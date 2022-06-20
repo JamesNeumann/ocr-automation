@@ -7,10 +7,9 @@ from PyQt6.QtWidgets import QApplication
 from cv2 import cv2
 from rich.traceback import install
 
-from config import initialize_directories, VERSION
+from config import Config
 from ui.main import MainWindow
 from utils.analyze_pdf import get_pdf_pages_as_images, get_crop_boxes
-from utils.console import console
 from utils.save_config import SaveConfig
 from utils.screen import Screen
 
@@ -42,13 +41,13 @@ def test():
 def main():
     install(show_locals=True)
 
-    app_id = "jamesneumann.OcrAutomation.v" + VERSION
+    app_id = "jamesneumann.OcrAutomation.v" + Config.VERSION
     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(app_id)
 
     SaveConfig.init()
 
     Screen.set_screen_resolution_string()
-    initialize_directories()
+    Config.initialize_directories()
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon("./images/icon.ico"))
     window = MainWindow()

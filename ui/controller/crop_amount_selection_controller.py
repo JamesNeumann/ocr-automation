@@ -142,7 +142,8 @@ class CropAmountSelectionController:
         self.default_offset = SaveConfig.get_default_crop_box_offset()
         self.crop_amount_selection.set_spin_box_values(self.default_offset)
         self.selected_offset = self.default_offset.copy()
-        # self.crop_amount_selection.reset()
+        self.update_image_button_state()
+        self.crop_amount_selection.reset()
 
     def set_analysis_result(self, analysis_result: AnalysisResult):
         self.analysis_result = analysis_result

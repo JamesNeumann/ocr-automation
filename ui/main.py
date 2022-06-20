@@ -7,7 +7,7 @@ from rich.panel import Panel
 from automation.ocr_automation import OcrAutomation
 from automation.procedures.general_procedures import GeneralProcedures
 from automation.store import Store
-from config import VERSION
+from config import Config
 from ui.steps.check_pdf_orientation_running_step import CheckPdfOrientationRunningStep
 from ui.steps.check_pdf_orientation_step import CheckPdfOrientationStep
 from ui.steps.clean_up_running_step import CleanUpRunningStep
@@ -32,7 +32,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle(f"OCR Automation v{VERSION}")
+        self.setWindowTitle(f"OCR Automation v{Config.VERSION}")
         self.resize(1024, 800)
 
         self.layout = QStackedLayout()
@@ -103,7 +103,8 @@ class MainWindow(QMainWindow):
             text="Wähle die OCR-Sprachen für die PDF", next_callback=self.do_ocr
         )
 
-        self.ocr_running_step = OcrRunningStep(text="OCR läuft")
+        self.ocr_running_step = OcrRunningStep(text="OCR läuft", next_text="OCR ist bereits abgeschlossen",
+                                               next_callback=self.ocr_skip_still_running)
         self.ocr_running_step.finished.connect(self.ocr_running_finished)
         self.ocr_finished_step = Step(
             text="OCR abgeschlossen. Bitte überprüfen und dann auf weiter.",
@@ -260,6 +261,9 @@ class MainWindow(QMainWindow):
         console.log(Panel("[green]OCR Finished"))
         self.open_next_step()
         self.window().activateWindow()
+
+    def ocr_skip_still_running(self):
+        self.ocr_running_step.stop()
 
     def open_save_location_step(self):
         self.open_next_step()
