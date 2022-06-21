@@ -5,7 +5,6 @@ from PyQt6.QtGui import QImage
 
 from ui.components.crop_amount_selection import CropAmountSelection
 from utils.analysis_result import AnalysisResult
-from utils.console import console
 from utils.conversion import pts_to_pixel, convert_to_pts
 from utils.rectangle import Rectangle
 from utils.save_config import SaveConfig
@@ -195,11 +194,11 @@ class CropAmountSelectionController:
         return Rectangle(x, y, width, height)
 
     def get_crop_box_pts(
-        self,
-        crop_box: Rectangle,
-        image: np.ndarray,
-        pts_rectangle: Rectangle,
-        relative=True,
+            self,
+            crop_box: Rectangle,
+            image: np.ndarray,
+            pts_rectangle: Rectangle,
+            relative=True,
     ):
         crop_box_pixel = self.get_crop_box_pixel(crop_box, image, relative)
 

@@ -11,21 +11,19 @@ from PyQt6.QtWidgets import (
 from config import Config
 from ui.components.spin_boxes import create_mm_spinbox, create_spinbox
 from ui.steps.step import Step
-from utils.console import console
 from utils.offset import Offset
-from utils.save_config import SaveConfig
 
 
 class SettingsStep(Step):
     def __init__(
-        self,
-        *,
-        text: str,
-        previous_text="Schließen",
-        previous_callback=None,
-        next_text="Speichern",
-        next_callback=None,
-        detail: str = ""
+            self,
+            *,
+            text: str,
+            previous_text="Schließen",
+            previous_callback=None,
+            next_text="Speichern",
+            next_callback=None,
+            detail: str = ""
     ):
         super().__init__(
             text=text,
@@ -117,14 +115,14 @@ class SettingsStep(Step):
 
     @staticmethod
     def _create_spinbox(
-        *,
-        default_value: int,
-        label: str,
-        is_mm=True,
-        label_min_width=80,
-        unit="",
-        minimum=Config.MIN_DPI,
-        maximum=Config.MAX_DPI
+            *,
+            default_value: int,
+            label: str,
+            is_mm=True,
+            label_min_width=80,
+            unit="",
+            minimum=Config.MIN_DPI,
+            maximum=Config.MAX_DPI
     ) -> (QHBoxLayout, QSpinBox):
         crop_box_layout = QHBoxLayout()
         crop_box_label = QLabel(label)

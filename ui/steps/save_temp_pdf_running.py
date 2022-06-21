@@ -4,7 +4,6 @@ from PyQt6.QtCore import pyqtSignal, QObject, QRunnable, pyqtSlot, QThreadPool
 
 from automation.ocr_automation import OcrAutomation
 from automation.procedures.general_procedures import GeneralProcedures
-from automation.store import Store
 from ui.components.progress_bar import ProgressBar
 from ui.steps.step import Step
 
@@ -32,14 +31,14 @@ class SaveTempPdfRunningStep(Step):
     finished = pyqtSignal(str)
 
     def __init__(
-        self,
-        *,
-        text: str,
-        previous_text="Zurück",
-        previous_callback=None,
-        next_text="Weiter",
-        next_callback=None,
-        detail: str = ""
+            self,
+            *,
+            text: str,
+            previous_text="Zurück",
+            previous_callback=None,
+            next_text="Weiter",
+            next_callback=None,
+            detail: str = ""
     ):
         super().__init__(
             text=text,

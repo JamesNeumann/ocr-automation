@@ -5,7 +5,6 @@ from PyQt6.QtCore import QObject, pyqtSignal, QRunnable, QThreadPool, pyqtSlot
 from automation.ocr_automation import OcrAutomation
 from ui.components.progress_bar import ProgressBar
 from ui.steps.step import Step
-from utils.console import console
 from utils.rectangle import Rectangle
 
 
@@ -15,11 +14,11 @@ class CropRunningSignals(QObject):
 
 class CropRunningWorker(QRunnable):
     def __init__(
-        self,
-        path_to_pdf: str,
-        crop_rectangle: Rectangle,
-        crop_rectangles: List[Rectangle],
-        crop_pages_single: bool,
+            self,
+            path_to_pdf: str,
+            crop_rectangle: Rectangle,
+            crop_rectangles: List[Rectangle],
+            crop_pages_single: bool,
     ):
         super(CropRunningWorker, self).__init__()
         self.signals = CropRunningSignals()
@@ -62,14 +61,14 @@ class CropRunningStep(Step):
     finished = pyqtSignal()
 
     def __init__(
-        self,
-        *,
-        text: str,
-        previous_text="Zurück",
-        previous_callback=None,
-        next_text="Weiter",
-        next_callback=None,
-        detail: str = ""
+            self,
+            *,
+            text: str,
+            previous_text="Zurück",
+            previous_callback=None,
+            next_text="Weiter",
+            next_callback=None,
+            detail: str = ""
     ):
         super().__init__(
             text=text,
@@ -88,11 +87,11 @@ class CropRunningStep(Step):
         self.threadpool = QThreadPool()
 
     def start(
-        self,
-        file_path: str,
-        rectangle: Rectangle,
-        rectangles: List[Rectangle],
-        crop_pages_single,
+            self,
+            file_path: str,
+            rectangle: Rectangle,
+            rectangles: List[Rectangle],
+            crop_pages_single,
     ):
         self.worker = CropRunningWorker(
             file_path, rectangle, rectangles, crop_pages_single

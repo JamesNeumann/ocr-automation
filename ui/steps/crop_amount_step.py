@@ -1,6 +1,5 @@
 from PyQt6.QtCore import pyqtSignal, QRunnable, pyqtSlot, QThreadPool, QObject
 
-from config import Config
 from ui.components.progress_bar import ProgressBar
 from ui.controller.crop_amount_selection_controller import CropAmountSelectionController
 from ui.steps.step import Step
@@ -9,7 +8,6 @@ from utils.analyze_pdf import (
     get_pdf_pages_as_images,
     get_crop_boxes,
 )
-from utils.console import console
 from utils.save_config import SaveConfig
 
 
@@ -64,14 +62,14 @@ class CropWorker(QRunnable):
 
 class CropAmountStep(Step):
     def __init__(
-        self,
-        *,
-        text: str,
-        previous_text="Zurück",
-        previous_callback=None,
-        next_text="Weiter",
-        next_callback=None,
-        detail: str = ""
+            self,
+            *,
+            text: str,
+            previous_text="Zurück",
+            previous_callback=None,
+            next_text="Weiter",
+            next_callback=None,
+            detail: str = ""
     ):
         super().__init__(
             text=text,
