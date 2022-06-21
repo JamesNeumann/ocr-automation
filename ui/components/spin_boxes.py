@@ -11,7 +11,7 @@ def create_mm_spinbox(*, default_value=0.0) -> QSpinBox:
 
 
 def create_spinbox(
-        *, default_value=0.0, unit="mm", minimum=0.0, maximum=100
+    *, default_value=0.0, unit="mm", minimum=0.0, maximum=100
 ) -> QSpinBox:
     spinbox = QSpinBox()
     spinbox.setSuffix(f" {unit}")

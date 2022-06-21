@@ -194,11 +194,11 @@ class CropAmountSelectionController:
         return Rectangle(x, y, width, height)
 
     def get_crop_box_pts(
-            self,
-            crop_box: Rectangle,
-            image: np.ndarray,
-            pts_rectangle: Rectangle,
-            relative=True,
+        self,
+        crop_box: Rectangle,
+        image: np.ndarray,
+        pts_rectangle: Rectangle,
+        relative=True,
     ):
         crop_box_pixel = self.get_crop_box_pixel(crop_box, image, relative)
 

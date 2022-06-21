@@ -23,15 +23,15 @@ from utils.save_config import SaveConfig
 
 class CropAmountSelection(QWidget):
     def __init__(
-            self,
-            top_spin_box_callback: Callable,
-            right_spin_box_callback: Callable,
-            bottom_spin_box_callback: Callable,
-            left_spin_box_callback: Callable,
-            previous_image_button_callback: Callable,
-            next_image_button_callback: Callable,
-            on_all_pages_toggled: Callable,
-            on_single_pages_toggled: Callable,
+        self,
+        top_spin_box_callback: Callable,
+        right_spin_box_callback: Callable,
+        bottom_spin_box_callback: Callable,
+        left_spin_box_callback: Callable,
+        previous_image_button_callback: Callable,
+        next_image_button_callback: Callable,
+        on_all_pages_toggled: Callable,
+        on_single_pages_toggled: Callable,
     ):
         super().__init__()
 
@@ -212,7 +212,7 @@ class CropAmountSelection(QWidget):
 
     @staticmethod
     def _create_spinbox(
-            *, default_value: int, label: str, spin_box_callback: Callable
+        *, default_value: int, label: str, spin_box_callback: Callable
     ) -> (QHBoxLayout, QSpinBox):
         offset_box = QGroupBox(label)
         crop_box_layout = QHBoxLayout()
