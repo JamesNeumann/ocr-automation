@@ -10,6 +10,7 @@ from utils.analyze_pdf import (
     get_crop_boxes,
 )
 from utils.console import console
+from utils.save_config import SaveConfig
 
 
 class CropWorkerSignals(QObject):
@@ -32,28 +33,20 @@ class CropWorker(QRunnable):
         crop_boxes, max_box, max_index = get_crop_boxes(
             images,
             lambda value: self.signals.progress.emit(50 + value),
-            render_debug_lines=True,
+            render_debug_lines=False,
             save_images=False,
         )
 
         transformed_boxes = []
 
         max_box_area = max_box.area()
+        y_axis_threshold = SaveConfig.get_y_axis_threshold()
         for rectangle in crop_boxes:
             transformed = rectangle.move_to_center(max_box)
             transformed.x = int(transformed.x)
-            console.log(
-                "Area:", rectangle.area(), max_box_area, rectangle.area() / max_box_area
-            )
-            if rectangle.area() < max_box_area * Config.CROP_Y_AXIS_THRESHOLD:
+            if rectangle.area() < max_box_area * y_axis_threshold:
                 transformed.y = max_box.y
             transformed_boxes.append(transformed)
-
-        # console.log("Maximum crop box", max_box)
-        # console.log("Boxes of individual pages", [str(box) for box in crop_boxes])
-        # console.log(
-        #     "Boxes of transformed pages", [str(box) for box in transformed_boxes]
-        # )
 
         analysis_result = AnalysisResult(
             images=images,
@@ -71,14 +64,14 @@ class CropWorker(QRunnable):
 
 class CropAmountStep(Step):
     def __init__(
-        self,
-        *,
-        text: str,
-        previous_text="Zurück",
-        previous_callback=None,
-        next_text="Weiter",
-        next_callback=None,
-        detail: str = ""
+            self,
+            *,
+            text: str,
+            previous_text="Zurück",
+            previous_callback=None,
+            next_text="Weiter",
+            next_callback=None,
+            detail: str = ""
     ):
         super().__init__(
             text=text,
@@ -119,23 +112,6 @@ class CropAmountStep(Step):
 
         self.crop_amount_selection_controller.set_analysis_result(analysis_result)
         self.crop_amount_selection_controller.show()
-
-        # self.crop_amount_selection.set_images(images)
-        # self.crop_amount_selection.set_width(images[0].shape[1])
-        # self.crop_amount_selection.set_height(images[0].shape[0])
-        # self.crop_amount_selection.set_rectangle(crop_box)
-        # self.crop_amount_selection.set_transformed_rectangles(crop_boxes)
-        # self.crop_amount_selection.set_pts_width_per_pixel(
-        #     pts_width / images[0].shape[1]
-        # )
-        # self.crop_amount_selection.set_pts_height_per_pixel(
-        #     pts_height / images[0].shape[0]
-        # )
-
-        # self.crop_amount_selection.set_spinner_max()
-        # self.crop_amount_selection.show_pix_map()
-        # self.crop_amount_selection.update_default_offset()
-        # self.crop_amount_selection.show_crop_hint()
         self.progress_bar.hide()
         self.window().activateWindow()
 

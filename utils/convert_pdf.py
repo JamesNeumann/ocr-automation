@@ -14,10 +14,11 @@ from config import Config
 from utils.console import console
 from utils.file_utils import wait_until_file_is_unlocked
 from utils.rectangle import Rectangle
+from utils.save_config import SaveConfig
 
 
 def convert_pdf_to_image(
-    path_to_pdf: str, attempts: int = 5
+        path_to_pdf: str, attempts: int = 5
 ) -> (List[Image], float, float, int, List[Rectangle]):
     """
     Converts each page of the given PDF to an image
@@ -66,13 +67,15 @@ def convert_pdf_to_image(
         start_time = time()
         console.log(f"{file_name} is being converted")
         try:
+
+            console.log("Reading PDF with: ", SaveConfig.get_dpi_value())
             converted_images = convert_from_path(
                 pdf_path=path_to_pdf,
                 output_folder=Config.OCR_WORKING_DIR,
                 poppler_path="./Poppler/Library/bin",
                 thread_count=multiprocessing.cpu_count(),
                 jpegopt=True,
-                dpi=Config.DPI,
+                dpi=SaveConfig.get_dpi_value(),
             )
             console.log(
                 f"Needed {time() - start_time} seconds to convert {file_name} to images"
@@ -84,7 +87,7 @@ def convert_pdf_to_image(
 
 
 def convert_pil_images_to_cv2_format(
-    pil_images: List[Image], progress_callback: Callable[[int], None]
+        pil_images: List[Image], progress_callback: Callable[[int], None]
 ) -> List[ndarray]:
     """
     Converts Image in PIL format to cv2 format
@@ -95,10 +98,10 @@ def convert_pil_images_to_cv2_format(
     """
     cv2_images = []
     for i, image in track(
-        enumerate(pil_images),
-        description="Converting image to cv2 format...".ljust(40),
-        console=console,
-        total=len(pil_images),
+            enumerate(pil_images),
+            description="Converting image to cv2 format...".ljust(40),
+            console=console,
+            total=len(pil_images),
     ):
         progress = i / (len(pil_images) * 2)
         progress = round(progress, 2)

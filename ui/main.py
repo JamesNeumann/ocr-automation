@@ -8,6 +8,7 @@ from automation.ocr_automation import OcrAutomation
 from automation.procedures.general_procedures import GeneralProcedures
 from automation.store import Store
 from config import Config
+from ui.controller.settings_controller import SettingsController
 from ui.steps.check_pdf_orientation_running_step import CheckPdfOrientationRunningStep
 from ui.steps.check_pdf_orientation_step import CheckPdfOrientationStep
 from ui.steps.clean_up_running_step import CleanUpRunningStep
@@ -22,7 +23,6 @@ from ui.steps.open_ocr_editor_step import OpenOcrEditorStep
 from ui.steps.procedure_selection_step import ProcedureSelectionStep
 from ui.steps.save_pdf_running_step import SavePDFRunningStep
 from ui.steps.save_temp_pdf_running import SaveTempPdfRunningStep
-from ui.steps.settings_step import SettingsStep
 from ui.steps.step import Step
 from utils.console import console
 from utils.save_config import SaveConfig
@@ -138,10 +138,9 @@ class MainWindow(QMainWindow):
             previous_text="Neue PDF verarbeiten",
         )
 
-        self.settings_step = SettingsStep(
-            text="Einstellungen",
+        self.settings_controller = SettingsController(
             previous_callback=lambda: self.open_step(self.file_selection_step),
-            next_callback=self.save_settings_callback,
+            next_callback=lambda: self.open_step(self.file_selection_step)
         )
 
         self.steps = [
@@ -162,7 +161,7 @@ class MainWindow(QMainWindow):
             self.save_running_step,
             self.clean_up_running_step,
             self.finished_step,
-            self.settings_step,
+            self.settings_controller.settings_step,
         ]
 
         for step in self.steps:
@@ -185,13 +184,8 @@ class MainWindow(QMainWindow):
         self.layout.setCurrentIndex(self.current_index)
 
     def open_settings(self):
-        self.settings_step.update_values()
-        self.open_step(self.settings_step)
-
-    def save_settings_callback(self):
-        top, right, bottom, left = self.settings_step.get_crop_box()
-        SaveConfig.update_default_crop_box_offset(top, right, bottom, left)
-        self.open_step(self.file_selection_step)
+        self.settings_controller.update_values()
+        self.open_step(self.settings_controller.settings_step)
 
     def open_ocr_editor(self):
         if Store.SELECTED_FILE_PATH != "":

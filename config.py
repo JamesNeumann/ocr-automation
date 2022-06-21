@@ -15,9 +15,15 @@ class Config:
 
     CROP_Y_AXIS_THRESHOLD = 0.95
 
+    MIN_DPI = 72
+    MAX_DPI = 900
+
     VERSION = "1.0.0"
 
     STOP_STUCK_RUNNING = False
+
+    MIN_PEN_WIDTH = 3
+    MAX_PEN_WIDTH = 50
 
     @staticmethod
     def initialize_directories() -> None:
@@ -26,3 +32,8 @@ class Config:
         """
         if not os.path.exists(Config.OCR_WORKING_DIR):
             os.makedirs(Config.OCR_WORKING_DIR)
+
+    @staticmethod
+    def map_dpi_to_pen_width(dpi_value: int):
+        return Config.MIN_PEN_WIDTH + (dpi_value - Config.MIN_DPI) * (Config.MAX_PEN_WIDTH - Config.MIN_PEN_WIDTH) / (
+                Config.MAX_DPI - Config.MIN_DPI)

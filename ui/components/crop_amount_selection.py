@@ -14,9 +14,11 @@ from PyQt6.QtWidgets import (
     QRadioButton,
 )
 
-from ui.components.mm_spinbox import create_mm_spinbox
+from config import Config
+from ui.components.spin_boxes import create_mm_spinbox
 from utils.offset import Offset
 from utils.rectangle import Rectangle
+from utils.save_config import SaveConfig
 
 
 class CropAmountSelection(QWidget):
@@ -47,7 +49,7 @@ class CropAmountSelection(QWidget):
         self._create_ui()
 
         self.pen = QPen(Qt.GlobalColor.green)
-        self.pen.setWidth(20)
+        self.pen.setWidth(Config.map_dpi_to_pen_width(SaveConfig.get_dpi_value()))
 
     def render_image(self, image: QImage, box: Rectangle):
         pixmap = QPixmap(image)
@@ -67,6 +69,7 @@ class CropAmountSelection(QWidget):
         self.resize(pixmap.width(), pixmap.height())
 
     def show_ui(self):
+        self.pen.setWidth(Config.map_dpi_to_pen_width(SaveConfig.get_dpi_value()))
         if self.isHidden():
             self.show()
 

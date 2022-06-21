@@ -5,9 +5,11 @@ from PyPDF2 import PdfFileReader
 from numpy import ndarray
 from rich.progress import track
 
+from config import Config
 from utils.console import console
 from utils.convert_pdf import convert_pdf_to_image, convert_pil_images_to_cv2_format
 from utils.rectangle import Rectangle
+from utils.save_config import SaveConfig
 
 
 def get_pdf_pages_as_images(
@@ -142,6 +144,7 @@ def get_crop_boxes(
     max_index = 0
     # width, height = get_max_image_size(images)
 
+    stroke_width = int(Config.map_dpi_to_pen_width(SaveConfig.get_dpi_value()))
     for i, image in track(
         enumerate(images),
         description="Detecting text...".ljust(40),
@@ -179,7 +182,7 @@ def get_crop_boxes(
                     image_crop_box.height + image_crop_box.y,
                 ),
                 (0, 0, 255),
-                10,
+                stroke_width
             )
 
     if save_images:
