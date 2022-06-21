@@ -18,7 +18,7 @@ from utils.save_config import SaveConfig
 
 
 def convert_pdf_to_image(
-        path_to_pdf: str, attempts: int = 5
+    path_to_pdf: str, attempts: int = 5
 ) -> (List[Image], float, float, int, List[Rectangle]):
     """
     Converts each page of the given PDF to an image
@@ -87,7 +87,7 @@ def convert_pdf_to_image(
 
 
 def convert_pil_images_to_cv2_format(
-        pil_images: List[Image], progress_callback: Callable[[int], None]
+    pil_images: List[Image], progress_callback: Callable[[int], None]
 ) -> List[ndarray]:
     """
     Converts Image in PIL format to cv2 format
@@ -98,10 +98,10 @@ def convert_pil_images_to_cv2_format(
     """
     cv2_images = []
     for i, image in track(
-            enumerate(pil_images),
-            description="Converting image to cv2 format...".ljust(40),
-            console=console,
-            total=len(pil_images),
+        enumerate(pil_images),
+        description="Converting image to cv2 format...".ljust(40),
+        console=console,
+        total=len(pil_images),
     ):
         progress = i / (len(pil_images) * 2)
         progress = round(progress, 2)

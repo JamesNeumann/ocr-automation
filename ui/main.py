@@ -140,7 +140,7 @@ class MainWindow(QMainWindow):
 
         self.settings_controller = SettingsController(
             previous_callback=lambda: self.open_step(self.file_selection_step),
-            next_callback=lambda: self.open_step(self.file_selection_step)
+            next_callback=lambda: self.open_step(self.file_selection_step),
         )
 
         self.steps = [

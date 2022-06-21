@@ -35,5 +35,6 @@ class Config:
 
     @staticmethod
     def map_dpi_to_pen_width(dpi_value: int):
-        return Config.MIN_PEN_WIDTH + (dpi_value - Config.MIN_DPI) * (Config.MAX_PEN_WIDTH - Config.MIN_PEN_WIDTH) / (
-                Config.MAX_DPI - Config.MIN_DPI)
+        return Config.MIN_PEN_WIDTH + (dpi_value - Config.MIN_DPI) * (
+            Config.MAX_PEN_WIDTH - Config.MIN_PEN_WIDTH
+        ) / (Config.MAX_DPI - Config.MIN_DPI)

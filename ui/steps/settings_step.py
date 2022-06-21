@@ -18,14 +18,14 @@ from utils.save_config import SaveConfig
 
 class SettingsStep(Step):
     def __init__(
-            self,
-            *,
-            text: str,
-            previous_text="Schließen",
-            previous_callback=None,
-            next_text="Speichern",
-            next_callback=None,
-            detail: str = ""
+        self,
+        *,
+        text: str,
+        previous_text="Schließen",
+        previous_callback=None,
+        next_text="Speichern",
+        next_callback=None,
+        detail: str = ""
     ):
         super().__init__(
             text=text,
@@ -69,8 +69,9 @@ class SettingsStep(Step):
         self.crop_group_box.setLayout(self.crop_box_parent_layout)
 
         self.dpi_group_box = QGroupBox("DPI für das Analysieren von Bildern")
-        self.dpi_layout, self.dpi_spinner = SettingsStep._create_spinbox(default_value=0,
-                                                                         label="DPI", is_mm=False, label_min_width=30)
+        self.dpi_layout, self.dpi_spinner = SettingsStep._create_spinbox(
+            default_value=0, label="DPI", is_mm=False, label_min_width=30
+        )
         self.dpi_parent_layout = QVBoxLayout()
         self.dpi_parent_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.dpi_parent_layout.setSpacing(0)
@@ -78,15 +79,19 @@ class SettingsStep(Step):
         self.dpi_group_box.setLayout(self.dpi_parent_layout)
 
         self.y_axis_threshold_group_box = QGroupBox(
-            "Dieser Wert bestimmt ab wann der Beschneidungskasten für jede Seite auch entlang der vertikalen Achse angewendet wird")
-        self.y_axis_threshold_layout, self.y_axis_threshold_spinner = SettingsStep._create_spinbox(
+            "Dieser Wert bestimmt ab wann der Beschneidungskasten für jede Seite auch entlang der vertikalen Achse angewendet wird"
+        )
+        (
+            self.y_axis_threshold_layout,
+            self.y_axis_threshold_spinner,
+        ) = SettingsStep._create_spinbox(
             default_value=int(0 * 100),
             label="Schwellenwert",
-            unit='%',
+            unit="%",
             is_mm=False,
             label_min_width=90,
             maximum=100,
-            minimum=0
+            minimum=0,
         )
         self.y_axis_threshold_parent_layout = QVBoxLayout()
         self.y_axis_threshold_parent_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -111,8 +116,16 @@ class SettingsStep(Step):
         self.y_axis_threshold_spinner.setValue(value)
 
     @staticmethod
-    def _create_spinbox(*, default_value: int, label: str, is_mm=True, label_min_width=80, unit='',
-                        minimum=Config.MIN_DPI, maximum=Config.MAX_DPI) -> (QHBoxLayout, QSpinBox):
+    def _create_spinbox(
+        *,
+        default_value: int,
+        label: str,
+        is_mm=True,
+        label_min_width=80,
+        unit="",
+        minimum=Config.MIN_DPI,
+        maximum=Config.MAX_DPI
+    ) -> (QHBoxLayout, QSpinBox):
         crop_box_layout = QHBoxLayout()
         crop_box_label = QLabel(label)
         crop_box_label.setSizePolicy(

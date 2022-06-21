@@ -60,17 +60,22 @@ class SaveConfig:
     @staticmethod
     def update_all(crop_box: Offset, dpi: int, y_axis_threshold: float):
 
-        offset_values = {"top": crop_box.top, "right": crop_box.right, "bottom": crop_box.bottom, "left": crop_box.left}
+        offset_values = {
+            "top": crop_box.top,
+            "right": crop_box.right,
+            "bottom": crop_box.bottom,
+            "left": crop_box.left,
+        }
         if not SaveConfig.SAVE_CONFIG:
             SaveConfig.SAVE_CONFIG = {
                 "DPI": dpi,
                 "offset": offset_values,
-                "y_axis_threshold": y_axis_threshold
+                "y_axis_threshold": y_axis_threshold,
             }
         else:
             SaveConfig.SAVE_CONFIG["DPI"] = dpi
             SaveConfig.SAVE_CONFIG["offset"] = offset_values
-            SaveConfig.SAVE_CONFIG['y_axis_threshold'] = y_axis_threshold
+            SaveConfig.SAVE_CONFIG["y_axis_threshold"] = y_axis_threshold
         SaveConfig.save_file()
 
     @staticmethod
@@ -83,7 +88,10 @@ class SaveConfig:
 
     @staticmethod
     def get_y_axis_threshold() -> float:
-        if not SaveConfig.SAVE_CONFIG or "y_axis_threshold" not in SaveConfig.SAVE_CONFIG:
+        if (
+            not SaveConfig.SAVE_CONFIG
+            or "y_axis_threshold" not in SaveConfig.SAVE_CONFIG
+        ):
             y_axis_threshold = Config.CROP_Y_AXIS_THRESHOLD
         else:
             y_axis_threshold = SaveConfig.SAVE_CONFIG["y_axis_threshold"]
@@ -94,7 +102,7 @@ class SaveConfig:
         if not SaveConfig.SAVE_CONFIG or "path" not in SaveConfig.SAVE_CONFIG:
             return "C:"
         return (
-                SaveConfig.SAVE_CONFIG["path"] or SaveConfig.read_default_dropbox_folder()
+            SaveConfig.SAVE_CONFIG["path"] or SaveConfig.read_default_dropbox_folder()
         )
 
     @staticmethod

@@ -182,7 +182,7 @@ def get_crop_boxes(
                     image_crop_box.height + image_crop_box.y,
                 ),
                 (0, 0, 255),
-                stroke_width
+                stroke_width,
             )
 
     if save_images:
