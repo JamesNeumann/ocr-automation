@@ -1,9 +1,10 @@
 import json
 import os.path
+from json import JSONDecodeError
 
 from config import Config
-from utils.offset import Offset
 from utils.console import console
+from utils.offset import Offset
 
 
 class SaveConfig:
@@ -19,8 +20,13 @@ class SaveConfig:
     def load_save_file():
         try:
             with open("save.json", "r", encoding="utf-8") as f:
-                path = json.load(f)
-                return path
+                try:
+                    path = json.load(f)
+                    return path
+                except JSONDecodeError:
+                    console.log("Save file is corrupt. Creating a new file.")
+                    with open("save.json", "w", encoding="utf-8") as wf:
+                        wf.write("{}")
         except FileNotFoundError:
             console.log("Save file not found. Skipping...")
 
