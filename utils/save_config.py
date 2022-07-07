@@ -9,12 +9,10 @@ from utils.offset import Offset
 
 class SaveConfig:
     SAVE_CONFIG = {}
-    STANDARD_SAVE_LOCATION = ""
 
     @staticmethod
     def init():
         SaveConfig.SAVE_CONFIG = SaveConfig.load_save_file()
-        SaveConfig.STANDARD_SAVE_LOCATION = SaveConfig.get_default_save_location()
 
     @staticmethod
     def load_save_file():

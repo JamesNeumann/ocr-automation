@@ -23,7 +23,7 @@ class FileSelection(QWidget):
         self.setLayout(self.layout)
 
     def get_pdf_file(self):
-        path = SaveConfig.STANDARD_SAVE_LOCATION
+        path = SaveConfig.get_default_save_location()
         full_file_path = QFileDialog.getOpenFileName(
             self, directory=path, caption="Wähle eine PDF", filter="PDF-Dateien (*.pdf)"
         )[0]

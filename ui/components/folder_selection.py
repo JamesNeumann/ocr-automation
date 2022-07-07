@@ -7,7 +7,7 @@ class FolderSelection(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.selected_folder = SaveConfig.STANDARD_SAVE_LOCATION
+        self.selected_folder = SaveConfig.get_default_save_location()
 
         self.layout = QHBoxLayout()
         self.dialogButton = QPushButton("Wähle Ordner...")
@@ -21,7 +21,7 @@ class FolderSelection(QWidget):
     def get_folder(self):
         self.selected_folder = QFileDialog.getExistingDirectory(
             self,
-            directory=SaveConfig.STANDARD_SAVE_LOCATION,
+            directory=SaveConfig.get_default_save_location(),
             caption="Wähle einen Ordner",
         )
         self.selected_folder_label.setText(self.selected_folder)

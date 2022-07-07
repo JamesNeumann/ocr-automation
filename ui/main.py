@@ -270,7 +270,7 @@ class MainWindow(QMainWindow):
     def open_save_location_step(self):
         self.open_next_step()
         self.choose_save_location_step.folder_selection.set_folder(
-            SaveConfig.STANDARD_SAVE_LOCATION
+            SaveConfig.get_default_save_location()
         )
         self.choose_save_location_step.set_previous_name(
             self.file_selection_step.file_selection.selected_file_name
