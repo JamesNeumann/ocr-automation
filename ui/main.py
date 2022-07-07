@@ -1,5 +1,6 @@
 import os
 import time
+from sys import exit
 
 from PyQt6.QtWidgets import QWidget, QStackedLayout, QMainWindow
 from rich.panel import Panel
