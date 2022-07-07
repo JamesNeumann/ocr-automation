@@ -1,3 +1,4 @@
+activate.ps1
 create_version_file.py
 version.txt
 converted_files/
