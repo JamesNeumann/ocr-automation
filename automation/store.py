@@ -3,6 +3,8 @@ class Store:
     FILE_PATH_AFTER_PROCEDURES = ""
     FILE_PATH_AFTER_ORIENTATION_SAVE = ""
     INDICES_TO_ROTATE = []
+    PDF_APPLICATION_PROCESS = None
+    SAVE_FILE_PATH = ""
 
     @staticmethod
     def reset():
@@ -10,3 +12,5 @@ class Store:
         Store.FILE_PATH_AFTER_PROCEDURES = None
         Store.INDICES_TO_ROTATE = []
         Store.FILE_PATH_AFTER_ORIENTATION_SAVE = ""
+        Store.PDF_APPLICATION_PROCESS = None
+        Store.SAVE_FILE_PATH = ""

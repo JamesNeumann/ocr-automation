@@ -22,10 +22,12 @@ from ui.steps.ocr_language_selection_step import OcrLanguageSelectionStep
 from ui.steps.ocr_running_step import OcrRunningStep
 from ui.steps.open_ocr_editor_step import OpenOcrEditorStep
 from ui.steps.procedure_selection_step import ProcedureSelectionStep
+from ui.steps.redo_save_pdf_step import RedoSavePdfStep
 from ui.steps.save_pdf_running_step import SavePDFRunningStep
 from ui.steps.save_temp_pdf_running import SaveTempPdfRunningStep
 from ui.steps.step import Step
 from utils.console import console
+from utils.file_utils import delete_file
 from utils.save_config import SaveConfig
 
 
@@ -39,6 +41,7 @@ class MainWindow(QMainWindow):
         self.layout = QStackedLayout()
 
         self.current_index = 0
+        self.steps = []
 
         self.file_selection_step = FileSelectionStep(
             text="Wähle eine PDF-Datei aus",
@@ -52,11 +55,11 @@ class MainWindow(QMainWindow):
         )
         self.open_ocr_editor_step.finished_signal.connect(self.open_procedure_step)
 
-        self.procedures_step = ProcedureSelectionStep(
+        self.select_procedures_step = ProcedureSelectionStep(
             text="Welche Optimierungen sollen durchgeführt werden?",
             next_callback=self.start_procedures,
         )
-        self.procedures_step.finished.connect(
+        self.select_procedures_step.finished.connect(
             lambda: (
                 self.open_step(self.crop_pdf_question_step),
                 self.window().activateWindow(),
@@ -80,6 +83,7 @@ class MainWindow(QMainWindow):
         self.check_pdf_orientation_running_step = CheckPdfOrientationRunningStep(
             text="Die PDF wird analyisiert"
         )
+
         self.check_pdf_orientation_running_step.finished.connect(
             self.open_check_pdf_orientation_step
         )
@@ -126,7 +130,12 @@ class MainWindow(QMainWindow):
         )
 
         self.save_running_step = SavePDFRunningStep(text="PDF wird gespeichert")
-        self.save_running_step.finished.connect(self.clean_up)
+        self.save_running_step.finished.connect(self.open_redo_pdf_save_step)
+
+        self.redo_save_pdf_step = RedoSavePdfStep(
+            previous_callback=self.go_back_to_save_pdf_step,
+            next_callback=self.clean_up,
+        )
 
         self.clean_up_running_step = CleanUpRunningStep(text="Es wird augeräumt")
         self.clean_up_running_step.finished.connect(self.clean_up_finished)
@@ -147,7 +156,7 @@ class MainWindow(QMainWindow):
         self.steps = [
             self.file_selection_step,
             self.open_ocr_editor_step,
-            self.procedures_step,
+            self.select_procedures_step,
             self.crop_pdf_question_step,
             self.save_temp_pdf_after_procedures,
             self.check_pdf_orientation_running_step,
@@ -160,6 +169,7 @@ class MainWindow(QMainWindow):
             self.ocr_finished_step,
             self.choose_save_location_step,
             self.save_running_step,
+            self.redo_save_pdf_step,
             self.clean_up_running_step,
             self.finished_step,
             self.settings_controller.settings_step,
@@ -194,7 +204,7 @@ class MainWindow(QMainWindow):
             self.open_ocr_editor_step.start()
 
     def start_procedures(self):
-        self.procedures_step.start()
+        self.select_procedures_step.start()
 
     def crop_pdf_question_acceptance(self):
         self.open_step(self.save_temp_pdf_after_procedures)
@@ -250,7 +260,7 @@ class MainWindow(QMainWindow):
         self.open_next_step()
 
     def open_procedure_step(self):
-        self.open_step(self.procedures_step)
+        self.open_step(self.select_procedures_step)
         self.window().activateWindow()
 
     def do_ocr(self):
@@ -268,7 +278,7 @@ class MainWindow(QMainWindow):
         self.ocr_running_step.stop()
 
     def open_save_location_step(self):
-        self.open_next_step()
+        self.open_step(self.choose_save_location_step)
         self.choose_save_location_step.folder_selection.set_folder(
             SaveConfig.get_default_save_location()
         )
@@ -291,7 +301,18 @@ class MainWindow(QMainWindow):
             file_name = self.choose_save_location_step.file_name_field.text()
             suffix = "" if ".pdf" in file_name else ".pdf"
             path = os.path.abspath(folder + "\\" + file_name + suffix)
-            self.save_running_step.start(path, enable_precise_scan)
+            Store.SAVE_FILE_PATH = path
+            self.save_running_step.start(Store.SAVE_FILE_PATH, enable_precise_scan)
+
+    def go_back_to_save_pdf_step(self):
+        OcrAutomation.close_pdf_in_default_program()
+        delete_file(Store.SAVE_FILE_PATH)
+        Store.SAVE_FILE_PATH = None
+        self.open_save_location_step()
+
+    def open_redo_pdf_save_step(self):
+        self.window().activateWindow()
+        self.open_step(self.redo_save_pdf_step)
 
     def reset(self):
         for step in self.steps:
@@ -307,4 +328,3 @@ class MainWindow(QMainWindow):
         self.window().activateWindow()
         self.open_next_step()
         self.clean_up_running_step.start()
-        Store.reset()

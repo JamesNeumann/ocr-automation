@@ -1,12 +1,17 @@
 import os
 import shutil
+import subprocess
 import time
 from typing import Callable, List
 from uuid import UUID
 
+import psutil
+from psutil import NoSuchProcess
+
 from automation.procedures.general_procedures import GeneralProcedures
 from automation.procedures.ocr_procedures import OcrProcedures
 from automation.procedures.waiting_procedures import WaitingProcedures
+from automation.store import Store
 from config import Config
 from utils.console import console
 from utils.keyboard_util import press_key, write
@@ -79,9 +84,9 @@ class OcrAutomation:
 
     @staticmethod
     def do_optimization(
-        procedures: List[Callable],
-        iterations: int,
-        progress_callback: Callable[[int], None],
+            procedures: List[Callable],
+            iterations: int,
+            progress_callback: Callable[[int], None],
     ) -> [str, UUID]:
         """
         Executes all the given procedures and crops the pdf afterwards.
@@ -126,6 +131,23 @@ class OcrAutomation:
         write(path)
         press_key(key_combination="enter")
         WaitingProcedures.wait_until_saving_pdf_is_finished(path)
+
+    @staticmethod
+    def open_pdf_in_default_program(path: str):
+        Store.PDF_APPLICATION_PROCESS = subprocess.Popen(
+            [path], shell=True, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP
+        )
+
+    @staticmethod
+    def close_pdf_in_default_program():
+        if Store.PDF_APPLICATION_PROCESS is not None:
+            try:
+                pobj = psutil.Process(Store.PDF_APPLICATION_PROCESS.pid)
+                for c in pobj.children(recursive=True):
+                    c.kill()
+                pobj.kill()
+            except NoSuchProcess:
+                pass
 
     @staticmethod
     def crop_pdf(path_to_pdf: str, crop_rectangle: Rectangle) -> None:
@@ -218,6 +240,8 @@ class OcrAutomation:
         """
         Clean up all temporary files and instances
         """
+        console.log("Cleaning up")
+        OcrAutomation.close_pdf_in_default_program()
         OcrAutomation.close_ocr_project()
         time.sleep(2)
         folder = Config.OCR_WORKING_DIR
