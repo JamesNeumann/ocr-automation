@@ -84,9 +84,9 @@ class OcrAutomation:
 
     @staticmethod
     def do_optimization(
-            procedures: List[Callable],
-            iterations: int,
-            progress_callback: Callable[[int], None],
+        procedures: List[Callable],
+        iterations: int,
+        progress_callback: Callable[[int], None],
     ) -> [str, UUID]:
         """
         Executes all the given procedures and crops the pdf afterwards.
