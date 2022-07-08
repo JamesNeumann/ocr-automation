@@ -104,6 +104,17 @@ class MainWindow(QMainWindow):
         self.crop_running_step = CropRunningStep(text="Die PDF wird zugeschnitten")
         self.crop_running_step.finished.connect(self.crop_finished)
 
+        self.procedures_after_crop = ProcedureSelectionStep(
+            text="Welche Optimierungen sollen durchgeführt werden?",
+            previous_text="Überspringen",
+            previous_callback=self.open_ocr_language_selection_step,
+            next_callback=self.start_procedures_after_crop,
+        )
+
+        self.procedures_after_crop.finished.connect(
+            self.open_ocr_language_selection_step
+        )
+
         self.ocr_language_selection_step = OcrLanguageSelectionStep(
             text="Wähle die OCR-Sprachen für die PDF", next_callback=self.do_ocr
         )
@@ -164,6 +175,7 @@ class MainWindow(QMainWindow):
             self.save_temp_pdf_running_step,
             self.crop_amount_step,
             self.crop_running_step,
+            self.procedures_after_crop,
             self.ocr_language_selection_step,
             self.ocr_running_step,
             self.ocr_finished_step,
@@ -205,6 +217,9 @@ class MainWindow(QMainWindow):
 
     def start_procedures(self):
         self.select_procedures_step.start()
+
+    def start_procedures_after_crop(self):
+        self.procedures_after_crop.start()
 
     def crop_pdf_question_acceptance(self):
         self.open_step(self.save_temp_pdf_after_procedures)
