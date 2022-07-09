@@ -107,7 +107,7 @@ class MainWindow(QMainWindow):
         self.procedures_after_crop = ProcedureSelectionStep(
             text="Welche Optimierungen sollen durchgeführt werden?",
             previous_text="Überspringen",
-            previous_callback=self.open_ocr_language_selection_step,
+            previous_callback=lambda: self.open_ocr_language_selection_step(False),
             next_callback=self.start_procedures_after_crop,
         )
 
@@ -253,6 +253,9 @@ class MainWindow(QMainWindow):
         self.save_temp_pdf_running_step.start()
 
     def crop_finished(self):
+        GeneralProcedures.click_ocr_pages_header()
+        time.sleep(0.3)
+        OcrAutomation.close_image_improvement_tools()
         self.open_next_step()
         self.window().activateWindow()
 
@@ -297,11 +300,11 @@ class MainWindow(QMainWindow):
             self.file_selection_step.file_selection.selected_file_name
         )
 
-    def open_ocr_language_selection_step(self):
-        GeneralProcedures.click_ocr_pages_header()
-        time.sleep(0.3)
-        OcrAutomation.close_image_improvement_tools()
-        time.sleep(0.3)
+    def open_ocr_language_selection_step(self, should_close: bool = True):
+        if should_close:
+            GeneralProcedures.click_ocr_pages_header()
+            time.sleep(0.3)
+            OcrAutomation.close_image_improvement_tools()
         self.activateWindow()
         self.open_step(self.ocr_language_selection_step)
 
