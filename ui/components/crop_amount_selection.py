@@ -118,10 +118,20 @@ class CropAmountSelection(QWidget):
         self.left_spin_box.blockSignals(False)
 
     def reset(self):
+        self.radio_button_all_pages.blockSignals(True)
+        self.radio_button_single_pages.blockSignals(True)
+        self.next_image_button.blockSignals(True)
+        self.previous_image_button.blockSignals(True)
+
         self.radio_button_all_pages.setChecked(True)
         self.radio_button_single_pages.setChecked(False)
         self.next_image_button.setDisabled(False)
         self.previous_image_button.setDisabled(True)
+
+        self.radio_button_all_pages.blockSignals(False)
+        self.radio_button_single_pages.blockSignals(False)
+        self.next_image_button.blockSignals(False)
+        self.previous_image_button.blockSignals(False)
 
     def _create_ui(self):
         self.main_layout = QHBoxLayout()

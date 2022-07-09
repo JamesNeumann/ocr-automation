@@ -317,6 +317,7 @@ class MainWindow(QMainWindow):
             suffix = "" if ".pdf" in file_name else ".pdf"
             path = os.path.abspath(folder + "\\" + file_name + suffix)
             Store.SAVE_FILE_PATH = path
+
             self.save_running_step.start(Store.SAVE_FILE_PATH, enable_precise_scan)
 
     def go_back_to_save_pdf_step(self):

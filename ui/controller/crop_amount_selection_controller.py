@@ -1,11 +1,14 @@
 import math
+from typing import List
 
 import numpy as np
 from PyQt6.QtGui import QImage
 
 from ui.components.crop_amount_selection import CropAmountSelection
 from utils.analysis_result import AnalysisResult
+from utils.console import console
 from utils.conversion import pts_to_pixel, convert_to_pts
+from utils.offset import Offset
 from utils.rectangle import Rectangle
 from utils.save_config import SaveConfig
 
@@ -41,6 +44,37 @@ class CropAmountSelectionController:
         self.default_offset = SaveConfig.get_default_crop_box_offset()
         self.crop_amount_selection.set_spin_box_values(self.default_offset)
         self.selected_offset = self.default_offset.copy()
+        self.selected_single_page_offsets: List[Offset] = []
+        self.selected_single_page_spin_box_values: List[Offset] = []
+
+    def initialize_single_image_offsets(self):
+        self.selected_single_page_spin_box_values = [
+            self.default_offset.copy() for _ in self.analysis_result.images
+        ]
+
+        self.selected_single_page_offsets = [
+            self.default_offset.copy() for _ in self.analysis_result.images
+        ]
+
+        for index, offset in enumerate(self.selected_single_page_spin_box_values):
+            pts_size_y = self.analysis_result.pts_dimensions[index].height
+            pts_size_x = self.analysis_result.pts_dimensions[index].width
+
+            shape_width = self.analysis_result.images[index].shape[1]
+            shape_height = self.analysis_result.images[index].shape[0]
+
+            self.selected_single_page_offsets[index].top = pts_to_pixel(
+                offset.top, pts_size_y / shape_height
+            )
+            self.selected_single_page_offsets[index].right = pts_to_pixel(
+                offset.right, pts_size_x / shape_width
+            )
+            self.selected_single_page_offsets[index].bottom = pts_to_pixel(
+                offset.bottom, pts_size_y / shape_height
+            )
+            self.selected_single_page_offsets[index].left = pts_to_pixel(
+                offset.left, pts_size_x / shape_width
+            )
 
     def change_visible_image(self):
         if self.current_image_index > len(self.q_images) - 1:
@@ -51,8 +85,14 @@ class CropAmountSelectionController:
         else:
             crop_box = self.analysis_result.max_box
 
+        self.crop_amount_selection.set_spin_box_values(
+            self.selected_single_page_spin_box_values[self.current_image_index]
+        )
+
         crop_box_with_offset = self.get_crop_box_pixel(
-            crop_box, self.analysis_result.images[self.current_image_index]
+            crop_box,
+            self.analysis_result.images[self.current_image_index],
+            self.current_image_index,
         )
 
         self.crop_amount_selection.render_image(
@@ -90,18 +130,26 @@ class CropAmountSelectionController:
         self.update_image_button_state()
 
     def top_spin_box_changed(self, value: int):
+        self.selected_single_page_spin_box_values[self.current_image_index].top = value
         self.update_selected_offset("top", value)
         self.change_visible_image()
 
     def right_spin_box_changed(self, value: int):
+        self.selected_single_page_spin_box_values[
+            self.current_image_index
+        ].right = value
         self.update_selected_offset("right", value)
         self.change_visible_image()
 
     def bottom_spin_box_changed(self, value: int):
+        self.selected_single_page_spin_box_values[
+            self.current_image_index
+        ].bottom = value
         self.update_selected_offset("bottom", value)
         self.change_visible_image()
 
     def left_spin_box_changed(self, value: int):
+        self.selected_single_page_spin_box_values[self.current_image_index].left = value
         self.update_selected_offset("left", value)
         self.change_visible_image()
 
@@ -118,11 +166,18 @@ class CropAmountSelectionController:
             ].width
             shape_index = 1
 
-        self.selected_offset[dimension] = pts_to_pixel(
+        new_pixel_offset = pts_to_pixel(
             value,
             pts_size
             / self.analysis_result.images[self.current_image_index].shape[shape_index],
         )
+
+        if self.is_single_image_crop_mode:
+            self.selected_single_page_offsets[self.current_image_index][
+                dimension
+            ] = new_pixel_offset
+        else:
+            self.selected_offset[dimension] = new_pixel_offset
 
     def show(self):
         self.update_selected_offset("top", self.selected_offset.top)
@@ -141,12 +196,15 @@ class CropAmountSelectionController:
         self.default_offset = SaveConfig.get_default_crop_box_offset()
         self.crop_amount_selection.set_spin_box_values(self.default_offset)
         self.selected_offset = self.default_offset.copy()
+        self.selected_single_page_offsets = []
+        self.selected_single_page_spin_box_values = []
         self.update_image_button_state()
         self.crop_amount_selection.reset()
 
     def set_analysis_result(self, analysis_result: AnalysisResult):
         self.analysis_result = analysis_result
         self.update_spin_boxes_max_value()
+        self.initialize_single_image_offsets()
 
     def update_spin_boxes_max_value(self):
         image_shape = self.analysis_result.images[self.analysis_result.min_index].shape
@@ -174,20 +232,27 @@ class CropAmountSelectionController:
         self.crop_amount_selection.set_bottom_spin_box_max(math.floor(max_bottom))
         self.crop_amount_selection.set_left_spin_box_max(math.floor(max_left))
 
-    def get_crop_box_pixel(self, crop_box: Rectangle, image: np.ndarray, relative=True):
-        x = max(crop_box.x - self.selected_offset.left, 0)
-        y = max(crop_box.y - self.selected_offset.top, 0)
+    def get_crop_box_pixel(
+        self, crop_box: Rectangle, image: np.ndarray, index: int, relative=True
+    ):
+        offset = (
+            self.selected_single_page_offsets[index]
+            if self.is_single_image_crop_mode
+            else self.selected_offset
+        )
+        x = max(crop_box.x - offset.left, 0)
+        y = max(crop_box.y - offset.top, 0)
         width = min(
             crop_box.width
-            + self.selected_offset.left
-            + self.selected_offset.right
+            + offset.left
+            + offset.right
             - (0 if relative else crop_box.x),
             image.shape[1],
         )
         height = min(
             crop_box.height
-            + self.selected_offset.top
-            + self.selected_offset.bottom
+            + offset.top
+            + offset.bottom
             - (0 if relative else crop_box.y),
             image.shape[0],
         )
@@ -198,9 +263,10 @@ class CropAmountSelectionController:
         crop_box: Rectangle,
         image: np.ndarray,
         pts_rectangle: Rectangle,
+        index: int,
         relative=True,
     ):
-        crop_box_pixel = self.get_crop_box_pixel(crop_box, image, relative)
+        crop_box_pixel = self.get_crop_box_pixel(crop_box, image, index, relative)
 
         pts_per_width = float(pts_rectangle.width / image.shape[1])
         pts_per_height = float(pts_rectangle.height / image.shape[0])
@@ -223,6 +289,7 @@ class CropAmountSelectionController:
                 box,
                 self.analysis_result.images[index],
                 self.analysis_result.pts_dimensions[index],
+                index,
                 True,
             )
             transformed_boxes_pts.append(box)
