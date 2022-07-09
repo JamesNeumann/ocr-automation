@@ -253,10 +253,6 @@ class MainWindow(QMainWindow):
         self.save_temp_pdf_running_step.start()
 
     def crop_finished(self):
-        GeneralProcedures.click_ocr_pages_header()
-        time.sleep(0.3)
-        OcrAutomation.close_image_improvement_tools()
-        time.sleep(0.3)
         self.open_next_step()
         self.window().activateWindow()
 
