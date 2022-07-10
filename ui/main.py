@@ -339,7 +339,7 @@ class MainWindow(QMainWindow):
         self.open_next_step()
         self.window().activateWindow()
         console.log(Panel("[green]Fertig"))
-        
+
     def clean_up(self):
         self.window().activateWindow()
         self.open_next_step()

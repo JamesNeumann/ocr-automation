@@ -22,7 +22,9 @@ class SaveConfig:
                     path = json.load(f)
                     return path
                 except JSONDecodeError:
-                    console.log("Speicherdatei ist korrupt. Eine neue Datei wird erstellt.")
+                    console.log(
+                        "Speicherdatei ist korrupt. Eine neue Datei wird erstellt."
+                    )
                     with open("save.json", "w", encoding="utf-8") as wf:
                         wf.write("{}")
         except FileNotFoundError:

@@ -127,7 +127,9 @@ class WaitingProcedures:
         console.log("Es wird gewartet bis der Seiten-Erkennungs-Button sichtbar ist...")
         visible = WaitingProcedures.is_ocr_page_recognition_icon_visible()
         while not visible:
-            console.log("Es wird gewartet bis der Seiten-Erkennungs-Button sichtbar ist...")
+            console.log(
+                "Es wird gewartet bis der Seiten-Erkennungs-Button sichtbar ist..."
+            )
             time.sleep(0.5)
             visible = WaitingProcedures.is_ocr_page_recognition_icon_visible()
 
