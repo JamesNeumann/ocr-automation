@@ -14,7 +14,7 @@ class OcrProcedures:
         """
         Executes the PDF pre optimization in the OCR editor
         """
-        with ProcedureContext("pre optimization"):
+        with ProcedureContext("Empfohlene Vorbearbeitung"):
             press_key(key_combination="alt+f", delay_in_seconds=0.5)
             GeneralProcedures.do_select_all_pages()
             press_key(key_combination="alt+f")
@@ -26,7 +26,7 @@ class OcrProcedures:
         """
         Executes the PDF equalize in the OCR editor
         """
-        with ProcedureContext("equalize"):
+        with ProcedureContext("Entzerren"):
             press_key(key_combination="alt+z", delay_in_seconds=0.5)
             GeneralProcedures.do_select_all_pages()
             press_key(key_combination="alt+z")
@@ -38,7 +38,7 @@ class OcrProcedures:
         """
         Executes the PDF line straightening in the OCR editor
         """
-        with ProcedureContext("line straighten"):
+        with ProcedureContext("Textzeilen begradigen"):
             press_key(key_combination="alt+x", delay_in_seconds=0.5)
             GeneralProcedures.do_select_all_pages()
             press_key(key_combination="alt+x")
@@ -50,7 +50,7 @@ class OcrProcedures:
         """
         Executes the PDF photo correction. Currently, only page whiten.
         """
-        with ProcedureContext("photo correction"):
+        with ProcedureContext("Hintergund weißen"):
             press_key(key_combination="alt+o", delay_in_seconds=0.5)
             GeneralProcedures.do_select_all_pages()
             press_key(key_combination="alt+ß", delay_in_seconds=0.5)

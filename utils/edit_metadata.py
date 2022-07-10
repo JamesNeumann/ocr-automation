@@ -43,4 +43,4 @@ def set_standard_metadata(path_to_pdf: str) -> None:
     file_in.close()
     file_out.close()
 
-    console.log(f"Metadata set for '{file_name}'")
+    console.log(f"Metadaten wurden für '{file_name}' gesetzt")

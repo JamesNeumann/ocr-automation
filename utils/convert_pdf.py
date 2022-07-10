@@ -65,10 +65,10 @@ def convert_pdf_to_image(
                 min_height = height
 
         start_time = time()
-        console.log(f"{file_name} is being converted")
+        console.log(f"{file_name} wird konvertiert")
         try:
 
-            console.log("Reading PDF with: ", SaveConfig.get_dpi_value())
+            console.log(f"PDF wird mit {SaveConfig.get_dpi_value()} DPI gelesen")
             converted_images = convert_from_path(
                 pdf_path=path_to_pdf,
                 output_folder=Config.OCR_WORKING_DIR,
@@ -78,7 +78,7 @@ def convert_pdf_to_image(
                 dpi=SaveConfig.get_dpi_value(),
             )
             console.log(
-                f"Needed {time() - start_time} seconds to convert {file_name} to images"
+                f"Es wurden {time() - start_time} Sekunden benötigt um {file_name} zu Bildern zu konvertieren"
             )
         except Exception as e:
             console.log(e, e)
@@ -99,7 +99,7 @@ def convert_pil_images_to_cv2_format(
     cv2_images = []
     for i, image in track(
         enumerate(pil_images),
-        description="Converting image to cv2 format...".ljust(40),
+        description="Bilder werden in das benötigte Format konvertiert...".ljust(55),
         console=console,
         total=len(pil_images),
     ):

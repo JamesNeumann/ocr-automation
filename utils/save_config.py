@@ -22,11 +22,11 @@ class SaveConfig:
                     path = json.load(f)
                     return path
                 except JSONDecodeError:
-                    console.log("Save file is corrupt. Creating a new file.")
+                    console.log("Speicherdatei ist korrupt. Eine neue Datei wird erstellt.")
                     with open("save.json", "w", encoding="utf-8") as wf:
                         wf.write("{}")
         except FileNotFoundError:
-            console.log("Save file not found. Skipping...")
+            console.log("Speicherdatei nicht gefunden. Überspringe...")
 
     @staticmethod
     def update_default_save_location(path_to_folder: str):
@@ -113,7 +113,7 @@ class SaveConfig:
     def save_file():
         with open("save.json", "w+", encoding="utf-8") as f:
             f.write(json.dumps(SaveConfig.SAVE_CONFIG))
-        console.log("Settings saved")
+        console.log("Einstellungen gespeichert")
 
     @staticmethod
     def read_default_dropbox_folder():
@@ -138,8 +138,8 @@ class SaveConfig:
                                 "00 Petersen\\00 Digitalisierung MGH",
                             )
                         )
-            console.log("Dropbox path not found. Skipping...")
+            console.log("Dropbox-Pfad nicht gefunden. Überspringe...")
             return None
         except FileNotFoundError:
-            console.log("Dropbox path not found. Skipping...")
+            console.log("Dropbox-Pfad nicht gefunden. Überspringe...")
             return None

@@ -280,11 +280,11 @@ class MainWindow(QMainWindow):
     def do_ocr(self):
         self.open_next_step()
         languages = self.ocr_language_selection_step.get_selected_language()
-        console.log(languages)
+        console.log("OCR wird mit folgende Sprachen durchgeführt: ", languages)
         self.ocr_running_step.start(languages)
 
     def ocr_running_finished(self):
-        console.log(Panel("[green]OCR Finished"))
+        console.log(Panel("[green]OCR fertig"))
         self.open_next_step()
         self.window().activateWindow()
 
@@ -338,7 +338,8 @@ class MainWindow(QMainWindow):
     def clean_up_finished(self):
         self.open_next_step()
         self.window().activateWindow()
-
+        console.log(Panel("[green]Fertig"))
+        
     def clean_up(self):
         self.window().activateWindow()
         self.open_next_step()

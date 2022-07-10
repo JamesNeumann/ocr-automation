@@ -43,7 +43,7 @@ def get_crop_box_pixel(
     crop_box = get_maximum_crop_box(images, width, height, progress_callback)
     for i, image in track(
         enumerate(images),
-        description="Saving images...".ljust(40),
+        description="Saving images...".ljust(55),
         total=len(images),
         console=console,
     ):
@@ -91,7 +91,7 @@ def get_maximum_crop_box(
 
     for i, image in track(
         enumerate(images),
-        description="Detecting text...".ljust(40),
+        description="Text wird erkannt...".ljust(55),
         total=len(images),
         console=console,
     ):
@@ -147,7 +147,7 @@ def get_crop_boxes(
     stroke_width = int(Config.map_dpi_to_pen_width(SaveConfig.get_dpi_value()))
     for i, image in track(
         enumerate(images),
-        description="Detecting text...".ljust(40),
+        description="Text wird erkannt...".ljust(55),
         total=len(images),
         console=console,
     ):
@@ -188,7 +188,7 @@ def get_crop_boxes(
     if save_images:
         for i, image in track(
             enumerate(images),
-            description="Saving images...".ljust(40),
+            description="Saving images...".ljust(55),
             total=len(images),
             console=console,
         ):

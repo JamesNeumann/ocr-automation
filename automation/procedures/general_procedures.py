@@ -68,7 +68,7 @@ class GeneralProcedures:
 
     @staticmethod
     def _save_temp_pdf(path):
-        console.log("Saving temp pdf...")
+        console.log("Temporäre PDF wird gespeichert...")
         arrow_down = Screen.locate_center_on_screen("save_pdf_dropdown.png")
         if arrow_down is None:
             return
@@ -82,8 +82,8 @@ class GeneralProcedures:
         press_key(key_combination="enter", delay_in_seconds=1)
 
         if WaitingProcedures.is_warning_symbol_visible():
-            console.log("Warning is visible")
-            console.log("Setting save settings...")
+            console.log("Warnungszeichen ist sichtbar")
+            console.log("Einstellungen werden angepasst...")
             press_key(key_combination="tab")
             press_key(key_combination="enter", delay_in_seconds=0.3)
             press_key(key_combination="tab", repetitions=7, delay_in_seconds=0.3)
@@ -97,7 +97,7 @@ class GeneralProcedures:
 
         WaitingProcedures.wait_until_saving_pdf_is_finished(path)
 
-        console.log(Panel("[green]PDF saved"))
+        console.log(Panel("[green]PDF gespeichert"))
 
     @staticmethod
     def open_options():

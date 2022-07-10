@@ -192,7 +192,7 @@ class OcrAutomation:
         """
         Disables the initial OCR when opening a PDF
         """
-        console.log("Disabling initial ocr...")
+        console.log("Initiale OCR Überprüfung wird deaktiviert...")
         GeneralProcedures.open_options()
         GeneralProcedures.click_ocr_image_processing_icon()
         press_key(key_combination="tab", repetitions=3, delay_in_seconds=0.1)
@@ -240,7 +240,7 @@ class OcrAutomation:
         """
         Clean up all temporary files and instances
         """
-        console.log("Cleaning up")
+        console.log("Es wird aufgeräumt")
         OcrAutomation.close_pdf_in_default_program()
         OcrAutomation.close_ocr_project()
         time.sleep(2)

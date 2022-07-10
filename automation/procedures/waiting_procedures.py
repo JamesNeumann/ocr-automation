@@ -13,13 +13,13 @@ class WaitingProcedures:
         """
         Waits until one procedure is finished
         """
-        console.log("Operation is running...")
+        console.log("Verarbeitungsschritt läuft...")
         finished = (
             WaitingProcedures.is_undo_redo_visible()
             or WaitingProcedures.is_close_button_visible()
         )
         while not finished:
-            console.log("Operation is running...")
+            console.log("Verarbeitungsschritt läuft...")
             time.sleep(0.5)
             finished = (
                 WaitingProcedures.is_undo_redo_visible()
@@ -42,10 +42,10 @@ class WaitingProcedures:
         """
         Waits until OCR not done banner is visible
         """
-        console.log("Waiting until OCR is finished...")
+        console.log("Es wird gewartet bis die OCR-Erkennung abgeschlossen ist...")
         ocr_not_finished = Screen.locate_on_screen("ocr_not_done.png")
         while ocr_not_finished is None and not Config.STOP_STUCK_RUNNING:
-            console.log("Waiting until OCR is finished...")
+            console.log("Es wird gewartet bis die OCR-Erkennung abgeschlossen ist...")
             time.sleep(0.5)
             ocr_not_finished = Screen.locate_on_screen("ocr_not_done.png")
 
@@ -54,21 +54,21 @@ class WaitingProcedures:
         """
         Waits until ocr not done banner is visible
         """
-        console.log("Waiting until OCR is finished...")
+        console.log("Es wird gewartet bis die OCR-Erkennung abgeschlossen ist...")
         ocr_not_finished = Screen.locate_on_screen("ocr_not_done.png")
         while ocr_not_finished is not None and not Config.STOP_STUCK_RUNNING:
-            console.log("Waiting until OCR is finished...")
+            console.log("Es wird gewartet bis die OCR-Erkennung abgeschlossen ist...")
             time.sleep(0.5)
             ocr_not_finished = Screen.locate_on_screen("ocr_not_done.png")
 
     @staticmethod
     def wait_until_cropping_page_is_done() -> None:
-        console.log("Waiting until cropping page is done")
+        console.log("Es wird gewartet bis das Zuschneiden abgeschlossen ist...")
         cropping_done = Screen.locate_on_screen(
             "ocr_cropping_not_done.png", FolderType.WIN
         )
         while cropping_done is not None:
-            console.log("Waiting until cropping page is done")
+            console.log("Es wird gewartet bis das Zuschneiden abgeschlossen ist...")
             time.sleep(0.5)
             cropping_done = Screen.locate_on_screen(
                 "ocr_cropping_not_done.png", FolderType.WIN
@@ -79,29 +79,29 @@ class WaitingProcedures:
         """
         Waits until the close button of a dialog is visible
         """
-        console.log("Waiting for close button to be visible...")
+        console.log("Es wird gewartet bis der Schließen-Button sichtbar ist...")
         visible = WaitingProcedures.is_close_button_visible()
         iteration = 0
         while not visible:
             if iteration > max_time:
                 return
-            console.log("Waiting for close button to be visible...")
+            console.log("Es wird gewartet bis der Schließen-Button sichtbar ist...")
             time.sleep(0.5)
             visible = WaitingProcedures.is_close_button_visible()
             iteration += 1
-        console.log("Close button is visible")
+        console.log("Es wird gewartet bis der Schließen-Button sichtbar ist...")
 
     @staticmethod
     def wait_until_saving_pdf_is_finished(pdf_path: str) -> None:
         """
         Wait until saving PDF is finished
         """
-        console.log("Waiting for PDF to be saved...")
+        console.log("Es wird gewartet bis die PDF gespeichert ist...")
         # finished = WaitingProcedures.is_undo_redo_ocr_greyed_out_visible()
         file_exists = os.path.isfile(pdf_path)
         file_locked = is_file_locked(pdf_path)
         while file_locked or not file_exists:
-            console.log("Waiting for PDF to be saved...")
+            console.log("Es wird gewartet bis die PDF gespeichert ist..")
             time.sleep(0.5)
             # finished = WaitingProcedures.is_undo_redo_ocr_greyed_out_visible()
             file_exists = os.path.isfile(pdf_path)
@@ -112,10 +112,10 @@ class WaitingProcedures:
         """
         Waits until open PDF button is visible
         """
-        console.log("Waiting for open PDF button to be visible")
+        console.log("Es wird gewartet bis der PDF-Öffnen-Button sichtbar ist...")
         visible = WaitingProcedures.is_open_pdf_visible()
         while not visible:
-            console.log("Waiting for open PDF button to be visible")
+            console.log("Es wird gewartet bis der PDF-Öffnen-Button sichtbar ist...")
             time.sleep(0.5)
             visible = WaitingProcedures.is_open_pdf_visible()
 
@@ -124,10 +124,10 @@ class WaitingProcedures:
         """
         Waits until the OCR page recognition icon is visible
         """
-        console.log("Waiting for open ocr page recognition icon to be visible")
+        console.log("Es wird gewartet bis der Seiten-Erkennungs-Button sichtbar ist...")
         visible = WaitingProcedures.is_ocr_page_recognition_icon_visible()
         while not visible:
-            console.log("Waiting for open ocr page recognition icon to be visible")
+            console.log("Es wird gewartet bis der Seiten-Erkennungs-Button sichtbar ist...")
             time.sleep(0.5)
             visible = WaitingProcedures.is_ocr_page_recognition_icon_visible()
 
@@ -137,10 +137,10 @@ class WaitingProcedures:
         Waits until open PDF in OCR editor is visible
 
         """
-        console.log("Waiting for ocr open pdf icon to be visible...")
+        console.log("Es wird gewartet bis der PDF-Öffnen-Button sichtbar ist...")
         visible = WaitingProcedures.is_ocr_open_odf_visible()
         while not visible:
-            console.log("Waiting for ocr open pdf icon to be visible...")
+            console.log("Es wird gewartet bis der PDF-Öffnen-Button sichtbar ist...")
             time.sleep(0.5)
             visible = WaitingProcedures.is_ocr_open_odf_visible()
 

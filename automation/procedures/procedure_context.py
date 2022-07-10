@@ -17,7 +17,7 @@ class ProcedureContext:
 
     def __enter__(self):
         self.start = time.time()
-        console.log(f"Doing {self.context_name}...")
+        console.log(f"Führt {self.context_name} aus...")
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         WaitingProcedures.wait_until_procedure_finished()
@@ -27,6 +27,6 @@ class ProcedureContext:
         self.end = time.time()
         console.log(
             Panel(
-                f"[green]Finished [white]{self.context_name} [green]in [cyan]{self.end - self.start} seconds"
+                f"[green]Fertig mit [white]{self.context_name} [green]innerhalb von [cyan]{self.end - self.start} Sekunden"
             )
         )

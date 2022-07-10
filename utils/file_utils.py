@@ -37,7 +37,7 @@ def wait_until_file_is_unlocked(file_path) -> None:
     :param file_path: Path to the file to check
     """
     while is_file_locked(file_path):
-        console.log("File is locked. Waiting...")
+        console.log("Datei ist gesperrt. Wartet...")
         time.sleep(0.1)
 
 
