@@ -2,7 +2,7 @@ import os
 import time
 from sys import exit
 
-from PyQt6.QtWidgets import QWidget, QStackedLayout, QMainWindow
+from PyQt6.QtWidgets import QWidget, QStackedLayout, QMainWindow, QDialog, QMessageBox
 from rich.panel import Panel
 
 from automation.ocr_automation import OcrAutomation
@@ -338,15 +338,50 @@ class MainWindow(QMainWindow):
         self.open_step(self.ocr_language_selection_step)
 
     def save_pdf(self, enable_precise_scan: bool):
+
         if self.choose_save_location_step.folder_selection.selected_folder != "":
-            self.open_next_step()
+
             folder = self.choose_save_location_step.folder_selection.selected_folder
             file_name = self.choose_save_location_step.file_name_field.text()
             suffix = "" if ".pdf" in file_name else ".pdf"
             path = os.path.abspath(folder + "\\" + file_name + suffix)
             Store.SAVE_FILE_PATH = path
 
-            self.save_running_step.start(Store.SAVE_FILE_PATH, enable_precise_scan)
+            if Store.SELECTED_FILE_PATH == Store.SAVE_FILE_PATH:
+                dialog = QMessageBox(self)
+                dialog.setIcon(QMessageBox.Icon.Warning)
+                dialog.setWindowTitle("Achtung")
+                dialog.setText("Die Originaldatei würde überschrieben werden")
+                dialog.setStandardButtons(
+                    QMessageBox.StandardButton.Abort | QMessageBox.StandardButton.Ok
+                )
+                button = dialog.exec()
+                if button == QMessageBox.StandardButton.Ok:
+                    self.open_next_step()
+                    self.save_running_step.start(
+                        Store.SAVE_FILE_PATH, enable_precise_scan
+                    )
+                if button == QMessageBox.StandardButton.Cancel:
+                    dialog.close()
+            elif os.path.exists(Store.SAVE_FILE_PATH):
+                dialog = QMessageBox(self)
+                dialog.setIcon(QMessageBox.Icon.Warning)
+                dialog.setWindowTitle("Achtung")
+                dialog.setText("Es existiert bereits eine Datei mit diesem Namen")
+                dialog.setStandardButtons(
+                    QMessageBox.StandardButton.Abort | QMessageBox.StandardButton.Ok
+                )
+                button = dialog.exec()
+                if button == QMessageBox.StandardButton.Ok:
+                    self.open_next_step()
+                    self.save_running_step.start(
+                        Store.SAVE_FILE_PATH, enable_precise_scan
+                    )
+                if button == QMessageBox.StandardButton.Cancel:
+                    dialog.close()
+            else:
+                self.open_next_step()
+                self.save_running_step.start(Store.SAVE_FILE_PATH, enable_precise_scan)
 
     def go_back_to_save_pdf_step(self):
         OcrAutomation.close_pdf_in_default_program()
