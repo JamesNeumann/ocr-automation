@@ -12,7 +12,8 @@ class FileSelectionStep(Step):
         previous_callback=None,
         next_text="Weiter",
         next_callback=None,
-        detail: str = ""
+        detail: str = "",
+        optional_button_callback=None
     ):
         super().__init__(
             text=text,
@@ -20,6 +21,8 @@ class FileSelectionStep(Step):
             previous_callback=previous_callback,
             next_text=next_text,
             next_callback=next_callback,
+            optional_button_text="Metadaten setzen und speichern",
+            optional_button_callback=optional_button_callback,
             detail=detail,
         )
 

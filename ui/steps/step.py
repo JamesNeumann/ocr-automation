@@ -2,6 +2,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QWidget, QGridLayout, QLabel
 
 from ui.components.navigation_button import NavigationButton
+from utils.console import console
 
 
 class Step(QWidget):
@@ -14,6 +15,8 @@ class Step(QWidget):
         next_text="Weiter",
         next_callback=None,
         detail: str = "",
+        optional_button_text="",
+        optional_button_callback=None,
     ):
         super().__init__()
         self.text = text
@@ -24,6 +27,12 @@ class Step(QWidget):
         self.layout.addWidget(self.label, 1, 0, 1, 4)
         detail = f"<p>{detail}</p>"
         self.layout.addWidget(QLabel(detail), 2, 2)
+        if optional_button_callback:
+            self.optional_button = NavigationButton(
+                optional_button_text, 0, 0, 100, 100
+            )
+            self.optional_button.clicked.connect(optional_button_callback)
+            self.layout.addWidget(self.optional_button, 5, 1)
 
         if previous_callback:
             self.previous_button = NavigationButton(previous_text, 10, 10, 100, 100)

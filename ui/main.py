@@ -48,6 +48,14 @@ class MainWindow(QMainWindow):
             previous_text="Einstellungen",
             previous_callback=self.open_settings,
             next_callback=self.open_ocr_editor,
+            optional_button_callback=self.open_ocr_editor_for_export,
+        )
+
+        self.open_ocr_editor_for_export = OpenOcrEditorStep(
+            text="Es wird gewartet bis der OCR-Editor vollständig geöffnet wurde"
+        )
+        self.open_ocr_editor_for_export.finished_signal.connect(
+            self.open_save_location_step
         )
 
         self.open_ocr_editor_step = OpenOcrEditorStep(
@@ -185,10 +193,13 @@ class MainWindow(QMainWindow):
             self.clean_up_running_step,
             self.finished_step,
             self.settings_controller.settings_step,
+            self.open_ocr_editor_for_export,
         ]
 
         for step in self.steps:
             self.layout.addWidget(step)
+
+        self.layout.addWidget(self.open_ocr_editor_for_export)
 
         self.layout.setCurrentIndex(self.current_index)
 
@@ -214,6 +225,11 @@ class MainWindow(QMainWindow):
         if Store.SELECTED_FILE_PATH != "":
             self.open_step(self.open_ocr_editor_step)
             self.open_ocr_editor_step.start()
+
+    def open_ocr_editor_for_export(self):
+        if Store.SELECTED_FILE_PATH != "":
+            self.open_step(self.open_ocr_editor_for_export)
+            self.open_ocr_editor_for_export.start()
 
     def start_procedures(self):
         self.select_procedures_step.start()
@@ -300,6 +316,7 @@ class MainWindow(QMainWindow):
         self.choose_save_location_step.set_previous_name(
             self.file_selection_step.file_selection.selected_file_name
         )
+        self.window().activateWindow()
 
     def open_ocr_language_selection_step(self, should_close: bool = True):
         if should_close:
