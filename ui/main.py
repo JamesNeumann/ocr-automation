@@ -51,16 +51,12 @@ class MainWindow(QMainWindow):
             optional_button_callback=self.open_ocr_editor_for_export,
         )
 
-        self.open_ocr_editor_for_export = OpenOcrEditorStep(
-            text="Es wird gewartet bis der OCR-Editor vollständig geöffnet wurde"
-        )
+        self.open_ocr_editor_for_export = OpenOcrEditorStep()
         self.open_ocr_editor_for_export.finished_signal.connect(
             self.open_save_location_step
         )
 
-        self.open_ocr_editor_step = OpenOcrEditorStep(
-            text="Es wird gewartet bis der OCR-Editor vollständig geöffnet wurde",
-        )
+        self.open_ocr_editor_step = OpenOcrEditorStep()
         self.open_ocr_editor_step.finished_signal.connect(self.open_procedure_step)
 
         self.select_procedures_step = ProcedureSelectionStep(
@@ -106,8 +102,14 @@ class MainWindow(QMainWindow):
         self.save_temp_pdf_running_step.finished.connect(self.open_crop_step)
 
         self.crop_amount_step = CropAmountStep(
-            text="Die PDF wird analysiert", next_callback=self.crop_pdf
+            text="Die PDF wird analysiert",
+            next_callback=self.crop_pdf,
+            previous_text="Überspringen",
+            previous_callback=self.open_ocr_editor_after_crop_skip,
         )
+
+        self.open_ocr_editor_skip_crop = OpenOcrEditorStep()
+        self.open_ocr_editor_skip_crop.finished_signal.connect(self.open_ocr_editor_after_crop_skip_done)
 
         self.crop_running_step = CropRunningStep(text="Die PDF wird zugeschnitten")
         self.crop_running_step.finished.connect(self.crop_finished)
@@ -194,12 +196,11 @@ class MainWindow(QMainWindow):
             self.finished_step,
             self.settings_controller.settings_step,
             self.open_ocr_editor_for_export,
+            self.open_ocr_editor_skip_crop,
         ]
 
         for step in self.steps:
             self.layout.addWidget(step)
-
-        self.layout.addWidget(self.open_ocr_editor_for_export)
 
         self.layout.setCurrentIndex(self.current_index)
 
@@ -224,12 +225,20 @@ class MainWindow(QMainWindow):
     def open_ocr_editor(self):
         if Store.SELECTED_FILE_PATH != "":
             self.open_step(self.open_ocr_editor_step)
-            self.open_ocr_editor_step.start()
+            self.open_ocr_editor_step.start(Store.SELECTED_FILE_PATH)
 
     def open_ocr_editor_for_export(self):
         if Store.SELECTED_FILE_PATH != "":
             self.open_step(self.open_ocr_editor_for_export)
-            self.open_ocr_editor_for_export.start()
+            self.open_ocr_editor_for_export.start(Store.SELECTED_FILE_PATH)
+
+    def open_ocr_editor_after_crop_skip(self):
+        self.open_step(self.open_ocr_editor_skip_crop)
+        self.open_ocr_editor_skip_crop.start(self.crop_amount_step.path_to_pdf)
+
+    def open_ocr_editor_after_crop_skip_done(self):
+        self.open_step(self.ocr_language_selection_step)
+        self.window().activateWindow()
 
     def start_procedures(self):
         self.select_procedures_step.start()

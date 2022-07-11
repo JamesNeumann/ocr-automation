@@ -10,13 +10,14 @@ class OpenOcrEditorWorkerSignals(QObject):
 
 
 class OpenOcrEditorWorker(QRunnable):
-    def __init__(self):
+    def __init__(self, path: str):
         super(OpenOcrEditorWorker, self).__init__()
         self.signals = OpenOcrEditorWorkerSignals()
+        self.path = path
 
     @pyqtSlot()
     def run(self) -> None:
-        OcrAutomation.open_pdf_in_ocr_editor(path_to_pdf=Store.SELECTED_FILE_PATH)
+        OcrAutomation.open_pdf_in_ocr_editor(path_to_pdf=self.path)
         self.signals.finished.emit()
 
 
@@ -26,7 +27,7 @@ class OpenOcrEditorStep(Step):
     def __init__(
         self,
         *,
-        text: str,
+        text="Es wird gewartet bis der OCR-Editor vollständig geöffnet wurde",
         previous_text="Zurück",
         previous_callback=None,
         next_text="Weiter",
@@ -45,7 +46,7 @@ class OpenOcrEditorStep(Step):
         self.worker = None
         self.threadpool = QThreadPool()
 
-    def start(self):
-        self.worker = OpenOcrEditorWorker()
+    def start(self, path: str):
+        self.worker = OpenOcrEditorWorker(path)
         self.worker.signals.finished.connect(self.finished_signal.emit)
         self.threadpool.start(self.worker)
