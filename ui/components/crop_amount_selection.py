@@ -73,6 +73,9 @@ class CropAmountSelection(QWidget):
         if self.isHidden():
             self.show()
 
+    def update_page_label(self, text: str):
+        self.page_label.setText(text)
+
     def enable_previous_button(self):
         if not self.previous_image_button.isEnabled():
             self.previous_image_button.setDisabled(False)
@@ -155,9 +158,13 @@ class CropAmountSelection(QWidget):
         self.previous_image_button = QPushButton("<")
         self.previous_image_button.clicked.connect(self.previous_image_button_callback)
 
+        self.page_label = QLabel("")
+        self.page_label.setAlignment(Qt.AlignmentFlag.AlignRight)
+
         button_layout = QHBoxLayout()
         button_layout.addWidget(self.previous_image_button)
         button_layout.addWidget(self.next_image_button)
+        button_layout.addWidget(self.page_label)
         return button_layout
 
     def _create_crop_box_layout(self):

@@ -6,7 +6,6 @@ from PyQt6.QtGui import QImage
 
 from ui.components.crop_amount_selection import CropAmountSelection
 from utils.analysis_result import AnalysisResult
-from utils.console import console
 from utils.conversion import pts_to_pixel, convert_to_pts
 from utils.offset import Offset
 from utils.rectangle import Rectangle
@@ -110,6 +109,10 @@ class CropAmountSelectionController:
         if 0 < self.current_image_index < len(self.analysis_result.images) - 1:
             self.crop_amount_selection.enable_next_button()
             self.crop_amount_selection.enable_previous_button()
+
+        self.crop_amount_selection.update_page_label(
+            f"Seite {self.current_image_index + 1} / {len(self.analysis_result.images) or 0}"
+        )
 
     def all_pages_button_toggled(self):
         self.is_single_image_crop_mode = False
