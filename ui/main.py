@@ -109,7 +109,9 @@ class MainWindow(QMainWindow):
         )
 
         self.open_ocr_editor_skip_crop = OpenOcrEditorStep()
-        self.open_ocr_editor_skip_crop.finished_signal.connect(self.open_ocr_editor_after_crop_skip_done)
+        self.open_ocr_editor_skip_crop.finished_signal.connect(
+            self.open_ocr_editor_after_crop_skip_done
+        )
 
         self.crop_running_step = CropRunningStep(text="Die PDF wird zugeschnitten")
         self.crop_running_step.finished.connect(self.crop_finished)
