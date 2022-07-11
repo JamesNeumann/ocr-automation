@@ -44,6 +44,7 @@ class CropAmountSelectionController:
         self.default_offset = SaveConfig.get_default_crop_box_offset()
         self.crop_amount_selection.set_spin_box_values(self.default_offset)
         self.selected_offset = self.default_offset.copy()
+        self.selected_all_page_spin_box_values = self.default_offset.copy()
         self.selected_single_page_offsets: List[Offset] = []
         self.selected_single_page_spin_box_values: List[Offset] = []
 
@@ -82,12 +83,14 @@ class CropAmountSelectionController:
 
         if self.is_single_image_crop_mode:
             crop_box = self.analysis_result.transformed_box[self.current_image_index]
+            self.crop_amount_selection.set_spin_box_values(
+                self.selected_single_page_spin_box_values[self.current_image_index]
+            )
         else:
             crop_box = self.analysis_result.max_box
-
-        self.crop_amount_selection.set_spin_box_values(
-            self.selected_single_page_spin_box_values[self.current_image_index]
-        )
+            self.crop_amount_selection.set_spin_box_values(
+                self.selected_all_page_spin_box_values
+            )
 
         crop_box_with_offset = self.get_crop_box_pixel(
             crop_box,
@@ -130,27 +133,25 @@ class CropAmountSelectionController:
         self.update_image_button_state()
 
     def top_spin_box_changed(self, value: int):
-        self.selected_single_page_spin_box_values[self.current_image_index].top = value
-        self.update_selected_offset("top", value)
-        self.change_visible_image()
+        self._update_spin_box("top", value)
 
     def right_spin_box_changed(self, value: int):
-        self.selected_single_page_spin_box_values[
-            self.current_image_index
-        ].right = value
-        self.update_selected_offset("right", value)
-        self.change_visible_image()
+        self._update_spin_box("right", value)
 
     def bottom_spin_box_changed(self, value: int):
-        self.selected_single_page_spin_box_values[
-            self.current_image_index
-        ].bottom = value
-        self.update_selected_offset("bottom", value)
-        self.change_visible_image()
+        self._update_spin_box("bottom", value)
 
     def left_spin_box_changed(self, value: int):
-        self.selected_single_page_spin_box_values[self.current_image_index].left = value
-        self.update_selected_offset("left", value)
+        self._update_spin_box("left", value)
+
+    def _update_spin_box(self, dimension: str, value: int):
+        if self.is_single_image_crop_mode:
+            self.selected_single_page_spin_box_values[self.current_image_index][
+                dimension
+            ] = value
+        else:
+            self.selected_all_page_spin_box_values[dimension] = value
+        self.update_selected_offset(dimension, value)
         self.change_visible_image()
 
     def update_selected_offset(self, dimension: str, value: int):
@@ -203,8 +204,8 @@ class CropAmountSelectionController:
 
     def set_analysis_result(self, analysis_result: AnalysisResult):
         self.analysis_result = analysis_result
-        self.update_spin_boxes_max_value()
         self.initialize_single_image_offsets()
+        self.update_spin_boxes_max_value()
 
     def update_spin_boxes_max_value(self):
         image_shape = self.analysis_result.images[self.analysis_result.min_index].shape
@@ -256,7 +257,9 @@ class CropAmountSelectionController:
             - (0 if relative else crop_box.y),
             image.shape[0],
         )
-        return Rectangle(x, y, width, height)
+        return Rectangle(
+            int(round(x)), int(round(y)), int(round(width)), int(round(height))
+        )
 
     def get_crop_box_pts(
         self,
@@ -301,6 +304,24 @@ class CropAmountSelectionController:
             self.analysis_result.max_box,
             self.analysis_result.images[self.analysis_result.min_index],
             self.analysis_result.pts_dimensions[self.analysis_result.min_index],
+            True,
+        )
+
+    def get_transformed_crop_boxes_pixel(self):
+        transformed_boxes = []
+        for index, box in enumerate(self.analysis_result.transformed_box):
+            transformed_boxes.append(
+                self.get_crop_box_pixel(
+                    box, self.analysis_result.images[index], index, True
+                )
+            )
+        return transformed_boxes
+
+    def get_max_crop_box_pixel(self):
+        return self.get_crop_box_pixel(
+            self.analysis_result.max_box,
+            self.analysis_result.images[self.analysis_result.min_index],
+            self.analysis_result.min_index,
             True,
         )
 

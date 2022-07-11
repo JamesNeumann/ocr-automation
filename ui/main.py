@@ -253,17 +253,18 @@ class MainWindow(QMainWindow):
         self.save_temp_pdf_running_step.start()
 
     def crop_finished(self):
-        GeneralProcedures.click_ocr_pages_header()
-        time.sleep(0.3)
-        OcrAutomation.close_image_improvement_tools()
+        # GeneralProcedures.click_ocr_pages_header()
+        # time.sleep(0.3)
+        # OcrAutomation.close_image_improvement_tools()
         self.open_next_step()
         self.window().activateWindow()
 
     def crop_pdf(self):
         self.crop_running_step.start(
             self.crop_amount_step.path_to_pdf,
-            self.crop_amount_step.crop_amount_selection_controller.get_max_crop_box_pts(),
-            self.crop_amount_step.crop_amount_selection_controller.get_transformed_crop_boxes_pts(),
+            self.crop_amount_step.crop_amount_selection_controller.get_max_crop_box_pixel(),
+            self.crop_amount_step.crop_amount_selection_controller.get_transformed_crop_boxes_pixel(),
+            self.crop_amount_step.crop_amount_selection_controller.analysis_result.images,
             self.crop_amount_step.crop_amount_selection_controller.is_single_image_crop_mode,
         )
         self.open_next_step()

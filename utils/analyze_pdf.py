@@ -300,5 +300,39 @@ def analyze_pdf_orientation(
     return landscaped, portraits
 
 
+def crop_images_single_box(images: List[ndarray], crop_box: Rectangle) -> List[ndarray]:
+    """
+    Crops the images with the given crop box
+    :param images: Images to crop
+    :param crop_box: Rectangle for cropping the images
+    :return: Cropped images
+    """
+    return [crop_image(image, crop_box) for image in images]
+
+
+def crop_images_multiple_boxes(images: List[ndarray], crop_boxes: List[Rectangle]):
+    """
+    Crops the images with the given crop boxes
+    :param images: Images to crop
+    :param crop_boxes: Rectangles for cropping the images
+    :return: Cropped images
+    """
+    if len(images) != len(crop_boxes):
+        raise ValueError("The number of images and crop_boxes have to be equal")
+
+    cropped_images = []
+    for index, image in enumerate(images):
+        cropped_images.append(crop_image(image, crop_boxes[index]))
+
+    return cropped_images
+
+
+def crop_image(image: ndarray, crop_box: Rectangle) -> ndarray:
+    return image[
+        crop_box.y : crop_box.y + crop_box.height,
+        crop_box.x : crop_box.x + crop_box.width,
+    ]
+
+
 def should_pdf_pages_be_cropped_individual(crop_boxes: Rectangle) -> bool:
     return True
