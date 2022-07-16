@@ -6,9 +6,9 @@ class RedoSavePdfStep(Step):
         self,
         *,
         text="Soll die PDF nochmal gespeichert werden?",
-        previous_text="PDF erneut speichern",
+        previous_text="Ja",
         previous_callback=None,
-        next_text="Überspringen",
+        next_text="Nein",
         next_callback=None,
         detail: str = ""
     ):
