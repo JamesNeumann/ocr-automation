@@ -1,5 +1,7 @@
 import os
 
+from utils.offset import Offset
+
 
 class Config:
     TEMP_PATH = os.environ["USERPROFILE"] + "\\AppData\\Local\\Temp"
@@ -24,6 +26,8 @@ class Config:
 
     MIN_PEN_WIDTH = 3
     MAX_PEN_WIDTH = 50
+
+    DEFAULT_CROP_BOX_OFFSET = Offset(top=5, right=5, bottom=10, left=5)
 
     @staticmethod
     def initialize_directories() -> None:

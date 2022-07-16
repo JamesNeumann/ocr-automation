@@ -50,9 +50,8 @@ class SaveConfig:
     @staticmethod
     def get_default_crop_box_offset() -> Offset:
         if not SaveConfig.SAVE_CONFIG or "offset" not in SaveConfig.SAVE_CONFIG:
-            offset = {"top": 7, "right": 7, "bottom": 10, "left": 7}
-        else:
-            offset = SaveConfig.SAVE_CONFIG["offset"]
+            return Config.DEFAULT_CROP_BOX_OFFSET
+        offset = SaveConfig.SAVE_CONFIG["offset"]
         return Offset(offset["top"], offset["right"], offset["bottom"], offset["left"])
 
     @staticmethod
