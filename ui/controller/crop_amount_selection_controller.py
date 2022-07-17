@@ -1,4 +1,5 @@
 import math
+import re
 from typing import List
 
 import numpy as np
@@ -26,53 +27,58 @@ class CropAmountSelectionController:
         )
 
         self.crop_amount_selection = CropAmountSelection(
+            reset_callback=self.reset_button_clicked,
+            apply_all_pages_callback=self.apply_all_pages_button_clicked,
+            apply_even_pages_callback=self.apply_even_pages_button_clicked,
+            apply_odd_pages_callback=self.apply_odd_pages_button_clicked,
+            apply_specific_pages_callback=self.apply_specific_pages_button_clicked,
             top_spin_box_callback=self.top_spin_box_changed,
             right_spin_box_callback=self.right_spin_box_changed,
             bottom_spin_box_callback=self.bottom_spin_box_changed,
             left_spin_box_callback=self.left_spin_box_changed,
             next_image_button_callback=self.next_image_button_clicked,
             previous_image_button_callback=self.previous_image_button_clicked,
-            on_all_pages_toggled=self.all_pages_button_toggled,
-            on_single_pages_toggled=self.single_pages_button_toggled,
+            horizontal_spin_box_callback=lambda: print("Horizontal"),
+            vertical_spin_box_callback=lambda: print("Vertikal"),
         )
 
         self.current_image_index = 0
         self.q_images = []
-        self.is_single_image_crop_mode = False
 
         self.default_offset = SaveConfig.get_default_crop_box_offset()
         self.crop_amount_selection.set_spin_box_values(self.default_offset)
-        self.selected_offset = self.default_offset.copy()
-        self.selected_all_page_spin_box_values = self.default_offset.copy()
-        self.selected_single_page_offsets: List[Offset] = []
-        self.selected_single_page_spin_box_values: List[Offset] = []
+
+        self.pages_offsets: List[Offset] = []
+        self.pages_spinbox_values: List[Offset] = []
+
+        self.specific_page_regex = r"\d+(?:-\d+)?(?:,\d+(?:-\d+)?)*"
 
     def initialize_single_image_offsets(self):
-        self.selected_single_page_spin_box_values = [
+        self.pages_spinbox_values = [
             self.default_offset.copy() for _ in self.analysis_result.images
         ]
 
-        self.selected_single_page_offsets = [
+        self.pages_offsets = [
             self.default_offset.copy() for _ in self.analysis_result.images
         ]
 
-        for index, offset in enumerate(self.selected_single_page_spin_box_values):
+        for index, offset in enumerate(self.pages_spinbox_values):
             pts_size_y = self.analysis_result.pts_dimensions[index].height
             pts_size_x = self.analysis_result.pts_dimensions[index].width
 
             shape_width = self.analysis_result.images[index].shape[1]
             shape_height = self.analysis_result.images[index].shape[0]
 
-            self.selected_single_page_offsets[index].top = pts_to_pixel(
+            self.pages_offsets[index].top = pts_to_pixel(
                 offset.top, pts_size_y / shape_height
             )
-            self.selected_single_page_offsets[index].right = pts_to_pixel(
+            self.pages_offsets[index].right = pts_to_pixel(
                 offset.right, pts_size_x / shape_width
             )
-            self.selected_single_page_offsets[index].bottom = pts_to_pixel(
+            self.pages_offsets[index].bottom = pts_to_pixel(
                 offset.bottom, pts_size_y / shape_height
             )
-            self.selected_single_page_offsets[index].left = pts_to_pixel(
+            self.pages_offsets[index].left = pts_to_pixel(
                 offset.left, pts_size_x / shape_width
             )
 
@@ -80,16 +86,10 @@ class CropAmountSelectionController:
         if self.current_image_index > len(self.q_images) - 1:
             self.create_q_image(self.current_image_index)
 
-        if self.is_single_image_crop_mode:
-            crop_box = self.analysis_result.transformed_box[self.current_image_index]
-            self.crop_amount_selection.set_spin_box_values(
-                self.selected_single_page_spin_box_values[self.current_image_index]
-            )
-        else:
-            crop_box = self.analysis_result.max_box
-            self.crop_amount_selection.set_spin_box_values(
-                self.selected_all_page_spin_box_values
-            )
+        crop_box = self.analysis_result.transformed_box[self.current_image_index]
+        self.crop_amount_selection.set_spin_box_values(
+            self.pages_spinbox_values[self.current_image_index]
+        )
 
         crop_box_with_offset = self.get_crop_box_pixel(
             crop_box,
@@ -100,6 +100,78 @@ class CropAmountSelectionController:
         self.crop_amount_selection.render_image(
             self.q_images[self.current_image_index], crop_box_with_offset
         )
+
+    def reset_button_clicked(self):
+        self.update_page_offset(self.current_image_index, self.default_offset.copy())
+        self.pages_spinbox_values[self.current_image_index] = self.default_offset.copy()
+        self.update_spin_boxes()
+        self.change_visible_image()
+
+    def apply_all_pages_button_clicked(self):
+        for index in range(len(self.analysis_result.images)):
+            if index == self.current_image_index:
+                continue
+            self.pages_offsets[index] = self.pages_offsets[
+                self.current_image_index
+            ].copy()
+            self.pages_spinbox_values[index] = self.pages_spinbox_values[
+                self.current_image_index
+            ].copy()
+
+    def apply_even_pages_button_clicked(self):
+        for index in range(len(self.analysis_result.images)):
+            if index == self.current_image_index:
+                continue
+            if (index + 1) % 2 != 0:
+                continue
+            self.pages_offsets[index] = self.pages_offsets[
+                self.current_image_index
+            ].copy()
+            self.pages_spinbox_values[index] = self.pages_spinbox_values[
+                self.current_image_index
+            ].copy()
+
+    def apply_odd_pages_button_clicked(self):
+        for index in range(len(self.analysis_result.images)):
+            if index == self.current_image_index:
+                continue
+            if (index + 1) % 2 == 0:
+                continue
+            self.pages_offsets[index] = self.pages_offsets[
+                self.current_image_index
+            ].copy()
+            self.pages_spinbox_values[index] = self.pages_spinbox_values[
+                self.current_image_index
+            ].copy()
+
+    def apply_specific_pages_button_clicked(self):
+        specific_pages_value = (
+            self.crop_amount_selection.specific_pages_line_edit.text()
+        )
+        specific_pages_value = specific_pages_value.replace(" ", "")
+        match = re.match(self.specific_page_regex, specific_pages_value)
+        if match:
+            selected_pages = set[int]()
+            page_selectors = specific_pages_value.split(",")
+            for page in page_selectors:
+                if "-" in page:
+                    range_page = page.split("-")
+                    start = int(range_page[0])
+                    end = int(range_page[1])
+                    for i in range(start, end):
+                        selected_pages.add(i)
+                else:
+                    selected_pages.add(int(page))
+
+            for page in selected_pages:
+                image_page_index = page - 1
+                if image_page_index < len(self.pages_offsets):
+                    self.pages_offsets[image_page_index] = self.pages_offsets[
+                        self.current_image_index
+                    ].copy()
+                    self.pages_spinbox_values[
+                        image_page_index
+                    ] = self.pages_spinbox_values[self.current_image_index].copy()
 
     def update_image_button_state(self):
         if self.current_image_index == 0:
@@ -114,18 +186,11 @@ class CropAmountSelectionController:
             f"Seite {self.current_image_index + 1} / {len(self.analysis_result.images) or 0}"
         )
 
-    def all_pages_button_toggled(self):
-        self.is_single_image_crop_mode = False
-        self.change_visible_image()
-
-    def single_pages_button_toggled(self):
-        self.is_single_image_crop_mode = True
-        self.change_visible_image()
-
     def next_image_button_clicked(self):
         if self.current_image_index < len(self.analysis_result.images) - 1:
             self.current_image_index += 1
             self.change_visible_image()
+            self.update_spin_boxes()
 
         self.update_image_button_state()
 
@@ -133,61 +198,70 @@ class CropAmountSelectionController:
         if self.current_image_index > 0:
             self.current_image_index -= 1
             self.change_visible_image()
+            self.update_spin_boxes()
         self.update_image_button_state()
 
     def top_spin_box_changed(self, value: int):
         self._update_spin_box("top", value)
+        self.update_page_offset_dimension(self.current_image_index, "top", value)
+        self.change_visible_image()
 
     def right_spin_box_changed(self, value: int):
         self._update_spin_box("right", value)
+        self.update_page_offset_dimension(self.current_image_index, "right", value)
+        self.change_visible_image()
 
     def bottom_spin_box_changed(self, value: int):
         self._update_spin_box("bottom", value)
+        self.update_page_offset_dimension(self.current_image_index, "bottom", value)
+        self.change_visible_image()
 
     def left_spin_box_changed(self, value: int):
         self._update_spin_box("left", value)
-
-    def _update_spin_box(self, dimension: str, value: int):
-        if self.is_single_image_crop_mode:
-            self.selected_single_page_spin_box_values[self.current_image_index][
-                dimension
-            ] = value
-        else:
-            self.selected_all_page_spin_box_values[dimension] = value
-        self.update_selected_offset(dimension, value)
+        self.update_page_offset_dimension(self.current_image_index, "left", value)
         self.change_visible_image()
 
-    def update_selected_offset(self, dimension: str, value: int):
+    def update_spin_boxes(self):
+        self._update_spin_box(
+            "top", int(self.pages_spinbox_values[self.current_image_index].top)
+        )
+        self._update_spin_box(
+            "right", int(self.pages_spinbox_values[self.current_image_index].right)
+        )
+        self._update_spin_box(
+            "bottom", int(self.pages_spinbox_values[self.current_image_index].bottom)
+        )
+        self._update_spin_box(
+            "left", int(self.pages_spinbox_values[self.current_image_index].left)
+        )
+
+    def _update_spin_box(self, dimension: str, value: int):
+        self.pages_spinbox_values[self.current_image_index][dimension] = value
+
+    def update_page_offset(self, index: int, offset: Offset):
+        self.update_page_offset_dimension(index, "top", int(offset.top))
+        self.update_page_offset_dimension(index, "right", int(offset.right))
+        self.update_page_offset_dimension(index, "bottom", int(offset.bottom))
+        self.update_page_offset_dimension(index, "left", int(offset.left))
+
+    def update_page_offset_dimension(self, index: int, dimension: str, value: int):
 
         if dimension == "top" or dimension == "bottom":
-            pts_size = self.analysis_result.pts_dimensions[
-                self.current_image_index
-            ].height
+            pts_size = self.analysis_result.pts_dimensions[index].height
             shape_index = 0
         else:
-            pts_size = self.analysis_result.pts_dimensions[
-                self.current_image_index
-            ].width
+            pts_size = self.analysis_result.pts_dimensions[index].width
             shape_index = 1
 
         new_pixel_offset = pts_to_pixel(
             value,
-            pts_size
-            / self.analysis_result.images[self.current_image_index].shape[shape_index],
+            pts_size / self.analysis_result.images[index].shape[shape_index],
         )
 
-        if self.is_single_image_crop_mode:
-            self.selected_single_page_offsets[self.current_image_index][
-                dimension
-            ] = new_pixel_offset
-        else:
-            self.selected_offset[dimension] = new_pixel_offset
+        self.pages_offsets[index][dimension] = new_pixel_offset
 
     def show(self):
-        self.update_selected_offset("top", self.selected_offset.top)
-        self.update_selected_offset("right", self.selected_offset.right)
-        self.update_selected_offset("bottom", self.selected_offset.bottom)
-        self.update_selected_offset("left", self.selected_offset.left)
+        self.update_page_offset(self.current_image_index, self.default_offset)
         self.crop_amount_selection.show_ui()
         self.update_image_button_state()
         self.change_visible_image()
@@ -195,13 +269,11 @@ class CropAmountSelectionController:
     def reset(self):
         self.current_image_index = 0
         self.q_images = []
-        self.is_single_image_crop_mode = False
 
         self.default_offset = SaveConfig.get_default_crop_box_offset()
         self.crop_amount_selection.set_spin_box_values(self.default_offset)
-        self.selected_offset = self.default_offset.copy()
-        self.selected_single_page_offsets = []
-        self.selected_single_page_spin_box_values = []
+        self.pages_offsets = []
+        self.pages_spinbox_values = []
         self.update_image_button_state()
         self.crop_amount_selection.reset()
 
@@ -239,11 +311,7 @@ class CropAmountSelectionController:
     def get_crop_box_pixel(
         self, crop_box: Rectangle, image: np.ndarray, index: int, relative=True
     ):
-        offset = (
-            self.selected_single_page_offsets[index]
-            if self.is_single_image_crop_mode
-            else self.selected_offset
-        )
+        offset = self.pages_offsets[index]
         x = max(crop_box.x - offset.left, 0)
         y = max(crop_box.y - offset.top, 0)
         width = min(

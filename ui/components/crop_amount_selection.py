@@ -10,8 +10,7 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QGroupBox,
     QSpinBox,
-    QGridLayout,
-    QRadioButton,
+    QLineEdit,
 )
 
 from config import Config
@@ -24,27 +23,39 @@ from utils.save_config import SaveConfig
 class CropAmountSelection(QWidget):
     def __init__(
         self,
+        *,
+        reset_callback: Callable,
+        apply_all_pages_callback: Callable,
+        apply_even_pages_callback: Callable,
+        apply_odd_pages_callback: Callable,
+        apply_specific_pages_callback: Callable,
         top_spin_box_callback: Callable,
         right_spin_box_callback: Callable,
         bottom_spin_box_callback: Callable,
         left_spin_box_callback: Callable,
         previous_image_button_callback: Callable,
         next_image_button_callback: Callable,
-        on_all_pages_toggled: Callable,
-        on_single_pages_toggled: Callable,
+        horizontal_spin_box_callback: Callable,
+        vertical_spin_box_callback: Callable,
     ):
         super().__init__()
+
+        self.reset_callback = reset_callback
+        self.apply_all_pages_callback = apply_all_pages_callback
+        self.apply_even_pages_callback = apply_even_pages_callback
+        self.apply_odd_pages_callback = apply_odd_pages_callback
+        self.apply_specific_pages_callback = apply_specific_pages_callback
 
         self.top_spin_box_callback = top_spin_box_callback
         self.right_spin_box_callback = right_spin_box_callback
         self.bottom_spin_box_callback = bottom_spin_box_callback
         self.left_spin_box_callback = left_spin_box_callback
 
+        self.horizontal_spin_box_callback = horizontal_spin_box_callback
+        self.vertical_spin_box_callback = vertical_spin_box_callback
+
         self.next_image_button_callback = next_image_button_callback
         self.previous_image_button_callback = previous_image_button_callback
-
-        self.on_all_pages_toggled = on_all_pages_toggled
-        self.on_single_pages_toggled = on_single_pages_toggled
 
         self._create_ui()
 
@@ -121,18 +132,12 @@ class CropAmountSelection(QWidget):
         self.left_spin_box.blockSignals(False)
 
     def reset(self):
-        self.radio_button_all_pages.blockSignals(True)
-        self.radio_button_single_pages.blockSignals(True)
         self.next_image_button.blockSignals(True)
         self.previous_image_button.blockSignals(True)
 
-        self.radio_button_all_pages.setChecked(True)
-        self.radio_button_single_pages.setChecked(False)
         self.next_image_button.setDisabled(False)
         self.previous_image_button.setDisabled(True)
 
-        self.radio_button_all_pages.blockSignals(False)
-        self.radio_button_single_pages.blockSignals(False)
         self.next_image_button.blockSignals(False)
         self.previous_image_button.blockSignals(False)
 
@@ -170,28 +175,80 @@ class CropAmountSelection(QWidget):
     def _create_crop_box_layout(self):
         crop_information_container = QVBoxLayout()
 
-        crop_information_layout = QHBoxLayout()
-        crop_information_layout.addStretch(1)
-
-        crop_information_container.addLayout(crop_information_layout)
-        crop_information_layout.addLayout(self._create_crop_mode_buttons())
-        crop_information_container.addWidget(self._create_spin_boxes())
-        crop_information_container.setStretch(1, 5)
+        crop_information_container.addWidget(self._create_crop_actions())
+        crop_information_container.addLayout(self._create_horizontal_vertical_spinbox())
+        crop_information_container.addLayout(self._create_spin_boxes())
+        crop_information_container.setStretch(2, 1)
         return crop_information_container
 
-    def _create_crop_mode_buttons(self):
-        grid_layout = QGridLayout()
-        self.radio_button_all_pages = QRadioButton("Alle Seiten zusammen beschneiden")
-        self.radio_button_all_pages.setChecked(True)
-        self.radio_button_all_pages.toggled.connect(self.on_all_pages_toggled)
+    def _create_crop_actions(self):
+        crop_actions_group_box = QGroupBox("Aktionen")
 
-        grid_layout.addWidget(self.radio_button_all_pages, 0, 0)
+        crop_actions_layout = QVBoxLayout()
 
-        self.radio_button_single_pages = QRadioButton("Seiten einzeln beschneiden")
-        self.radio_button_single_pages.setChecked(False)
-        self.radio_button_single_pages.toggled.connect(self.on_single_pages_toggled)
-        grid_layout.addWidget(self.radio_button_single_pages, 0, 1)
-        return grid_layout
+        first_child_layout = QHBoxLayout()
+        second_child_layout = QHBoxLayout()
+        third_child_layout = QHBoxLayout()
+
+        reset_crop_values_button = QPushButton("Aktuelle Seite zurücksetzen")
+        reset_crop_values_button.setStyleSheet("padding: 8px;")
+        reset_crop_values_button.clicked.connect(self.reset_callback)
+
+        apply_to_all_pages_button = QPushButton("Auf alle Seiten anwenden")
+        apply_to_all_pages_button.setStyleSheet("padding: 8px;")
+        apply_to_all_pages_button.clicked.connect(self.apply_all_pages_callback)
+
+        apply_to_even_pages_button = QPushButton("Auf gerade Seiten anwenden")
+        apply_to_even_pages_button.setStyleSheet("padding: 8px;")
+        apply_to_even_pages_button.clicked.connect(self.apply_even_pages_callback)
+
+        apply_to_odd_pages_button = QPushButton("Auf ungerade Seiten anwenden")
+        apply_to_odd_pages_button.setStyleSheet("padding: 8px;")
+        apply_to_odd_pages_button.clicked.connect(self.apply_odd_pages_callback)
+
+        first_child_layout.addWidget(reset_crop_values_button)
+        first_child_layout.addWidget(apply_to_all_pages_button)
+
+        second_child_layout.addWidget(apply_to_even_pages_button)
+        second_child_layout.addWidget(apply_to_odd_pages_button)
+
+        third_child_layout.addWidget(QLabel("Spezielle Seiten (bspw. 1,2-5,10):"))
+        self.specific_pages_line_edit = QLineEdit()
+        third_child_layout.addWidget(self.specific_pages_line_edit)
+
+        apply_specific_pages_button = QPushButton("Anwenden")
+        apply_specific_pages_button.setStyleSheet("padding: 8px;")
+        apply_specific_pages_button.clicked.connect(self.apply_specific_pages_callback)
+        third_child_layout.addWidget(apply_specific_pages_button)
+
+        crop_actions_layout.addLayout(first_child_layout)
+        crop_actions_layout.addLayout(second_child_layout)
+        crop_actions_layout.addLayout(third_child_layout)
+
+        crop_actions_group_box.setLayout(crop_actions_layout)
+
+        return crop_actions_group_box
+
+    def _create_horizontal_vertical_spinbox(self):
+        (
+            self.horizontal_spin_box_group_box,
+            self.horizontal_spin_box,
+        ) = self._create_spinbox(
+            default_value=0,
+            label="Horizontale Verschiebung",
+            spin_box_callback=self.horizontal_spin_box_callback,
+        )
+
+        self.vertical_spin_box_group_box, self.vertical_spin_box = self._create_spinbox(
+            default_value=0,
+            label="Vertikale Verschiebung",
+            spin_box_callback=self.vertical_spin_box_callback,
+        )
+
+        move_layout = QHBoxLayout()
+        move_layout.addWidget(self.vertical_spin_box_group_box)
+        move_layout.addWidget(self.horizontal_spin_box_group_box)
+        return move_layout
 
     def _create_spin_boxes(self):
         self.top_spin_box_group_box, self.top_spin_box = self._create_spinbox(
@@ -218,14 +275,12 @@ class CropAmountSelection(QWidget):
             spin_box_callback=self.left_spin_box_callback,
         )
 
-        crop_adjustment_box = QGroupBox()
         crop_adjustment_layout = QVBoxLayout()
         crop_adjustment_layout.addWidget(self.top_spin_box_group_box)
         crop_adjustment_layout.addWidget(self.right_spin_box_group_box)
         crop_adjustment_layout.addWidget(self.bottom_spin_box_group_box)
         crop_adjustment_layout.addWidget(self.left_spin_box_group_box)
-        crop_adjustment_box.setLayout(crop_adjustment_layout)
-        return crop_adjustment_box
+        return crop_adjustment_layout
 
     @staticmethod
     def _create_spinbox(

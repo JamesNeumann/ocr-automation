@@ -292,7 +292,6 @@ class MainWindow(QMainWindow):
             self.crop_amount_step.crop_amount_selection_controller.get_max_crop_box_pixel(),
             self.crop_amount_step.crop_amount_selection_controller.get_transformed_crop_boxes_pixel(),
             self.crop_amount_step.crop_amount_selection_controller.analysis_result.images,
-            self.crop_amount_step.crop_amount_selection_controller.is_single_image_crop_mode,
         )
         self.open_next_step()
 

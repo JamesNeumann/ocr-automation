@@ -27,7 +27,6 @@ class CropRunningWorker(QRunnable):
         crop_rectangle: Rectangle,
         crop_rectangles: List[Rectangle],
         images: List[ndarray],
-        crop_pages_single: bool,
         progress_callback: Callable,
     ):
         super(CropRunningWorker, self).__init__()
@@ -35,7 +34,6 @@ class CropRunningWorker(QRunnable):
         self.path_to_pdf = path_to_pdf
         self.crop_rectangle = crop_rectangle
         self.crop_rectangles = crop_rectangles
-        self.crop_pages_single = crop_pages_single
         self.images = images
         self.progress_callback = progress_callback
 
@@ -48,18 +46,7 @@ class CropRunningWorker(QRunnable):
                 if x_center_diff > max_x_center_diff:
                     max_x_center_diff = x_center_diff
 
-        if self.crop_pages_single:
-            # OcrAutomation.crop_pdf_single_pages(
-            #     path_to_pdf=self.path_to_pdf, crop_rectangles=self.crop_rectangles
-            # )
-            cropped_images = crop_images_multiple_boxes(
-                self.images, self.crop_rectangles
-            )
-        else:
-            # OcrAutomation.crop_pdf(
-            #     path_to_pdf=self.path_to_pdf, crop_rectangle=self.crop_rectangle
-            # )
-            cropped_images = crop_images_single_box(self.images, self.crop_rectangle)
+        cropped_images = crop_images_multiple_boxes(self.images, self.crop_rectangles)
 
         pillow_images = []
 
@@ -137,14 +124,12 @@ class CropRunningStep(Step):
         rectangle: Rectangle,
         rectangles: List[Rectangle],
         images: List[ndarray],
-        crop_pages_single,
     ):
         self.worker = CropRunningWorker(
             file_path,
             rectangle,
             rectangles,
             images,
-            crop_pages_single,
             self.update_progressbar,
         )
         self.worker.signals.finished.connect(self.finished.emit)
