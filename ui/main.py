@@ -48,7 +48,8 @@ class MainWindow(QMainWindow):
             previous_text="Einstellungen",
             previous_callback=self.open_settings,
             next_callback=self.open_ocr_editor,
-            optional_button_callback=self.open_ocr_editor_for_export,
+            set_metadata_callback=self.open_ocr_editor_for_export,
+            read_ocr_callback=lambda: console.log("Test"),
         )
 
         self.open_ocr_editor_for_export = OpenOcrEditorStep()

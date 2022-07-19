@@ -32,17 +32,17 @@ class Step(QWidget):
                 optional_button_text, 0, 0, 100, 100
             )
             self.optional_button.clicked.connect(optional_button_callback)
-            self.layout.addWidget(self.optional_button, 5, 1)
+            self.layout.addWidget(self.optional_button, 6, 1)
 
         if previous_callback:
             self.previous_button = NavigationButton(previous_text, 10, 10, 100, 100)
             self.previous_button.clicked.connect(previous_callback)
-            self.layout.addWidget(self.previous_button, 5, 2)
+            self.layout.addWidget(self.previous_button, 6, 2)
 
         if next_callback:
             self.next_button = NavigationButton(next_text, 150, 150, 100, 100)
             self.next_button.clicked.connect(next_callback)
-            self.layout.addWidget(self.next_button, 5, 3)
+            self.layout.addWidget(self.next_button, 6, 3)
 
         self.setLayout(self.layout)
 
