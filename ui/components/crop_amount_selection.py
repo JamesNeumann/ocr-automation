@@ -115,21 +115,29 @@ class CropAmountSelection(QWidget):
     def set_left_spin_box_max(self, max_value: int):
         self.left_spin_box.setMaximum(max_value)
 
-    def set_spin_box_values(self, values: Offset):
+    def set_spin_box_values(
+        self, values: Offset, horizontal_value: int, vertical_value: int
+    ):
         self.top_spin_box.blockSignals(True)
         self.right_spin_box.blockSignals(True)
         self.bottom_spin_box.blockSignals(True)
         self.left_spin_box.blockSignals(True)
+        self.horizontal_spin_box.blockSignals(True)
+        self.vertical_spin_box.blockSignals(True)
 
         self.top_spin_box.setValue(values.top)
         self.right_spin_box.setValue(values.right)
         self.bottom_spin_box.setValue(values.bottom)
         self.left_spin_box.setValue(values.left)
+        self.horizontal_spin_box.setValue(horizontal_value)
+        self.vertical_spin_box.setValue(vertical_value)
 
         self.top_spin_box.blockSignals(False)
         self.right_spin_box.blockSignals(False)
         self.bottom_spin_box.blockSignals(False)
         self.left_spin_box.blockSignals(False)
+        self.horizontal_spin_box.blockSignals(False)
+        self.vertical_spin_box.blockSignals(False)
 
     def reset(self):
         self.next_image_button.blockSignals(True)
@@ -140,6 +148,14 @@ class CropAmountSelection(QWidget):
 
         self.next_image_button.blockSignals(False)
         self.previous_image_button.blockSignals(False)
+
+    def block_spinbox_signals(self, block: bool):
+        self.top_spin_box.blockSignals(block)
+        self.right_spin_box.blockSignals(block)
+        self.bottom_spin_box.blockSignals(block)
+        self.left_spin_box.blockSignals(block)
+        self.horizontal_spin_box.blockSignals(block)
+        self.vertical_spin_box.blockSignals(block)
 
     def _create_ui(self):
         self.main_layout = QHBoxLayout()
