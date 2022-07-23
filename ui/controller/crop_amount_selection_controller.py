@@ -6,11 +6,78 @@ from PyQt6.QtGui import QImage
 
 from ui.components.crop_amount_selection import CropAmountSelection
 from utils.analysis_result import AnalysisResult
-from utils.console import console
 from utils.conversion import pts_to_pixel, convert_to_pts
 from utils.offset import Offset
 from utils.rectangle import Rectangle
 from utils.save_config import SaveConfig
+
+
+def get_crop_box_pixel_including_offset(
+    crop_box: Rectangle,
+    offset: Offset,
+    horizontal_offset: float,
+    vertical_offset: float,
+    image: np.ndarray,
+    relative=True,
+):
+    x = max(crop_box.x - offset.left + horizontal_offset, 0)
+    y = max(crop_box.y - offset.top + vertical_offset, 0)
+
+    calculated_width = (
+        crop_box.width
+        + offset.left
+        + horizontal_offset
+        + offset.right
+        - horizontal_offset
+        - (0 if relative else crop_box.x)
+    )
+    width = min(
+        calculated_width,
+        image.shape[1],
+    )
+
+    calculated_height = (
+        crop_box.height
+        + offset.top
+        + vertical_offset
+        + offset.bottom
+        - vertical_offset
+        - (0 if relative else crop_box.y)
+    )
+    height = min(
+        calculated_height,
+        image.shape[0],
+    )
+
+    return Rectangle(
+        int(round(x)), int(round(y)), int(round(width)), int(round(height))
+    )
+
+
+def get_crop_box_pts(
+    crop_box: Rectangle,
+    offset: Offset,
+    horizontal_offset: float,
+    vertical_offset: float,
+    image: np.ndarray,
+    pts_rectangle: Rectangle,
+    relative=True,
+):
+    crop_box_pixel = get_crop_box_pixel_including_offset(
+        crop_box, offset, horizontal_offset, vertical_offset, image, relative
+    )
+
+    pts_per_width = float(pts_rectangle.width / image.shape[1])
+    pts_per_height = float(pts_rectangle.height / image.shape[0])
+
+    crop_box_pts = Rectangle(
+        convert_to_pts(crop_box_pixel.x * pts_per_width),
+        convert_to_pts(crop_box_pixel.y * pts_per_height),
+        convert_to_pts(crop_box_pixel.width * pts_per_width),
+        convert_to_pts(crop_box_pixel.height * pts_per_height),
+    )
+
+    return crop_box_pts
 
 
 class CropAmountSelectionController:
@@ -105,7 +172,7 @@ class CropAmountSelectionController:
             self.vertical_spinbox_values[self.current_image_index],
         )
 
-        crop_box_with_offset = self.get_crop_box_pixel_including_offset(
+        crop_box_with_offset = get_crop_box_pixel_including_offset(
             crop_box,
             self.pages_offsets[self.current_image_index],
             self.horizontal_pages_offsets[self.current_image_index],
@@ -390,7 +457,7 @@ class CropAmountSelectionController:
 
         page_offset = self.pages_offsets[self.current_image_index]
 
-        crop_box_including_offset = self.get_crop_box_pixel_including_offset(
+        crop_box_including_offset = get_crop_box_pixel_including_offset(
             crop_box,
             page_offset,
             self.horizontal_pages_offsets[self.current_image_index],
@@ -475,88 +542,18 @@ class CropAmountSelectionController:
             horizontal_spinbox.setMaximum(width_pts)
             right_spinbox.setMaximum(width_pts)
 
-    def get_crop_box_pixel_including_offset(
-        self,
-        crop_box: Rectangle,
-        offset: Offset,
-        horizontal_offset: float,
-        vertical_offset: float,
-        image: np.ndarray,
-        relative=True,
-    ):
-        x = max(crop_box.x - offset.left + horizontal_offset, 0)
-        y = max(crop_box.y - offset.top + vertical_offset, 0)
-
-        calculated_width = (
-            crop_box.width
-            + offset.left
-            + horizontal_offset
-            + offset.right
-            - horizontal_offset
-            - (0 if relative else crop_box.x)
-        )
-        width = min(
-            calculated_width,
-            image.shape[1],
-        )
-
-        calculated_height = (
-            crop_box.height
-            + offset.top
-            + vertical_offset
-            + offset.bottom
-            - vertical_offset
-            - (0 if relative else crop_box.y)
-        )
-        height = min(
-            calculated_height,
-            image.shape[0],
-        )
-
-        return Rectangle(
-            int(round(x)), int(round(y)), int(round(width)), int(round(height))
-        )
-
-    def get_crop_box_pts(
-        self,
-        crop_box: Rectangle,
-        offset: Offset,
-        horizontal_offset: float,
-        vertical_offset: float,
-        image: np.ndarray,
-        pts_rectangle: Rectangle,
-        index: int,
-        relative=True,
-    ):
-        crop_box_pixel = self.get_crop_box_pixel_including_offset(
-            crop_box, offset, horizontal_offset, vertical_offset, image, relative
-        )
-
-        pts_per_width = float(pts_rectangle.width / image.shape[1])
-        pts_per_height = float(pts_rectangle.height / image.shape[0])
-
-        crop_box_pts = Rectangle(
-            convert_to_pts(crop_box_pixel.x * pts_per_width),
-            convert_to_pts(crop_box_pixel.y * pts_per_height),
-            convert_to_pts(crop_box_pixel.width * pts_per_width),
-            convert_to_pts(crop_box_pixel.height * pts_per_height),
-        )
-
-        return crop_box_pts
-
     def get_transformed_crop_boxes_pts(self):
         transformed_boxes_pts = []
 
         transformed_boxes = self.analysis_result.transformed_box
         for index, box in enumerate(transformed_boxes):
-            box = self.get_crop_box_pts(
+            box = get_crop_box_pts(
                 box,
                 self.pages_offsets[index],
                 self.horizontal_pages_offsets[index],
                 self.vertical_pages_offsets[index],
                 self.analysis_result.images[index],
                 self.analysis_result.pts_dimensions[index],
-                index,
                 True,
             )
             transformed_boxes_pts.append(box)
@@ -564,7 +561,7 @@ class CropAmountSelectionController:
         return transformed_boxes_pts
 
     def get_max_crop_box_pts(self):
-        return self.get_crop_box_pts(
+        return get_crop_box_pts(
             self.analysis_result.max_box,
             self.pages_offsets[self.analysis_result.min_index],
             self.horizontal_pages_offsets[self.analysis_result.min_index],
@@ -578,7 +575,7 @@ class CropAmountSelectionController:
         transformed_boxes = []
         for index, box in enumerate(self.analysis_result.transformed_box):
             transformed_boxes.append(
-                self.get_crop_box_pixel_including_offset(
+                get_crop_box_pixel_including_offset(
                     box,
                     self.pages_offsets[index],
                     self.horizontal_pages_offsets[index],
@@ -590,7 +587,7 @@ class CropAmountSelectionController:
         return transformed_boxes
 
     def get_max_crop_box_pixel(self):
-        return self.get_crop_box_pixel_including_offset(
+        return get_crop_box_pixel_including_offset(
             self.analysis_result.max_box,
             self.pages_offsets[self.analysis_result.min_index],
             self.horizontal_pages_offsets[self.analysis_result.min_index],
@@ -621,4 +618,7 @@ class CropAmountSelectionController:
         return self.crop_amount_selection.right_spin_box
 
     def bottom_spinbox(self):
+        return self.crop_amount_selection.bottom_spin_box
+
+    def left_spinbox(self):
         return self.crop_amount_selection.left_spin_box
