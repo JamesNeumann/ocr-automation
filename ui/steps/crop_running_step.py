@@ -2,6 +2,7 @@ import uuid
 from typing import List, Callable
 
 import cv2
+import img2pdf
 from PIL import Image
 from PyQt6.QtCore import QObject, pyqtSignal, QRunnable, QThreadPool, pyqtSlot
 from numpy import ndarray
@@ -13,6 +14,7 @@ from ui.steps.step import Step
 from utils.analyze_pdf import crop_images_single_box, crop_images_multiple_boxes
 from utils.console import console
 from utils.rectangle import Rectangle
+from utils.save_config import SaveConfig
 
 
 class CropRunningSignals(QObject):
@@ -49,12 +51,31 @@ class CropRunningWorker(QRunnable):
         cropped_images = crop_images_multiple_boxes(self.images, self.crop_rectangles)
 
         pillow_images = []
+        saved_images = []
 
         amount = len(cropped_images)
         for index, image in enumerate(cropped_images):
             img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            image_pillow = Image.fromarray(img)
-            pillow_images.append(image_pillow)
+            height, width = img.shape[:2]
+
+            current_dpi = SaveConfig.get_dpi_value()
+            new_dpi = 200
+            new_width = round(width * new_dpi / current_dpi)
+            new_height = round(height * new_dpi / current_dpi)
+            img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_AREA)
+            image_id = uuid.uuid4()
+            file_path = f"{Config.OCR_WORKING_DIR}\\{image_id}.jpg"
+            cv2.imwrite(file_path, img, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
+
+            saved_images.append(file_path)
+
+            # encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 60]
+            # result, encimg = cv2.imencode('.jpg', img, encode_param)
+
+            # image_pillow = Image.fromarray(img)
+            # image_pillow.resize((round))
+            # pillow_images.append(image_pillow)
+
             self.signals.progress.emit((index / amount) * 100)
 
         temp_uuid = uuid.uuid4()
@@ -62,26 +83,20 @@ class CropRunningWorker(QRunnable):
 
         console.log("Saving PDF")
 
-        pillow_images[0].save(
-            path,
-            "PDF",
-            resolution=100.0,
-            save_all=True,
-            append_images=pillow_images[1:],
-        )
+        with open(path, "wb") as f:
+            f.write(img2pdf.convert(saved_images))
+
+        # pillow_images[0].save(
+        #     path,
+        #     "PDF",
+        #     resolution=100.0,
+        #     save_all=True,
+        #     append_images=pillow_images[1:],
+        # )
 
         self.signals.progress.emit(100)
 
         OcrAutomation.open_pdf_in_ocr_editor(path)
-
-        # if max_x_center_diff < 5:
-        #     OcrAutomation.crop_pdf(
-        #         path_to_pdf=self.path_to_pdf, crop_rectangle=self.crop_rectangle
-        #     )
-        # else:
-        #     OcrAutomation.crop_pdf_single_pages(
-        #         path_to_pdf=self.path_to_pdf, crop_rectangles=self.crop_rectangles
-        #     )
 
         self.signals.finished.emit()
 
