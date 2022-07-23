@@ -229,39 +229,31 @@ class CropAmountSelectionController:
         self.update_image_button_state()
 
     def horizontal_spinbox_changed(self, value: int):
-        # self.update_spin_boxes_max_value()
-        console.log("HORIZONTAL CHANGED")
         self._update_spin_box("horizontal", value)
         self.update_page_offset_dimension(self.current_image_index, "horizontal", value)
         self.change_visible_image()
 
     def vertical_spinbox_changed(self, value: int):
-        # self.update_spin_boxes_max_value()
-        console.log("VERTICAL CHANGED")
         self._update_spin_box("vertical", value)
         self.update_page_offset_dimension(self.current_image_index, "vertical", value)
         self.change_visible_image()
 
     def top_spin_box_changed(self, value: int):
-        console.log("TOP CHANGED")
         self._update_spin_box("top", value)
         self.update_page_offset_dimension(self.current_image_index, "top", value)
         self.change_visible_image()
 
     def right_spin_box_changed(self, value: int):
-        console.log("RIGHT CHANGED")
         self._update_spin_box("right", value)
         self.update_page_offset_dimension(self.current_image_index, "right", value)
         self.change_visible_image()
 
     def bottom_spin_box_changed(self, value: int):
-        console.log("BOTTOM CHANGED")
         self._update_spin_box("bottom", value)
         self.update_page_offset_dimension(self.current_image_index, "bottom", value)
         self.change_visible_image()
 
     def left_spin_box_changed(self, value: int):
-        console.log("LEFT CHANGED")
         self._update_spin_box("left", value)
         self.update_page_offset_dimension(self.current_image_index, "left", value)
         self.change_visible_image()
@@ -332,21 +324,6 @@ class CropAmountSelectionController:
                         self.horizontal_spinbox().maximum() - diff
                     )
             self.pages_spinbox_values[self.current_image_index][dimension] = value
-
-        # console.log({
-        #     "Top": self.top_spinbox().maximum(),
-        #     "Right": self.right_spinbox().maximum(),
-        #     "Bottom": self.bottom_spinbox().maximum(),
-        #     "Left": self.left_spinbox().maximum(),
-        #     "Horizontal": {
-        #         "Minimum": self.horizontal_spinbox().minimum(),
-        #         "Maximum": self.horizontal_spinbox().maximum()
-        #     },
-        #     "Vertical": {
-        #         "Minimum": self.vertical_spinbox().minimum(),
-        #         "Maximum": self.vertical_spinbox().maximum()
-        #     }
-        # })
         self.crop_amount_selection.block_spinbox_signals(False)
 
     def update_page_offset(
@@ -644,7 +621,4 @@ class CropAmountSelectionController:
         return self.crop_amount_selection.right_spin_box
 
     def bottom_spinbox(self):
-        return self.crop_amount_selection.bottom_spin_box
-
-    def left_spinbox(self):
         return self.crop_amount_selection.left_spin_box
