@@ -2,7 +2,7 @@ import os
 import time
 from sys import exit
 
-from PyQt6.QtWidgets import QWidget, QStackedLayout, QMainWindow, QDialog, QMessageBox
+from PyQt6.QtWidgets import QWidget, QStackedLayout, QMainWindow, QMessageBox
 from rich.panel import Panel
 
 from automation.ocr_automation import OcrAutomation
@@ -18,6 +18,10 @@ from ui.steps.crop_pdf_question_step import CropPdfQuestionStep
 from ui.steps.crop_running_step import CropRunningStep
 from ui.steps.file_name_selection_step import FileNameSelectionStep
 from ui.steps.file_selection_step import FileSelectionStep
+from ui.steps.ocr_default_error_replacement_running_step import (
+    OcrDefaultErrorReplacementRunningStep,
+)
+from ui.steps.ocr_default_error_replacement_step import OcrDefaultErrorReplacementStep
 from ui.steps.ocr_language_selection_step import OcrLanguageSelectionStep
 from ui.steps.ocr_running_step import OcrRunningStep
 from ui.steps.open_ocr_editor_step import OpenOcrEditorStep
@@ -74,7 +78,7 @@ class MainWindow(QMainWindow):
         self.crop_pdf_question_step = CropPdfQuestionStep(
             text="Soll die PDF zugeschnitten werden?",
             next_callback=self.crop_pdf_question_acceptance,
-            previous_callback=self.open_ocr_language_selection_step,
+            previous_callback=lambda: self.open_ocr_language_selection_step(True),
         )
 
         self.save_temp_pdf_after_procedures = SaveTempPdfRunningStep(
@@ -125,7 +129,7 @@ class MainWindow(QMainWindow):
         )
 
         self.procedures_after_crop.finished.connect(
-            self.open_ocr_language_selection_step
+            lambda: self.open_ocr_language_selection_step(True)
         )
 
         self.ocr_language_selection_step = OcrLanguageSelectionStep(
@@ -140,9 +144,25 @@ class MainWindow(QMainWindow):
         self.ocr_running_step.finished.connect(self.ocr_running_finished)
         self.ocr_finished_step = Step(
             text="OCR abgeschlossen. Bitte überprüfen und dann auf weiter.",
-            next_callback=self.open_save_location_step,
+            next_callback=self.open_ocr_default_error_replacement,
             previous_text="OCR wiederholen",
             previous_callback=lambda: self.open_step(self.ocr_language_selection_step),
+        )
+
+        self.ocr_default_error_replacement_step = OcrDefaultErrorReplacementStep(
+            text="Sollen die OCR Standardfehler ersetzt werden?",
+            next_callback=self.start_ocr_default_error_replacement,
+            previous_callback=self.open_save_location_step,
+        )
+
+        self.ocr_default_error_replacement_running_step = (
+            OcrDefaultErrorReplacementRunningStep(
+                text="OCR Standardfehler werden korrigiert"
+            )
+        )
+
+        self.ocr_default_error_replacement_running_step.finished.connect(
+            self.open_save_location_step
         )
 
         self.choose_save_location_step = FileNameSelectionStep(
@@ -192,6 +212,8 @@ class MainWindow(QMainWindow):
             self.ocr_language_selection_step,
             self.ocr_running_step,
             self.ocr_finished_step,
+            self.ocr_default_error_replacement_step,
+            self.ocr_default_error_replacement_running_step,
             self.choose_save_location_step,
             self.save_running_step,
             self.redo_save_pdf_step,
@@ -313,7 +335,7 @@ class MainWindow(QMainWindow):
 
     def ocr_running_finished(self):
         console.log(Panel("[green]OCR fertig"))
-        self.open_next_step()
+        self.open_step(self.ocr_finished_step)
         self.window().activateWindow()
 
     def ocr_skip_still_running(self):
@@ -329,13 +351,21 @@ class MainWindow(QMainWindow):
         )
         self.window().activateWindow()
 
-    def open_ocr_language_selection_step(self, should_close: bool = True):
+    def open_ocr_language_selection_step(self, should_close=True):
+        console.log(should_close)
         if should_close:
             GeneralProcedures.click_ocr_pages_header()
             time.sleep(0.3)
             OcrAutomation.close_image_improvement_tools()
         self.activateWindow()
         self.open_step(self.ocr_language_selection_step)
+
+    def open_ocr_default_error_replacement(self):
+        self.open_step(self.ocr_default_error_replacement_step)
+
+    def start_ocr_default_error_replacement(self):
+        self.open_step(self.ocr_default_error_replacement_running_step)
+        self.ocr_default_error_replacement_running_step.start()
 
     def save_pdf(self, enable_precise_scan: bool):
 

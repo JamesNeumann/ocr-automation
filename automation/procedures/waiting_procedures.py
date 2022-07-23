@@ -147,6 +147,18 @@ class WaitingProcedures:
             visible = WaitingProcedures.is_ocr_open_odf_visible()
 
     @staticmethod
+    def wait_until_warning_symbol_is_visible(attempts=5):
+        """
+        Waits until warning symbol is visible
+        """
+        console.log("Es wird gewartet bis das Warnungs-Symbol sichtbar ist")
+        visible = WaitingProcedures.is_warning_symbol_visible(attempts)
+        while not visible:
+            console.log("Es wird gewartet bis das Warnungs-Symbol sichtbar ist")
+            time.sleep(0.5)
+            visible = WaitingProcedures.is_warning_symbol_visible(attempts)
+
+    @staticmethod
     def is_ocr_open_odf_visible() -> bool:
         """
         Checks if open PDF in the OCR editor is visible
@@ -239,6 +251,11 @@ class WaitingProcedures:
         """
         Checks if warning symbol is visible
         """
+
+        if attempts < 0:
+            while not Screen.locate_on_screen("warning_symbol.png"):
+                pass
+            return True
         for i in range(attempts):
             result = Screen.locate_on_screen("warning_symbol.png")
             if result is not None:

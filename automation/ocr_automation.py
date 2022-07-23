@@ -15,6 +15,7 @@ from automation.store import Store
 from config import Config
 from utils.console import console
 from utils.keyboard_util import press_key, write
+from utils.ocr_default_error_replacement import default_error_replacement_map
 from utils.rectangle import Rectangle
 
 
@@ -37,6 +38,38 @@ class OcrAutomation:
         write(path_to_pdf)
         press_key(key_combination="enter", delay_in_seconds=0.3)
         WaitingProcedures.wait_until_ocr_page_recognition_icon_is_visible()
+
+    @staticmethod
+    def replace_default_ocr_errors():
+        OcrAutomation.open_replace_dialog()
+        press_key(key_combination="tab", repetitions=5, delay_in_seconds=0.1)
+        press_key(key_combination="+")
+        OcrAutomation.close_replace_dialog()
+        for key, value in default_error_replacement_map.items():
+            OcrAutomation.open_replace_dialog()
+            press_key(key_combination="ctrl+a")
+            write(key)
+            press_key(key_combination="tab", repetitions=2, delay_in_seconds=0.1)
+            press_key(key_combination="ctrl+a")
+            write(value)
+            press_key(key_combination="alt+t", delay_in_seconds=0.1)
+            WaitingProcedures.wait_until_warning_symbol_is_visible(-1)
+            press_key(key_combination="enter", delay_in_seconds=0.1)
+            OcrAutomation.close_replace_dialog()
+            OcrAutomation.select_first_page()
+
+    @staticmethod
+    def open_replace_dialog():
+        GeneralProcedures.click_ocr_pages_header()
+        press_key(key_combination="ctrl+h", delay_in_seconds=0.5)
+
+    @staticmethod
+    def close_replace_dialog():
+        press_key(key_combination="esc", delay_in_seconds=0.5)
+
+    @staticmethod
+    def select_first_page():
+        press_key(key_combination="ctrl+pos1", delay_in_seconds=1)
 
     @staticmethod
     def open_image_improvement_tools(should_tab_in: bool = True) -> None:
