@@ -8,7 +8,7 @@ default_error_replacement_map = {
     "?": "ę",
     "{": "(",
     "0.": "O.",
-    "»  [»+Leerzeichen]": ", [,+Leerzeichen]",
+    "» ": ", ",
     "»": "„",
     "<": "",
     "«": ".",
