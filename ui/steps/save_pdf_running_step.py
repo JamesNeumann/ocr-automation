@@ -1,11 +1,10 @@
 from PyQt6.QtCore import pyqtSignal, QObject, QRunnable, pyqtSlot, QThreadPool
 
 from automation.ocr_automation import OcrAutomation
-from automation.store import Store
 from ui.components.progress_bar import ProgressBar
 from ui.steps.step import Step
-from utils.set_standard_metadata import set_standard_metadata
 from utils.file_utils import wait_until_file_is_unlocked
+from utils.set_standard_metadata import set_standard_metadata
 
 
 class SavePDFRunningSignals(QObject):

@@ -3,7 +3,6 @@ from typing import List, Callable
 
 import cv2
 import img2pdf
-from PIL import Image
 from PyQt6.QtCore import QObject, pyqtSignal, QRunnable, QThreadPool, pyqtSlot
 from numpy import ndarray
 
@@ -11,7 +10,7 @@ from automation.ocr_automation import OcrAutomation
 from config import Config
 from ui.components.progress_bar import ProgressBar
 from ui.steps.step import Step
-from utils.analyze_pdf import crop_images_single_box, crop_images_multiple_boxes
+from utils.analyze_pdf import crop_images_multiple_boxes
 from utils.console import console
 from utils.rectangle import Rectangle
 from utils.save_config import SaveConfig

@@ -1,8 +1,6 @@
-from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QPushButton, QSpacerItem, QSizePolicy
+from PyQt6.QtWidgets import QSpacerItem, QSizePolicy
 
 from ui.components.file_selection import FileSelection
-from ui.components.progress_bar import ProgressBar
 from ui.components.special_pdf_actions import SpecialPdfActions
 from ui.steps.step import Step
 
