@@ -18,6 +18,7 @@ from ui.steps.crop_pdf_question_step import CropPdfQuestionStep
 from ui.steps.crop_running_step import CropRunningStep
 from ui.steps.file_name_selection_step import FileNameSelectionStep
 from ui.steps.file_selection_step import FileSelectionStep
+from ui.steps.ocr_clean_up_step import OcrCleanUpStep
 from ui.steps.ocr_default_error_replacement_running_step import (
     OcrDefaultErrorReplacementRunningStep,
 )
@@ -74,7 +75,7 @@ class MainWindow(QMainWindow):
         self.crop_pdf_question_step = CropPdfQuestionStep(
             text="Soll die PDF zugeschnitten werden?",
             next_callback=self.crop_pdf_question_acceptance,
-            previous_callback=lambda: self.open_ocr_language_selection_step(True),
+            previous_callback=self.open_ocr_clean_up_step,
         )
 
         self.save_temp_pdf_after_procedures = SaveTempPdfRunningStep(
@@ -120,12 +121,15 @@ class MainWindow(QMainWindow):
         self.procedures_after_crop = ProcedureSelectionStep(
             text="Welche Optimierungen sollen durchgeführt werden?",
             previous_text="Überspringen",
-            previous_callback=self.open_ocr_language_selection_step,
+            previous_callback=self.open_ocr_clean_up_step,
             next_callback=self.start_procedures_after_crop,
         )
 
-        self.procedures_after_crop.finished.connect(
-            lambda: self.open_ocr_language_selection_step(True)
+        self.procedures_after_crop.finished.connect(self.open_ocr_clean_up_step)
+
+        self.ocr_clean_up_step = OcrCleanUpStep(
+            text="Entferne Artefakte von den Seiten, um das OCR Ergebnis zu verbessern",
+            next_callback=lambda: self.open_ocr_language_selection_step(True),
         )
 
         self.ocr_language_selection_step = OcrLanguageSelectionStep(
@@ -216,6 +220,7 @@ class MainWindow(QMainWindow):
             self.crop_amount_step,
             self.crop_running_step,
             self.procedures_after_crop,
+            self.ocr_clean_up_step,
             self.ocr_language_selection_step,
             self.ocr_running_step,
             self.ocr_finished_step,
@@ -351,8 +356,12 @@ class MainWindow(QMainWindow):
         )
         self.window().activateWindow()
 
+    def open_ocr_clean_up_step(self):
+        self.open_step(self.ocr_clean_up_step)
+        self.ocr_clean_up_step.start()
+
     def open_ocr_language_selection_step(self, should_close=True):
-        if should_close:
+        if should_close and Store.IMAGE_EDIT_TOOL_OPEN:
             GeneralProcedures.click_ocr_pages_header()
             time.sleep(0.3)
             OcrAutomation.close_image_improvement_tools()

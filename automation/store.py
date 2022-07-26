@@ -5,6 +5,7 @@ class Store:
     INDICES_TO_ROTATE = []
     PDF_APPLICATION_PROCESS = None
     SAVE_FILE_PATH = ""
+    IMAGE_EDIT_TOOL_OPEN = False
 
     @staticmethod
     def reset():
@@ -14,3 +15,4 @@ class Store:
         Store.FILE_PATH_AFTER_ORIENTATION_SAVE = ""
         Store.PDF_APPLICATION_PROCESS = None
         Store.SAVE_FILE_PATH = ""
+        Store.IMAGE_EDIT_TOOL_OPEN = False

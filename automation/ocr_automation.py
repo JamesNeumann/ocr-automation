@@ -6,6 +6,7 @@ from typing import Callable, List
 from uuid import UUID
 
 import psutil
+import pyautogui
 from psutil import NoSuchProcess
 
 from automation.procedures.general_procedures import GeneralProcedures
@@ -38,6 +39,21 @@ class OcrAutomation:
         write(path_to_pdf)
         press_key(key_combination="enter", delay_in_seconds=0.3)
         WaitingProcedures.wait_until_ocr_page_recognition_icon_is_visible()
+
+    @staticmethod
+    def open_eraser():
+        if not Store.IMAGE_EDIT_TOOL_OPEN:
+            OcrAutomation.open_image_improvement_tools(should_tab_in=True)
+        GeneralProcedures.click_light_bulb()
+        OcrProcedures.do_eraser()
+        OcrAutomation.adjust_pdf_pages_to_width()
+        OcrAutomation.select_first_page()
+
+    @staticmethod
+    def adjust_pdf_pages_to_width():
+        width, height = pyautogui.size()
+        pyautogui.click(width / 2, height / 2)
+        press_key(key_combination="alt+a+r", delay_in_seconds=0.5)
 
     @staticmethod
     def replace_default_ocr_errors():
@@ -81,13 +97,16 @@ class OcrAutomation:
         GeneralProcedures.click_ocr_pages_header()
         press_key(key_combination="ctrl+a")
         press_key(key_combination="ctrl+i")
+        Store.IMAGE_EDIT_TOOL_OPEN = True
 
     @staticmethod
     def close_image_improvement_tools() -> None:
         """
         Closes the OCR improvement tools
         """
-        press_key(key_combination="ctrl+i")
+        if Store.IMAGE_EDIT_TOOL_OPEN:
+            press_key(key_combination="ctrl+i")
+            Store.IMAGE_EDIT_TOOL_OPEN = False
 
     @staticmethod
     def run_ocr(languages: str) -> None:
@@ -265,6 +284,7 @@ class OcrAutomation:
         Closes the OCR instance
         """
         GeneralProcedures.click_ocr_pages_header()
+        Store.IMAGE_EDIT_TOOL_OPEN = False
         press_key(key_combination="alt+f4", delay_in_seconds=0.3)
         press_key(key_combination="alt+n")
 

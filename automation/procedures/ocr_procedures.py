@@ -57,6 +57,10 @@ class OcrProcedures:
             press_key(key_combination="enter", delay_in_seconds=1)
 
     @staticmethod
+    def do_eraser() -> None:
+        press_key(key_combination="alt+i", delay_in_seconds=0.3)
+
+    @staticmethod
     def do_crop_pdf(
         x: float, y: float, width: float, height: float, should_tab_in: bool = True
     ) -> None:

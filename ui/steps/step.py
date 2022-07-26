@@ -24,9 +24,13 @@ class Step(QWidget):
         self.header = f"<h1 >{self.text}</h1>"
         self.label = QLabel(self.header)
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.layout.addWidget(self.label, 1, 0, 1, 4, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.layout.addWidget(
+            self.label, 1, 0, 1, 4, alignment=Qt.AlignmentFlag.AlignCenter
+        )
         detail = f"<p>{detail}</p>"
-        self.layout.addWidget(QLabel(detail), 2, 0, 1, 4, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.layout.addWidget(
+            QLabel(detail), 2, 0, 1, 4, alignment=Qt.AlignmentFlag.AlignCenter
+        )
         if optional_button_callback:
             self.optional_button = NavigationButton(
                 optional_button_text, 0, 0, 100, 100
