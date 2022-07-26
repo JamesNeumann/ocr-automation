@@ -251,7 +251,7 @@ class CropAmountSelectionController:
                 if "-" in page:
                     range_page = page.split("-")
                     start = int(range_page[0])
-                    end = int(range_page[1])
+                    end = int(range_page[1]) + 1
                     for i in range(start, end):
                         selected_pages.add(i)
                 else:
