@@ -4,6 +4,7 @@ from automation.ocr_automation import OcrAutomation
 from automation.store import Store
 from ui.components.progress_bar import ProgressBar
 from ui.steps.step import Step
+from utils.console import console
 
 
 class CleanUpRunningSignals(QObject):
@@ -20,20 +21,21 @@ class CleanUpRunningWorker(QRunnable):
         OcrAutomation.clean_up()
         Store.reset()
         self.signals.finished.emit()
+        console.log("Abgeshlossen")
 
 
 class CleanUpRunningStep(Step):
     finished = pyqtSignal()
 
     def __init__(
-        self,
-        *,
-        text: str,
-        previous_text="Zurück",
-        previous_callback=None,
-        next_text="Weiter",
-        next_callback=None,
-        detail: str = ""
+            self,
+            *,
+            text: str,
+            previous_text="Zurück",
+            previous_callback=None,
+            next_text="Weiter",
+            next_callback=None,
+            detail: str = ""
     ):
         super().__init__(
             text=text,
@@ -47,9 +49,8 @@ class CleanUpRunningStep(Step):
         self.progress_bar = ProgressBar(text_visible=False)
         self.layout.addWidget(self.progress_bar, 2, 0, 2, 4)
         self.progress_bar.setValue(100)
-
-        self.threadpool = QThreadPool()
         self.worker = None
+        self.threadpool = QThreadPool()
 
     def start(self):
         self.worker = CleanUpRunningWorker()

@@ -33,6 +33,7 @@ from ui.steps.step import Step
 from utils.console import console
 from utils.file_utils import delete_file
 from utils.save_config import SaveConfig
+from utils.save_pdf import save_pdf
 
 
 class MainWindow(QMainWindow):
@@ -52,13 +53,8 @@ class MainWindow(QMainWindow):
             previous_text="Einstellungen",
             previous_callback=self.open_settings,
             next_callback=self.open_ocr_editor,
-            set_metadata_callback=self.open_ocr_editor_for_export,
-            read_ocr_callback=lambda: console.log("Test"),
-        )
-
-        self.open_ocr_editor_for_export = OpenOcrEditorStep()
-        self.open_ocr_editor_for_export.finished_signal.connect(
-            self.open_save_location_step
+            set_metadata_callback=self.open_save_location_step_for_metadata,
+            read_ocr_callback=lambda: console.log("Lese OCR ein"),
         )
 
         self.open_ocr_editor_step = OpenOcrEditorStep()
@@ -124,7 +120,7 @@ class MainWindow(QMainWindow):
         self.procedures_after_crop = ProcedureSelectionStep(
             text="Welche Optimierungen sollen durchgeführt werden?",
             previous_text="Überspringen",
-            previous_callback=lambda: self.open_ocr_language_selection_step(False),
+            previous_callback=self.open_ocr_language_selection_step,
             next_callback=self.start_procedures_after_crop,
         )
 
@@ -168,9 +164,15 @@ class MainWindow(QMainWindow):
         self.choose_save_location_step = FileNameSelectionStep(
             text="Wähle Speicherort und Name der PDF",
             previous_text="Ohne Precise Scan speichern",
-            previous_callback=lambda: self.save_pdf(False),
+            previous_callback=lambda: self.save_pdf(enable_precise_scan=False),
             next_text="Mit Precise Scan speichern",
-            next_callback=lambda: self.save_pdf(True),
+            next_callback=lambda: self.save_pdf(enable_precise_scan=True),
+        )
+
+        self.choose_save_location_for_metadata_step = FileNameSelectionStep(
+            text="Wähle Speicherort und Name der PDF",
+            next_text="Speichern",
+            next_callback=lambda: self.save_pdf(save_without_abby=True),
         )
 
         self.save_running_step = SavePDFRunningStep(text="PDF wird gespeichert")
@@ -179,6 +181,11 @@ class MainWindow(QMainWindow):
         self.redo_save_pdf_step = RedoSavePdfStep(
             previous_callback=self.go_back_to_save_pdf_step,
             next_callback=self.clean_up,
+        )
+
+        self.redo_save_pdf_for_metadata_step = RedoSavePdfStep(
+            previous_callback=self.go_back_to_save_pdf_for_export_step,
+            next_callback=self.save_pdf_only_metadata_finished,
         )
 
         self.clean_up_running_step = CleanUpRunningStep(text="Es wird augeräumt")
@@ -215,12 +222,13 @@ class MainWindow(QMainWindow):
             self.ocr_default_error_replacement_step,
             self.ocr_default_error_replacement_running_step,
             self.choose_save_location_step,
+            self.choose_save_location_for_metadata_step,
             self.save_running_step,
             self.redo_save_pdf_step,
+            self.redo_save_pdf_for_metadata_step,
             self.clean_up_running_step,
             self.finished_step,
             self.settings_controller.settings_step,
-            self.open_ocr_editor_for_export,
             self.open_ocr_editor_skip_crop,
         ]
 
@@ -251,11 +259,6 @@ class MainWindow(QMainWindow):
         if Store.SELECTED_FILE_PATH != "":
             self.open_step(self.open_ocr_editor_step)
             self.open_ocr_editor_step.start(Store.SELECTED_FILE_PATH)
-
-    def open_ocr_editor_for_export(self):
-        if Store.SELECTED_FILE_PATH != "":
-            self.open_step(self.open_ocr_editor_for_export)
-            self.open_ocr_editor_for_export.start(Store.SELECTED_FILE_PATH)
 
     def open_ocr_editor_after_crop_skip(self):
         self.open_step(self.open_ocr_editor_skip_crop)
@@ -303,9 +306,6 @@ class MainWindow(QMainWindow):
         self.save_temp_pdf_running_step.start()
 
     def crop_finished(self):
-        # GeneralProcedures.click_ocr_pages_header()
-        # time.sleep(0.3)
-        # OcrAutomation.close_image_improvement_tools()
         self.open_next_step()
         self.window().activateWindow()
 
@@ -352,7 +352,6 @@ class MainWindow(QMainWindow):
         self.window().activateWindow()
 
     def open_ocr_language_selection_step(self, should_close=True):
-        console.log(should_close)
         if should_close:
             GeneralProcedures.click_ocr_pages_header()
             time.sleep(0.3)
@@ -367,16 +366,22 @@ class MainWindow(QMainWindow):
         self.open_step(self.ocr_default_error_replacement_running_step)
         self.ocr_default_error_replacement_running_step.start()
 
-    def save_pdf(self, enable_precise_scan: bool):
+    def save_pdf(self, enable_precise_scan=False, save_without_abby=False):
 
         if self.choose_save_location_step.folder_selection.selected_folder != "":
-
-            folder = self.choose_save_location_step.folder_selection.selected_folder
-            file_name = self.choose_save_location_step.file_name_field.text()
+            if save_without_abby:
+                folder = (
+                    self.choose_save_location_for_metadata_step.folder_selection.selected_folder
+                )
+                file_name = (
+                    self.choose_save_location_for_metadata_step.file_name_field.text()
+                )
+            else:
+                folder = self.choose_save_location_step.folder_selection.selected_folder
+                file_name = self.choose_save_location_step.file_name_field.text()
             suffix = "" if ".pdf" in file_name else ".pdf"
             path = os.path.abspath(folder + "\\" + file_name + suffix)
             Store.SAVE_FILE_PATH = path
-
             if Store.SELECTED_FILE_PATH == Store.SAVE_FILE_PATH:
                 dialog = QMessageBox(self)
                 dialog.setIcon(QMessageBox.Icon.Warning)
@@ -386,8 +391,11 @@ class MainWindow(QMainWindow):
                     QMessageBox.StandardButton.Abort | QMessageBox.StandardButton.Ok
                 )
                 button = dialog.exec()
-                if button == QMessageBox.StandardButton.Ok:
-                    self.open_next_step()
+                if save_without_abby:
+                    save_pdf(Store.SELECTED_FILE_PATH, Store.SAVE_FILE_PATH)
+                    self.open_step(self.redo_save_pdf_for_metadata_step)
+                else:
+                    self.open_step(self.save_running_step)
                     self.save_running_step.start(
                         Store.SAVE_FILE_PATH, enable_precise_scan
                     )
@@ -403,21 +411,44 @@ class MainWindow(QMainWindow):
                 )
                 button = dialog.exec()
                 if button == QMessageBox.StandardButton.Ok:
-                    self.open_next_step()
-                    self.save_running_step.start(
-                        Store.SAVE_FILE_PATH, enable_precise_scan
-                    )
+                    if save_without_abby:
+                        save_pdf(Store.SELECTED_FILE_PATH, Store.SAVE_FILE_PATH)
+                        self.open_step(self.redo_save_pdf_for_metadata_step)
+                    else:
+                        self.open_step(self.save_running_step)
+                        self.save_running_step.start(
+                            Store.SAVE_FILE_PATH, enable_precise_scan
+                        )
                 if button == QMessageBox.StandardButton.Cancel:
                     dialog.close()
             else:
-                self.open_next_step()
-                self.save_running_step.start(Store.SAVE_FILE_PATH, enable_precise_scan)
+                if save_without_abby:
+                    save_pdf(Store.SELECTED_FILE_PATH, Store.SAVE_FILE_PATH)
+                    self.open_step(self.redo_save_pdf_for_metadata_step)
+                else:
+                    self.open_step(self.save_running_step)
+                    self.save_running_step.start(
+                        Store.SAVE_FILE_PATH, enable_precise_scan
+                    )
+
+    def open_save_location_step_for_metadata(self):
+        if Store.SELECTED_FILE_PATH != "":
+            self.choose_save_location_for_metadata_step.set_previous_name(
+                self.file_selection_step.file_selection.selected_file_name
+            )
+            self.open_step(self.choose_save_location_for_metadata_step)
 
     def go_back_to_save_pdf_step(self):
         OcrAutomation.close_pdf_in_default_program()
         delete_file(Store.SAVE_FILE_PATH)
         Store.SAVE_FILE_PATH = None
         self.open_save_location_step()
+
+    def go_back_to_save_pdf_for_export_step(self):
+        OcrAutomation.close_pdf_in_default_program()
+        delete_file(Store.SAVE_FILE_PATH)
+        Store.SAVE_FILE_PATH = None
+        self.open_save_location_step_for_metadata()
 
     def open_redo_pdf_save_step(self):
         self.window().activateWindow()
@@ -430,11 +461,15 @@ class MainWindow(QMainWindow):
         self.current_index = 0
 
     def clean_up_finished(self):
-        self.open_next_step()
+        self.open_step(self.finished_step)
         self.window().activateWindow()
         console.log(Panel("[green]Fertig"))
 
+    def save_pdf_only_metadata_finished(self):
+        self.open_step(self.finished_step)
+        self.window().activateWindow()
+
     def clean_up(self):
         self.window().activateWindow()
-        self.open_next_step()
+        self.open_step(self.clean_up_running_step)
         self.clean_up_running_step.start()
