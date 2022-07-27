@@ -156,6 +156,19 @@ class GeneralProcedures:
             i += 1
 
     @staticmethod
+    def click_ocr_option_icon(attempts: int = 5):
+        """
+        Clicks the OCR option icon
+        """
+        i = 0
+        while i < attempts:
+            x, y = Screen.locate_center_on_screen("ocr_option_icon.png")
+            if x is not None and y is not None:
+                pyautogui.click(x, y)
+                return
+            i += 1
+
+    @staticmethod
     def click_ocr_image_processing_icon(attempts: int = 5) -> None:
         """
         Clicks the OCR file icon

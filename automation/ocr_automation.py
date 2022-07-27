@@ -112,15 +112,66 @@ class OcrAutomation:
     def run_ocr(languages: str) -> None:
         """
         Runs ocr detection
-
         :param languages: Languages which should be used for ocr
         """
+        OcrAutomation.open_ocr_editor_options()
+        OcrAutomation.set_ocr_mode()
+        OcrAutomation.set_ocr_languages(languages)
+        OcrAutomation.start_ocr()
+
+    @staticmethod
+    def start_ocr():
+        GeneralProcedures.click_ocr_pages_header()
+        press_key(key_combination="ctrl+a")
+        GeneralProcedures.click_ocr_page_recognition_icon()
+        WaitingProcedures.wait_until_ocr_is_finished()
+        press_key(key_combination="alt+shift+s", delay_in_seconds=0.3)
+
+    @staticmethod
+    def run_ocr_with_ocr_from_text():
+        """
+        Runs OCR detection by only using the text provided in the OCR of the file
+        """
+        OcrAutomation.open_ocr_editor_options()
+        OcrAutomation.set_ocr_mode(ocr_from_text=True, close=True)
+        OcrAutomation.start_ocr()
+
+    @staticmethod
+    def open_ocr_editor_options():
+        """
+        Opens the OCR editor options
+        """
         GeneralProcedures.click_ocr_file_icon()
-        # OcrAutomation.close_image_improvement_tools()
         time.sleep(0.5)
         press_key(key_combination="alt+k")
         press_key(key_combination="i")
         time.sleep(0.5)
+
+    @staticmethod
+    def set_ocr_mode(ocr_from_text=False, close=False):
+        """
+        Sets the OCR mode
+        :param ocr_from_text: If the OCR should be selected from the file
+        :param close: If the OCR should be closed afterwards
+        """
+        GeneralProcedures.click_ocr_option_icon()
+        press_key(key_combination="tab")
+        press_key(key_combination="up", repetitions=2)
+        if ocr_from_text:
+            press_key(key_combination="down", repetitions=2)
+        else:
+            press_key(key_combination="down", repetitions=1)
+
+        if close:
+            press_key(key_combination="tab", repetitions=15)
+            press_key(key_combination="enter", delay_in_seconds=0.3)
+
+    @staticmethod
+    def set_ocr_languages(languages: str):
+        """
+        Sets the languages to be used for OCR
+        :param languages: String of combined OCR languages
+        """
         GeneralProcedures.click_ocr_language_selection()
         press_key(key_combination="alt+s", delay_in_seconds=0.3)
         press_key(key_combination="shift+tab", delay_in_seconds=0.3)
@@ -128,11 +179,6 @@ class OcrAutomation:
         press_key(key_combination="enter", repetitions=2, delay_in_seconds=0.3)
         press_key(key_combination="tab", repetitions=7, delay_in_seconds=0.1)
         press_key(key_combination="enter")
-        GeneralProcedures.click_ocr_pages_header()
-        press_key(key_combination="ctrl+a")
-        GeneralProcedures.click_ocr_page_recognition_icon()
-        WaitingProcedures.wait_until_ocr_is_finished()
-        press_key(key_combination="alt+shift+s", delay_in_seconds=0.3)
 
     @staticmethod
     def do_optimization(

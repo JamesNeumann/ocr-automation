@@ -23,6 +23,7 @@ from ui.steps.ocr_default_error_replacement_running_step import (
     OcrDefaultErrorReplacementRunningStep,
 )
 from ui.steps.ocr_default_error_replacement_step import OcrDefaultErrorReplacementStep
+from ui.steps.ocr_from_file_running_step import OcrFromFileRunningStep
 from ui.steps.ocr_language_selection_step import OcrLanguageSelectionStep
 from ui.steps.ocr_running_step import OcrRunningStep
 from ui.steps.open_ocr_editor_step import OpenOcrEditorStep
@@ -55,7 +56,7 @@ class MainWindow(QMainWindow):
             previous_callback=self.open_settings,
             next_callback=self.open_ocr_editor,
             set_metadata_callback=self.open_save_location_step_for_metadata,
-            read_ocr_callback=lambda: console.log("Lese OCR ein"),
+            read_ocr_callback=self.open_ocr_from_file_step,
         )
 
         self.open_ocr_editor_step = OpenOcrEditorStep()
@@ -141,7 +142,16 @@ class MainWindow(QMainWindow):
             next_text="OCR ist bereits abgeschlossen",
             next_callback=self.ocr_skip_still_running,
         )
+
         self.ocr_running_step.finished.connect(self.ocr_running_finished)
+
+        self.ocr_from_file_running_step = OcrFromFileRunningStep(
+            text="OCR läuft",
+            next_text="OCR is bereits abgeschlosse",
+            next_callback=self.ocr_from_file_skip_still_running,
+        )
+        self.ocr_from_file_running_step.finished.connect(self.ocr_running_finished)
+
         self.ocr_finished_step = Step(
             text="OCR abgeschlossen. Bitte überprüfen und dann auf weiter.",
             next_callback=self.open_ocr_default_error_replacement,
@@ -223,6 +233,7 @@ class MainWindow(QMainWindow):
             self.ocr_clean_up_step,
             self.ocr_language_selection_step,
             self.ocr_running_step,
+            self.ocr_from_file_running_step,
             self.ocr_finished_step,
             self.ocr_default_error_replacement_step,
             self.ocr_default_error_replacement_running_step,
@@ -346,6 +357,9 @@ class MainWindow(QMainWindow):
     def ocr_skip_still_running(self):
         self.ocr_running_step.stop()
 
+    def ocr_from_file_skip_still_running(self):
+        self.ocr_from_file_running_step.stop()
+
     def open_save_location_step(self):
         self.open_step(self.choose_save_location_step)
         self.choose_save_location_step.folder_selection.set_folder(
@@ -374,6 +388,11 @@ class MainWindow(QMainWindow):
     def start_ocr_default_error_replacement(self):
         self.open_step(self.ocr_default_error_replacement_running_step)
         self.ocr_default_error_replacement_running_step.start()
+
+    def open_ocr_from_file_step(self):
+        if Store.SELECTED_FILE_PATH != "":
+            self.open_step(self.ocr_from_file_running_step)
+            self.ocr_from_file_running_step.start()
 
     def save_pdf(self, enable_precise_scan=False, save_without_abby=False):
 
