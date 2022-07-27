@@ -461,9 +461,13 @@ class MainWindow(QMainWindow):
 
     def open_save_location_step_for_metadata(self):
         if Store.SELECTED_FILE_PATH != "":
+            self.choose_save_location_for_metadata_step.folder_selection.set_folder(
+                SaveConfig.get_default_save_location()
+            )
             self.choose_save_location_for_metadata_step.set_previous_name(
                 self.file_selection_step.file_selection.selected_file_name
             )
+
             self.open_step(self.choose_save_location_for_metadata_step)
 
     def go_back_to_save_pdf_step(self):
