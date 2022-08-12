@@ -23,7 +23,7 @@ python -m main
 
 ## Create an executable
 
-The requirements include a dependency to [PyInstaller](https://github.com/pyinstaller/pyinstaller) which makes it
+The requirements include a [PyInstaller](https://github.com/pyinstaller/pyinstaller) dependency which makes it
 possible to create an executable with all dependencies and a python runtime included. To create an executable run:
 
 ````shell
