@@ -61,13 +61,13 @@ class OcrAutomation:
         press_key(key_combination="tab", repetitions=5, delay_in_seconds=0.1)
         press_key(key_combination="+")
         OcrAutomation.close_replace_dialog()
-        for key, value in default_error_replacement_map.items():
+        for replacement in default_error_replacement_map:
             OcrAutomation.open_replace_dialog()
             press_key(key_combination="ctrl+a")
-            write(key)
+            write(replacement[0])
             press_key(key_combination="tab", repetitions=2, delay_in_seconds=0.1)
             press_key(key_combination="ctrl+a")
-            write(value)
+            write(replacement[1])
             press_key(key_combination="alt+t", delay_in_seconds=0.1)
             WaitingProcedures.wait_until_warning_symbol_is_visible(-1)
             press_key(key_combination="enter", delay_in_seconds=0.1)
