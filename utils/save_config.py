@@ -4,6 +4,7 @@ from json import JSONDecodeError
 
 from config import Config
 from utils.console import console
+from utils.ocr_default_error_replacement import default_error_replacement_map
 from utils.offset import Offset
 
 
@@ -29,6 +30,7 @@ class SaveConfig:
                         wf.write("{}")
         except FileNotFoundError:
             console.log("Speicherdatei nicht gefunden. Überspringe...")
+
 
     @staticmethod
     def update_default_save_location(path_to_folder: str):
@@ -108,6 +110,19 @@ class SaveConfig:
             return "C:"
         return (
             SaveConfig.SAVE_CONFIG["path"] or SaveConfig.read_default_dropbox_folder()
+        )
+
+    @staticmethod
+    def get_default_error_replacement_maps():
+        if not SaveConfig.SAVE_CONFIG or "default_error_replacements" not in SaveConfig.SAVE_CONFIG:
+            return [
+                {
+                    "name": "Standard",
+                    "map": default_error_replacement_map
+                }
+            ]
+        return (
+            SaveConfig.SAVE_CONFIG["default_error_replacements"]
         )
 
     @staticmethod
