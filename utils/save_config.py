@@ -1,5 +1,6 @@
 import json
 import os.path
+import uuid
 from json import JSONDecodeError
 
 from config import Config
@@ -30,7 +31,6 @@ class SaveConfig:
                         wf.write("{}")
         except FileNotFoundError:
             console.log("Speicherdatei nicht gefunden. Überspringe...")
-
 
     @staticmethod
     def update_default_save_location(path_to_folder: str):
@@ -114,16 +114,18 @@ class SaveConfig:
 
     @staticmethod
     def get_default_error_replacement_maps():
-        if not SaveConfig.SAVE_CONFIG or "default_error_replacements" not in SaveConfig.SAVE_CONFIG:
+        if (
+            not SaveConfig.SAVE_CONFIG
+            or "default_error_replacements" not in SaveConfig.SAVE_CONFIG
+        ):
             return [
                 {
+                    "id": str(uuid.uuid4()),
                     "name": "Standard",
-                    "map": default_error_replacement_map
+                    "map": default_error_replacement_map,
                 }
             ]
-        return (
-            SaveConfig.SAVE_CONFIG["default_error_replacements"]
-        )
+        return SaveConfig.SAVE_CONFIG["default_error_replacements"]
 
     @staticmethod
     def save_file():
