@@ -1,4 +1,4 @@
-from typing import List, Any
+from typing import List, Any, Dict
 
 from PyQt6.QtCore import QAbstractTableModel, QModelIndex, Qt
 from PyQt6.QtWidgets import QTableView
@@ -50,9 +50,26 @@ class DefaultErrorReplacementModel(QAbstractTableModel):
 
 
 class DefaultErrorReplacementTable(QTableView):
-    def __init__(self, data: List):
+    def __init__(self):
         super().__init__()
+        self.default_replacement_model = None
 
-        self.default_replacement_model = DefaultErrorReplacementModel(data)
-
+    def update_model(self, replacement_map: Dict):
+        self.default_replacement_model = DefaultErrorReplacementModel(
+            replacement_map["map"]
+        )
         self.setModel(self.default_replacement_model)
+
+    def get_replacement_map_values(self):
+        data = []
+        for row in range(self.default_replacement_model.rowCount()):
+            data.append([])
+            for column in range(self.default_replacement_model.columnCount()):
+                index = self.default_replacement_model.index(row, column)
+                # We suppose data are strings
+                data[row].append(
+                    self.default_replacement_model.data(
+                        index, role=Qt.ItemDataRole.DisplayRole
+                    )
+                )
+        return data

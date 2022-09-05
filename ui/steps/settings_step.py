@@ -9,8 +9,13 @@ from PyQt6.QtWidgets import (
 )
 
 from config import Config
+from ui.components.default_error_replacement_settings import (
+    DefaultErrorReplacementSettings,
+)
+from ui.components.default_error_replacement_table import DefaultErrorReplacementTable
 from ui.components.spin_boxes import create_mm_spinbox, create_spinbox
 from ui.steps.step import Step
+
 from utils.offset import Offset
 
 
@@ -100,6 +105,8 @@ class SettingsStep(Step):
         self.layout.addWidget(self.crop_group_box, 2, 0, 1, 4)
         self.layout.addWidget(self.dpi_group_box, 3, 0, 1, 4)
         self.layout.addWidget(self.y_axis_threshold_group_box, 4, 0, 1, 4)
+
+        self.layout.addWidget(DefaultErrorReplacementSettings(), 5, 0, 1, 4)
 
     def update_crop_box(self, crop_box: Offset):
         self.crop_box_top_spinner.setValue(crop_box.top)
