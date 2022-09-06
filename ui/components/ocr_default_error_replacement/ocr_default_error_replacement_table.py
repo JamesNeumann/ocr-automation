@@ -49,7 +49,7 @@ class DefaultErrorReplacementModel(QAbstractTableModel):
         )
 
 
-class DefaultErrorReplacementTable(QTableView):
+class OcrDefaultErrorReplacementTable(QTableView):
     def __init__(self):
         super().__init__()
         self.default_replacement_model = None
