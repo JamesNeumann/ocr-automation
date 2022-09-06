@@ -118,13 +118,7 @@ class SaveConfig:
             not SaveConfig.SAVE_CONFIG
             or "default_error_replacements" not in SaveConfig.SAVE_CONFIG
         ):
-            return [
-                {
-                    "id": str(uuid.uuid4()),
-                    "name": "Standard",
-                    "map": default_error_replacement_map,
-                }
-            ]
+            return [default_error_replacement_map]
         return SaveConfig.SAVE_CONFIG["default_error_replacements"]
 
     @staticmethod

@@ -61,7 +61,7 @@ class OcrAutomation:
         press_key(key_combination="tab", repetitions=5, delay_in_seconds=0.1)
         press_key(key_combination="+")
         OcrAutomation.close_replace_dialog()
-        for replacement in default_error_replacement_map:
+        for replacement in default_error_replacement_map["map"]:
             OcrAutomation.open_replace_dialog()
             press_key(key_combination="ctrl+a")
             write(replacement[0])
