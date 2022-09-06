@@ -2,7 +2,9 @@ from typing import Dict
 
 from PyQt6.QtWidgets import QWidget, QGridLayout, QPushButton, QHBoxLayout, QLineEdit
 
-from ui.components.ocr_default_error_replacement.ocr_default_error_replacement_table import OcrDefaultErrorReplacementTable
+from ui.components.ocr_default_error_replacement.ocr_default_error_replacement_table import (
+    OcrDefaultErrorReplacementTable,
+)
 
 
 class OcrDefaultErrorReplacementEdit(QWidget):
