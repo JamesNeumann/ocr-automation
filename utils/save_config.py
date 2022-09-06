@@ -13,6 +13,20 @@ from utils.offset import Offset
 class SaveConfig:
     SAVE_CONFIG = {}
 
+    PATH_KEY = "path"
+
+    OFFSET_KEY = "offset"
+    OFFSET_TOP_KEY = "top"
+    OFFSET_RIGHT_KEY = "right"
+    OFFSET_BOTTOM_KEY = "bottom"
+    OFFSET_LEFT_KEY = "left"
+
+    DPI_KEY = "DPI"
+
+    Y_AXIS_OFFSET_KEY = "y_axis_threshold"
+
+    OCR_DEFAULT_ERROR_REPLACEMENTS_KEY = "ocr_default_error_replacements"
+
     @staticmethod
     def init():
         SaveConfig.SAVE_CONFIG = SaveConfig.load_save_file()
@@ -36,61 +50,76 @@ class SaveConfig:
     @staticmethod
     def update_default_save_location(path_to_folder: str):
         if not SaveConfig.SAVE_CONFIG:
-            SaveConfig.SAVE_CONFIG = {"path": path_to_folder}
+            SaveConfig.SAVE_CONFIG = {SaveConfig.PATH_KEY: path_to_folder}
         else:
-            SaveConfig.SAVE_CONFIG["path"] = path_to_folder
+            SaveConfig.SAVE_CONFIG[SaveConfig.PATH_KEY] = path_to_folder
         SaveConfig.save_file()
 
     @staticmethod
     def update_default_crop_box_offset(top: int, right: int, bottom: int, left: int):
-        offset_values = {"top": top, "right": right, "bottom": bottom, "left": left}
+        offset_values = {
+            SaveConfig.OFFSET_TOP_KEY: top,
+            SaveConfig.OFFSET_RIGHT_KEY: right,
+            SaveConfig.OFFSET_BOTTOM_KEY: bottom,
+            SaveConfig.OFFSET_LEFT_KEY: left,
+        }
         if not SaveConfig.SAVE_CONFIG:
-            SaveConfig.SAVE_CONFIG = {"offset": offset_values}
+            SaveConfig.SAVE_CONFIG = {SaveConfig.OFFSET_KEY: offset_values}
         else:
-            SaveConfig.SAVE_CONFIG["offset"] = offset_values
+            SaveConfig.SAVE_CONFIG[SaveConfig.OFFSET_KEY] = offset_values
         SaveConfig.save_file()
 
     @staticmethod
     def get_default_crop_box_offset() -> Offset:
-        if not SaveConfig.SAVE_CONFIG or "offset" not in SaveConfig.SAVE_CONFIG:
+        if (
+            not SaveConfig.SAVE_CONFIG
+            or SaveConfig.OFFSET_KEY not in SaveConfig.SAVE_CONFIG
+        ):
             return Config.DEFAULT_CROP_BOX_OFFSET
-        offset = SaveConfig.SAVE_CONFIG["offset"]
-        return Offset(offset["top"], offset["right"], offset["bottom"], offset["left"])
+        offset = SaveConfig.SAVE_CONFIG[SaveConfig.OFFSET_KEY]
+        return Offset(
+            offset[SaveConfig.OFFSET_TOP_KEY],
+            offset[SaveConfig.OFFSET_RIGHT_KEY],
+            offset[SaveConfig.OFFSET_BOTTOM_KEY],
+            offset[SaveConfig.OFFSET_LEFT_KEY],
+        )
 
     @staticmethod
     def update_dpi_value(dpi: int):
         if not SaveConfig.SAVE_CONFIG:
-            SaveConfig.SAVE_CONFIG = {"DPI": dpi}
+            SaveConfig.SAVE_CONFIG = {SaveConfig.DPI_KEY: dpi}
         else:
-            SaveConfig.SAVE_CONFIG["DPI"] = dpi
+            SaveConfig.SAVE_CONFIG[SaveConfig.DPI_KEY] = dpi
         SaveConfig.save_file()
 
     @staticmethod
     def update_all(crop_box: Offset, dpi: int, y_axis_threshold: float):
 
         offset_values = {
-            "top": crop_box.top,
-            "right": crop_box.right,
-            "bottom": crop_box.bottom,
-            "left": crop_box.left,
+            SaveConfig.OFFSET_TOP_KEY: crop_box.top,
+            SaveConfig.OFFSET_RIGHT_KEY: crop_box.right,
+            SaveConfig.OFFSET_BOTTOM_KEY: crop_box.bottom,
+            SaveConfig.OFFSET_LEFT_KEY: crop_box.left,
         }
         if not SaveConfig.SAVE_CONFIG:
             SaveConfig.SAVE_CONFIG = {
-                "DPI": dpi,
-                "offset": offset_values,
-                "y_axis_threshold": y_axis_threshold,
+                SaveConfig.DPI_KEY: dpi,
+                SaveConfig.OFFSET_KEY: offset_values,
+                SaveConfig.Y_AXIS_OFFSET_KEY: y_axis_threshold,
             }
         else:
-            SaveConfig.SAVE_CONFIG["DPI"] = dpi
-            SaveConfig.SAVE_CONFIG["offset"] = offset_values
-            SaveConfig.SAVE_CONFIG["y_axis_threshold"] = y_axis_threshold
+            SaveConfig.SAVE_CONFIG[SaveConfig.DPI_KEY] = dpi
+            SaveConfig.SAVE_CONFIG[SaveConfig.OFFSET_KEY] = offset_values
+            SaveConfig.SAVE_CONFIG[SaveConfig.Y_AXIS_OFFSET_KEY] = y_axis_threshold
         SaveConfig.save_file()
 
     @staticmethod
     def update_replacement_map(replacement_map: Dict):
         map_id = replacement_map["id"]
 
-        for save_map in SaveConfig.SAVE_CONFIG["default_error_replacements"]:
+        for save_map in SaveConfig.SAVE_CONFIG[
+            SaveConfig.OCR_DEFAULT_ERROR_REPLACEMENTS_KEY
+        ]:
             if save_map["id"] == map_id:
                 save_map["map"] = replacement_map["map"]
                 save_map["name"] = replacement_map["name"]
@@ -98,41 +127,49 @@ class SaveConfig:
 
     @staticmethod
     def get_dpi_value() -> int:
-        if not SaveConfig.SAVE_CONFIG or "DPI" not in SaveConfig.SAVE_CONFIG:
+        if (
+            not SaveConfig.SAVE_CONFIG
+            or SaveConfig.DPI_KEY not in SaveConfig.SAVE_CONFIG
+        ):
             dpi = Config.DPI
         else:
-            dpi = SaveConfig.SAVE_CONFIG["DPI"]
+            dpi = SaveConfig.SAVE_CONFIG[SaveConfig.DPI_KEY]
         return dpi
 
     @staticmethod
     def get_y_axis_threshold() -> float:
         if (
             not SaveConfig.SAVE_CONFIG
-            or "y_axis_threshold" not in SaveConfig.SAVE_CONFIG
+            or SaveConfig.Y_AXIS_OFFSET_KEY not in SaveConfig.SAVE_CONFIG
         ):
             y_axis_threshold = Config.CROP_Y_AXIS_THRESHOLD
         else:
-            y_axis_threshold = SaveConfig.SAVE_CONFIG["y_axis_threshold"]
+            y_axis_threshold = SaveConfig.SAVE_CONFIG[SaveConfig.Y_AXIS_OFFSET_KEY]
         return y_axis_threshold
 
     @staticmethod
     def get_default_save_location():
-        if not SaveConfig.SAVE_CONFIG or "path" not in SaveConfig.SAVE_CONFIG:
+        if (
+            not SaveConfig.SAVE_CONFIG
+            or SaveConfig.PATH_KEY not in SaveConfig.SAVE_CONFIG
+        ):
             return "C:"
         return (
-            SaveConfig.SAVE_CONFIG["path"] or SaveConfig.read_default_dropbox_folder()
+            SaveConfig.SAVE_CONFIG[SaveConfig.PATH_KEY]
+            or SaveConfig.read_default_dropbox_folder()
         )
 
     @staticmethod
     def get_default_error_replacement_maps():
         if (
             not SaveConfig.SAVE_CONFIG
-            or "default_error_replacements" not in SaveConfig.SAVE_CONFIG
+            or SaveConfig.OCR_DEFAULT_ERROR_REPLACEMENTS_KEY
+            not in SaveConfig.SAVE_CONFIG
         ):
-            SaveConfig.SAVE_CONFIG["default_error_replacements"] = [
+            SaveConfig.SAVE_CONFIG[SaveConfig.OCR_DEFAULT_ERROR_REPLACEMENTS_KEY] = [
                 default_error_replacement_map
             ]
-        return SaveConfig.SAVE_CONFIG["default_error_replacements"]
+        return SaveConfig.SAVE_CONFIG[SaveConfig.OCR_DEFAULT_ERROR_REPLACEMENTS_KEY]
 
     @staticmethod
     def save_file():
