@@ -2,6 +2,7 @@ import json
 import os.path
 import uuid
 from json import JSONDecodeError
+from typing import Dict
 
 from config import Config
 from utils.console import console
@@ -86,6 +87,16 @@ class SaveConfig:
         SaveConfig.save_file()
 
     @staticmethod
+    def update_replacement_map(replacement_map: Dict):
+        map_id = replacement_map["id"]
+
+        for save_map in SaveConfig.SAVE_CONFIG["default_error_replacements"]:
+            if save_map["id"] == map_id:
+                save_map["map"] = replacement_map["map"]
+                save_map["name"] = replacement_map["name"]
+        SaveConfig.save_file()
+
+    @staticmethod
     def get_dpi_value() -> int:
         if not SaveConfig.SAVE_CONFIG or "DPI" not in SaveConfig.SAVE_CONFIG:
             dpi = Config.DPI
@@ -118,7 +129,9 @@ class SaveConfig:
             not SaveConfig.SAVE_CONFIG
             or "default_error_replacements" not in SaveConfig.SAVE_CONFIG
         ):
-            return [default_error_replacement_map]
+            SaveConfig.SAVE_CONFIG["default_error_replacements"] = [
+                default_error_replacement_map
+            ]
         return SaveConfig.SAVE_CONFIG["default_error_replacements"]
 
     @staticmethod
