@@ -1,9 +1,12 @@
 from typing import Dict
 
+from PyQt6.QtWidgets import QMessageBox
+
 from ui.components.ocr_default_error_replacement.ocr_default_error_replacement_settings import (
     OcrDefaultErrorReplacementSettings,
 )
 from utils.console import console
+from utils.dialog import create_dialog
 from utils.ocr_default_error_replacement import create_new_default_error_replacement_map
 from utils.save_config import SaveConfig
 
@@ -23,8 +26,20 @@ class OcrDefaultErrorReplacementSettingsController:
         self.settings.layout.setCurrentIndex(1)
 
     def delete_button_clicked(self, replacement_map: Dict):
-        SaveConfig.delete_replacement_map(replacement_map)
-        self.settings.list.reload()
+        dialog = create_dialog(
+            window_title="Achtung",
+            text="Soll die Standardfehlerliste wirklich gelöscht werden?",
+            icon=QMessageBox.Icon.Warning,
+            buttons=QMessageBox.StandardButton.Abort | QMessageBox.StandardButton.Ok,
+            parent=self,
+        )
+        button = dialog.exec()
+
+        if button == QMessageBox.StandardButton.Ok:
+            SaveConfig.delete_replacement_map(replacement_map)
+            self.settings.list.reload()
+        else:
+            dialog.close()
 
     def edit_back_button_clicked(self):
         self.settings.layout.setCurrentIndex(0)
