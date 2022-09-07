@@ -24,7 +24,8 @@ class OcrDefaultErrorReplacementSettingsController:
         self.settings.layout.setCurrentIndex(1)
 
     def delete_button_clicked(self, replacement_map: Dict):
-        console.log(replacement_map)
+        SaveConfig.delete_replacement_map(replacement_map)
+        self.settings.list.reload()
 
     def edit_back_button_clicked(self):
         self.settings.layout.setCurrentIndex(0)

@@ -136,6 +136,18 @@ class SaveConfig:
         SaveConfig.save_file()
 
     @staticmethod
+    def delete_replacement_map(replacement_map: Dict):
+        for index, save_map in enumerate(
+            SaveConfig.SAVE_CONFIG[SaveConfig.OCR_DEFAULT_ERROR_REPLACEMENTS_KEY]
+        ):
+            if save_map["id"] == replacement_map["id"]:
+                del SaveConfig.SAVE_CONFIG[
+                    SaveConfig.OCR_DEFAULT_ERROR_REPLACEMENTS_KEY
+                ][index]
+                SaveConfig.save_file()
+                return
+
+    @staticmethod
     def get_dpi_value() -> int:
         if (
             not SaveConfig.SAVE_CONFIG
