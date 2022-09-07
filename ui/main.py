@@ -33,6 +33,7 @@ from ui.steps.save_pdf_running_step import SavePDFRunningStep
 from ui.steps.save_temp_pdf_running import SaveTempPdfRunningStep
 from ui.steps.step import Step
 from utils.console import console
+from utils.dialog import create_dialog
 from utils.file_utils import delete_file
 from utils.save_config import SaveConfig
 from utils.save_pdf import save_pdf
@@ -411,31 +412,13 @@ class MainWindow(QMainWindow):
             path = os.path.abspath(folder + "\\" + file_name + suffix)
             Store.SAVE_FILE_PATH = path
             if Store.SELECTED_FILE_PATH == Store.SAVE_FILE_PATH:
-                dialog = QMessageBox(self)
-                dialog.setIcon(QMessageBox.Icon.Warning)
-                dialog.setWindowTitle("Achtung")
-                dialog.setText("Die Originaldatei würde überschrieben werden")
-                dialog.setStandardButtons(
-                    QMessageBox.StandardButton.Abort | QMessageBox.StandardButton.Ok
-                )
-                button = dialog.exec()
-                if save_without_abby:
-                    save_pdf(Store.SELECTED_FILE_PATH, Store.SAVE_FILE_PATH)
-                    self.open_step(self.redo_save_pdf_for_metadata_step)
-                else:
-                    self.open_step(self.save_running_step)
-                    self.save_running_step.start(
-                        Store.SAVE_FILE_PATH, enable_precise_scan
-                    )
-                if button == QMessageBox.StandardButton.Cancel:
-                    dialog.close()
-            elif os.path.exists(Store.SAVE_FILE_PATH):
-                dialog = QMessageBox(self)
-                dialog.setIcon(QMessageBox.Icon.Warning)
-                dialog.setWindowTitle("Achtung")
-                dialog.setText("Es existiert bereits eine Datei mit diesem Namen")
-                dialog.setStandardButtons(
-                    QMessageBox.StandardButton.Abort | QMessageBox.StandardButton.Ok
+                dialog = create_dialog(
+                    window_title="Achtung",
+                    text="Die Originaldatei würde überschrieben werden",
+                    buttons=QMessageBox.StandardButton.Abort
+                    | QMessageBox.StandardButton.Ok,
+                    icon=QMessageBox.Icon.Warning,
+                    parent=self,
                 )
                 button = dialog.exec()
                 if button == QMessageBox.StandardButton.Ok:
@@ -447,7 +430,28 @@ class MainWindow(QMainWindow):
                         self.save_running_step.start(
                             Store.SAVE_FILE_PATH, enable_precise_scan
                         )
-                if button == QMessageBox.StandardButton.Cancel:
+                if button == QMessageBox.StandardButton.Abort:
+                    dialog.close()
+            elif os.path.exists(Store.SAVE_FILE_PATH):
+                dialog = create_dialog(
+                    window_title="Achtung",
+                    text="Es existiert bereits eine Datei mit diesem Namen",
+                    buttons=QMessageBox.StandardButton.Abort
+                    | QMessageBox.StandardButton.Ok,
+                    icon=QMessageBox.Icon.Warning,
+                    parent=self,
+                )
+                button = dialog.exec()
+                if button == QMessageBox.StandardButton.Ok:
+                    if save_without_abby:
+                        save_pdf(Store.SELECTED_FILE_PATH, Store.SAVE_FILE_PATH)
+                        self.open_step(self.redo_save_pdf_for_metadata_step)
+                    else:
+                        self.open_step(self.save_running_step)
+                        self.save_running_step.start(
+                            Store.SAVE_FILE_PATH, enable_precise_scan
+                        )
+                if button == QMessageBox.StandardButton.Abort:
                     dialog.close()
             else:
                 if save_without_abby:
