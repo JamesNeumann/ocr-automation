@@ -14,6 +14,7 @@ class OcrDefaultErrorReplacementSettingsController:
             delete_callback=self.delete_button_clicked,
             edit_back_callback=self.edit_back_button_clicked,
             edit_save_callback=self.edit_save_button_clicked,
+            delete_entry_callback=self.delete_entry_callback,
         )
 
     def edit_button_clicked(self, replacement_map: Dict):
@@ -30,3 +31,6 @@ class OcrDefaultErrorReplacementSettingsController:
         SaveConfig.update_replacement_map(updated_replacement_map)
         self.settings.list.reload()
         self.settings.layout.setCurrentIndex(0)
+
+    def delete_entry_callback(self, index):
+        console.log(index)

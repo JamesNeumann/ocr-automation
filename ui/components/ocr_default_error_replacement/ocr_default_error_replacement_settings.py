@@ -15,6 +15,7 @@ class OcrDefaultErrorReplacementSettings(QWidget):
         delete_callback,
         edit_back_callback,
         edit_save_callback,
+        delete_entry_callback,
     ):
         super(OcrDefaultErrorReplacementSettings, self).__init__()
 
@@ -22,7 +23,7 @@ class OcrDefaultErrorReplacementSettings(QWidget):
 
         self.list = OcrDefaultErrorReplacementList(edit_callback, delete_callback)
         self.edit = OcrDefaultErrorReplacementEdit(
-            edit_back_callback, edit_save_callback
+            edit_back_callback, edit_save_callback, delete_entry_callback
         )
 
         self.layout.addWidget(self.list)
