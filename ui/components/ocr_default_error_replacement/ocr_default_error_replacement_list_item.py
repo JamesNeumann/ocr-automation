@@ -25,13 +25,14 @@ class OcrDefaultErrorReplacementListItem(QWidget):
         self.edit_button = QPushButton("Bearbeiten")
         self.edit_button.clicked.connect(lambda: edit_pressed_callback(replacement_map))
 
-        self.delete_button = QPushButton("Löschen")
-        self.delete_button.clicked.connect(
-            lambda: delete_pressed_callback(replacement_map)
-        )
+        if replacement_map["id"] != "1":
+            self.delete_button = QPushButton("Löschen")
+            self.delete_button.clicked.connect(
+                lambda: delete_pressed_callback(replacement_map)
+            )
+            self.button_layout.addWidget(self.delete_button)
 
         self.button_layout.addWidget(self.edit_button)
-        self.button_layout.addWidget(self.delete_button)
 
         self.row.addWidget(self.name_label)
         self.row.addWidget(self.element_amount_label)
