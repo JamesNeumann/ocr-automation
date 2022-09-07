@@ -128,14 +128,10 @@ class SaveConfig:
                 save_map["map"] = replacement_map["map"]
                 save_map["name"] = replacement_map["name"]
                 is_already_saved = True
-        console.log(is_already_saved)
         if not is_already_saved:
             SaveConfig.SAVE_CONFIG[
                 SaveConfig.OCR_DEFAULT_ERROR_REPLACEMENTS_KEY
             ].append(replacement_map)
-        console.log(
-            SaveConfig.SAVE_CONFIG[SaveConfig.OCR_DEFAULT_ERROR_REPLACEMENTS_KEY]
-        )
         SaveConfig.save_file()
 
     @staticmethod

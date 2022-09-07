@@ -26,8 +26,12 @@ class OcrDefaultErrorReplacementStep(Step):
         )
         self.checkbox_layout = QVBoxLayout()
         self.scroll_container = QScrollArea()
-        self.scroll_container.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        self.scroll_container.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.scroll_container.setVerticalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAsNeeded
+        )
+        self.scroll_container.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
         self.scroll_container.setWidgetResizable(True)
         self.checkbox_added = False
 
@@ -36,7 +40,9 @@ class OcrDefaultErrorReplacementStep(Step):
             return
         for replacement_map in SaveConfig.get_default_error_replacement_maps():
             checkbox = QCheckBox(replacement_map["name"])
-            self.checkbox_layout.addWidget(checkbox, )
+            self.checkbox_layout.addWidget(
+                checkbox,
+            )
 
         self.scroll_container.setLayout(self.checkbox_layout)
         self.layout.addWidget(self.scroll_container, 2, 0, 1, 4)
@@ -45,7 +51,9 @@ class OcrDefaultErrorReplacementStep(Step):
     def get_selected_replacement_maps(self):
         maps = SaveConfig.get_default_error_replacement_maps()
         selected_maps = []
-        items = (self.checkbox_layout.itemAt(i) for i in range(self.checkbox_layout.count()))
+        items = (
+            self.checkbox_layout.itemAt(i) for i in range(self.checkbox_layout.count())
+        )
         for index, item in enumerate(items):
             if item.widget().isChecked():
                 selected_maps.append(maps[index])
