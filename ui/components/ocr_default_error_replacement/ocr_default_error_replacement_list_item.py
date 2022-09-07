@@ -5,11 +5,11 @@ from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton
 
 class OcrDefaultErrorReplacementListItem(QWidget):
     def __init__(
-        self,
-        replacement_map: Dict,
-        parent=None,
-        edit_pressed_callback=None,
-        delete_pressed_callback=None,
+            self,
+            replacement_map: Dict,
+            parent=None,
+            edit_pressed_callback=None,
+            delete_pressed_callback=None,
     ):
         super(OcrDefaultErrorReplacementListItem, self).__init__(parent)
 

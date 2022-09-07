@@ -1,5 +1,5 @@
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QGroupBox, QCheckBox, QVBoxLayout, QScrollArea
+from PyQt6.QtWidgets import QCheckBox, QVBoxLayout, QScrollArea
 
 from ui.steps.step import Step
 from utils.save_config import SaveConfig

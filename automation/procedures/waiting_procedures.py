@@ -15,15 +15,15 @@ class WaitingProcedures:
         """
         console.log("Verarbeitungsschritt läuft...")
         finished = (
-            WaitingProcedures.is_undo_redo_visible()
-            or WaitingProcedures.is_close_button_visible()
+                WaitingProcedures.is_undo_redo_visible()
+                or WaitingProcedures.is_close_button_visible()
         )
         while not finished:
             console.log("Verarbeitungsschritt läuft...")
             time.sleep(0.5)
             finished = (
-                WaitingProcedures.is_undo_redo_visible()
-                or WaitingProcedures.is_close_button_visible()
+                    WaitingProcedures.is_undo_redo_visible()
+                    or WaitingProcedures.is_close_button_visible()
             )
 
     @staticmethod

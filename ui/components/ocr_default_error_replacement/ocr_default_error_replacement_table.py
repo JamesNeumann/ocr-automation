@@ -1,15 +1,12 @@
 from typing import List, Any, Dict
 
 from PyQt6.QtCore import QAbstractTableModel, QModelIndex, Qt, pyqtSignal
-from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QTableView,
     QStyledItemDelegate,
     QAbstractItemView,
     QPushButton,
 )
-
-from utils.console import console
 
 
 class PushButtonDelegate(QStyledItemDelegate):

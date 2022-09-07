@@ -14,7 +14,6 @@ from ui.controller.ocr_default_error_replacement_settings_controller import (
     OcrDefaultErrorReplacementSettingsController,
 )
 from ui.steps.step import Step
-
 from utils.offset import Offset
 
 

@@ -5,7 +5,6 @@ from PyQt6.QtWidgets import QMessageBox
 from ui.components.ocr_default_error_replacement.ocr_default_error_replacement_settings import (
     OcrDefaultErrorReplacementSettings,
 )
-from utils.console import console
 from utils.dialog import create_dialog
 from utils.ocr_default_error_replacement import create_new_default_error_replacement_map
 from utils.save_config import SaveConfig

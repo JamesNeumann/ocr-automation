@@ -16,9 +16,6 @@ from automation.store import Store
 from config import Config
 from utils.console import console
 from utils.keyboard_util import press_key, write
-from utils.ocr_default_error_replacement import (
-    standard_ocr_default_error_replacement_map,
-)
 from utils.rectangle import Rectangle
 
 
