@@ -18,17 +18,21 @@ from utils.save_config import SaveConfig
 
 
 class OcrDefaultErrorReplacementList(QWidget):
-    def __init__(self, edit_callback=None, delete_callback=None):
+    def __init__(
+        self, edit_callback=None, delete_callback=None, create_new_callback=None
+    ):
         super(OcrDefaultErrorReplacementList, self).__init__()
 
         self.edit_callback = edit_callback
         self.delete_callback = delete_callback
+        self.create_new_callback = create_new_callback
 
         self.layout = QGridLayout()
 
         header_layout = QHBoxLayout()
         header_label = QLabel("<h1>Standardfehlerlisten</h1>")
         add_new_replacement_button = QPushButton("Neue Standardfehlerliste hinzufügen")
+        add_new_replacement_button.clicked.connect(create_new_callback)
         header_layout.addWidget(header_label)
         header_layout.addWidget(add_new_replacement_button)
 

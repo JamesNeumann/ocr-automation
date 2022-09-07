@@ -119,12 +119,20 @@ class SaveConfig:
     def update_replacement_map(replacement_map: Dict):
         map_id = replacement_map["id"]
 
+        is_already_saved = False
+
         for save_map in SaveConfig.SAVE_CONFIG[
             SaveConfig.OCR_DEFAULT_ERROR_REPLACEMENTS_KEY
         ]:
             if save_map["id"] == map_id:
                 save_map["map"] = replacement_map["map"]
                 save_map["name"] = replacement_map["name"]
+                is_already_saved = True
+
+        if not is_already_saved:
+            SaveConfig.SAVE_CONFIG[
+                SaveConfig.OCR_DEFAULT_ERROR_REPLACEMENTS_KEY
+            ].append(replacement_map)
         SaveConfig.save_file()
 
     @staticmethod

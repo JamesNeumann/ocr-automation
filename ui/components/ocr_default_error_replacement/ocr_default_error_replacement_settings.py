@@ -16,12 +16,15 @@ class OcrDefaultErrorReplacementSettings(QWidget):
         edit_back_callback,
         edit_save_callback,
         delete_entry_callback,
+        create_new_callback,
     ):
         super(OcrDefaultErrorReplacementSettings, self).__init__()
 
         self.layout = QStackedLayout()
 
-        self.list = OcrDefaultErrorReplacementList(edit_callback, delete_callback)
+        self.list = OcrDefaultErrorReplacementList(
+            edit_callback, delete_callback, create_new_callback
+        )
         self.edit = OcrDefaultErrorReplacementEdit(
             edit_back_callback, edit_save_callback, delete_entry_callback
         )
