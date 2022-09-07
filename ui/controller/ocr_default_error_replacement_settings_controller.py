@@ -4,6 +4,7 @@ from ui.components.ocr_default_error_replacement.ocr_default_error_replacement_s
     OcrDefaultErrorReplacementSettings,
 )
 from utils.console import console
+from utils.save_config import SaveConfig
 
 
 class OcrDefaultErrorReplacementSettingsController:
@@ -25,6 +26,7 @@ class OcrDefaultErrorReplacementSettingsController:
     def edit_back_button_clicked(self):
         self.settings.layout.setCurrentIndex(0)
 
-    def edit_save_button_clicked(self, replacement_map: Dict):
-        console.log(replacement_map)
+    def edit_save_button_clicked(self, updated_replacement_map: Dict):
+        SaveConfig.update_replacement_map(updated_replacement_map)
+        self.settings.list.reload()
         self.settings.layout.setCurrentIndex(0)

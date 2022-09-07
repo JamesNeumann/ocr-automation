@@ -53,6 +53,10 @@ class OcrDefaultErrorReplacementList(QWidget):
             item.setSizeHint(row.minimumSizeHint())
             self.error_list.setItemWidget(item, row)
 
+    def reload(self):
+        self.error_list.clear()
+        self._generate_list()
+
     def edit_button_pressed(self, replacement_map: Dict):
         self.edit_callback(replacement_map)
 
