@@ -16,7 +16,9 @@ from automation.store import Store
 from config import Config
 from utils.console import console
 from utils.keyboard_util import press_key, write
-from utils.ocr_default_error_replacement import default_error_replacement_map
+from utils.ocr_default_error_replacement import (
+    standard_ocr_default_error_replacement_map,
+)
 from utils.rectangle import Rectangle
 
 
@@ -61,7 +63,7 @@ class OcrAutomation:
         press_key(key_combination="tab", repetitions=5, delay_in_seconds=0.1)
         press_key(key_combination="+")
         OcrAutomation.close_replace_dialog()
-        for replacement in default_error_replacement_map["map"]:
+        for replacement in standard_ocr_default_error_replacement_map["map"]:
             OcrAutomation.open_replace_dialog()
             press_key(key_combination="ctrl+a")
             write(replacement[0])

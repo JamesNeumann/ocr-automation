@@ -6,7 +6,9 @@ from typing import Dict
 
 from config import Config
 from utils.console import console
-from utils.ocr_default_error_replacement import default_error_replacement_map
+from utils.ocr_default_error_replacement import (
+    standard_ocr_default_error_replacement_map,
+)
 from utils.offset import Offset
 
 
@@ -167,7 +169,7 @@ class SaveConfig:
             not in SaveConfig.SAVE_CONFIG
         ):
             SaveConfig.SAVE_CONFIG[SaveConfig.OCR_DEFAULT_ERROR_REPLACEMENTS_KEY] = [
-                default_error_replacement_map
+                standard_ocr_default_error_replacement_map
             ]
         return SaveConfig.SAVE_CONFIG[SaveConfig.OCR_DEFAULT_ERROR_REPLACEMENTS_KEY]
 

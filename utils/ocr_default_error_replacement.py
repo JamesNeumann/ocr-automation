@@ -1,4 +1,4 @@
-default_error_replacement_map = {
+standard_ocr_default_error_replacement_map = {
     "id": "1",
     "name": "Standard",
     "map": [
