@@ -2,7 +2,7 @@ import os
 import shutil
 import subprocess
 import time
-from typing import Callable, List
+from typing import Callable, List, Dict
 from uuid import UUID
 
 import psutil
@@ -16,7 +16,6 @@ from automation.store import Store
 from config import Config
 from utils.console import console
 from utils.keyboard_util import press_key, write
-from utils.ocr_default_error_replacement import default_error_replacement_map
 from utils.rectangle import Rectangle
 
 
@@ -56,23 +55,24 @@ class OcrAutomation:
         press_key(key_combination="alt+a+r", delay_in_seconds=0.5)
 
     @staticmethod
-    def replace_default_ocr_errors():
+    def replace_default_ocr_errors(selected_replacement_maps: List[Dict]):
         OcrAutomation.open_replace_dialog()
         press_key(key_combination="tab", repetitions=5, delay_in_seconds=0.1)
         press_key(key_combination="+")
         OcrAutomation.close_replace_dialog()
-        for key, value in default_error_replacement_map.items():
-            OcrAutomation.open_replace_dialog()
-            press_key(key_combination="ctrl+a")
-            write(key)
-            press_key(key_combination="tab", repetitions=2, delay_in_seconds=0.1)
-            press_key(key_combination="ctrl+a")
-            write(value)
-            press_key(key_combination="alt+t", delay_in_seconds=0.1)
-            WaitingProcedures.wait_until_warning_symbol_is_visible(-1)
-            press_key(key_combination="enter", delay_in_seconds=0.1)
-            OcrAutomation.close_replace_dialog()
-            OcrAutomation.select_first_page()
+        for replacement_map in selected_replacement_maps:
+            for replacement in replacement_map["map"]:
+                OcrAutomation.open_replace_dialog()
+                press_key(key_combination="ctrl+a")
+                write(replacement[0])
+                press_key(key_combination="tab", repetitions=2, delay_in_seconds=0.1)
+                press_key(key_combination="ctrl+a")
+                write(replacement[1])
+                press_key(key_combination="alt+t", delay_in_seconds=0.1)
+                WaitingProcedures.wait_until_warning_symbol_is_visible(-1)
+                press_key(key_combination="enter", delay_in_seconds=0.1)
+                OcrAutomation.close_replace_dialog()
+                OcrAutomation.select_first_page()
 
     @staticmethod
     def open_replace_dialog():
