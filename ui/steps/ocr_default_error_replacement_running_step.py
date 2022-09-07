@@ -1,3 +1,5 @@
+from typing import Dict, List
+
 from PyQt6.QtCore import QThreadPool, QRunnable, QObject, pyqtSignal, pyqtSlot
 
 from automation.ocr_automation import OcrAutomation
@@ -9,13 +11,14 @@ class Signals(QObject):
 
 
 class ReplaceOcrDefaultErrorWorker(QRunnable):
-    def __init__(self):
+    def __init__(self, selected_replacement_maps: List[Dict]):
         super(ReplaceOcrDefaultErrorWorker, self).__init__()
         self.signals = Signals()
+        self.selected_replacement_maps = selected_replacement_maps
 
     @pyqtSlot()
     def run(self) -> None:
-        OcrAutomation.replace_default_ocr_errors()
+        OcrAutomation.replace_default_ocr_errors(self.selected_replacement_maps)
         self.signals.finished.emit()
 
 
@@ -43,7 +46,7 @@ class OcrDefaultErrorReplacementRunningStep(Step):
         self.threadpool = QThreadPool()
         self.worker = None
 
-    def start(self):
-        self.worker = ReplaceOcrDefaultErrorWorker()
+    def start(self, selected_replacement_maps: List[Dict]):
+        self.worker = ReplaceOcrDefaultErrorWorker(selected_replacement_maps)
         self.threadpool.start(self.worker)
         self.worker.signals.finished.connect(self.finished.emit)

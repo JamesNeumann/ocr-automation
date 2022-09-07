@@ -2,7 +2,7 @@ import os
 import shutil
 import subprocess
 import time
-from typing import Callable, List
+from typing import Callable, List, Dict
 from uuid import UUID
 
 import psutil
@@ -58,23 +58,24 @@ class OcrAutomation:
         press_key(key_combination="alt+a+r", delay_in_seconds=0.5)
 
     @staticmethod
-    def replace_default_ocr_errors():
+    def replace_default_ocr_errors(selected_replacement_maps: List[Dict]):
         OcrAutomation.open_replace_dialog()
         press_key(key_combination="tab", repetitions=5, delay_in_seconds=0.1)
         press_key(key_combination="+")
         OcrAutomation.close_replace_dialog()
-        for replacement in standard_ocr_default_error_replacement_map["map"]:
-            OcrAutomation.open_replace_dialog()
-            press_key(key_combination="ctrl+a")
-            write(replacement[0])
-            press_key(key_combination="tab", repetitions=2, delay_in_seconds=0.1)
-            press_key(key_combination="ctrl+a")
-            write(replacement[1])
-            press_key(key_combination="alt+t", delay_in_seconds=0.1)
-            WaitingProcedures.wait_until_warning_symbol_is_visible(-1)
-            press_key(key_combination="enter", delay_in_seconds=0.1)
-            OcrAutomation.close_replace_dialog()
-            OcrAutomation.select_first_page()
+        for replacement_map in selected_replacement_maps:
+            for replacement in replacement_map["map"]:
+                OcrAutomation.open_replace_dialog()
+                press_key(key_combination="ctrl+a")
+                write(replacement[0])
+                press_key(key_combination="tab", repetitions=2, delay_in_seconds=0.1)
+                press_key(key_combination="ctrl+a")
+                write(replacement[1])
+                press_key(key_combination="alt+t", delay_in_seconds=0.1)
+                WaitingProcedures.wait_until_warning_symbol_is_visible(-1)
+                press_key(key_combination="enter", delay_in_seconds=0.1)
+                OcrAutomation.close_replace_dialog()
+                OcrAutomation.select_first_page()
 
     @staticmethod
     def open_replace_dialog():

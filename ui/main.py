@@ -384,11 +384,15 @@ class MainWindow(QMainWindow):
         self.open_step(self.ocr_language_selection_step)
 
     def open_ocr_default_error_replacement(self):
+        self.ocr_default_error_replacement_step.add_replacement_maps_check_boxes()
         self.open_step(self.ocr_default_error_replacement_step)
 
     def start_ocr_default_error_replacement(self):
         self.open_step(self.ocr_default_error_replacement_running_step)
-        self.ocr_default_error_replacement_running_step.start()
+        selected_maps = (
+            self.ocr_default_error_replacement_step.get_selected_replacement_maps()
+        )
+        self.ocr_default_error_replacement_running_step.start(selected_maps)
 
     def open_ocr_from_file_step(self):
         if Store.SELECTED_FILE_PATH != "":
