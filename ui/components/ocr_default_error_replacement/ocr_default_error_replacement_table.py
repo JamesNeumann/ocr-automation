@@ -105,11 +105,10 @@ class DefaultErrorReplacementModel(QAbstractTableModel):
 
 
 class OcrDefaultErrorReplacementTable(QTableView):
-    def __init__(self, delete_callback=None):
+    def __init__(self):
         super().__init__()
         self.default_replacement_model = None
         self.delete_button_delegate = None
-        self.delete_callback = delete_callback
 
     def update_model(self, replacement_map: Dict):
         data = []
@@ -139,7 +138,6 @@ class OcrDefaultErrorReplacementTable(QTableView):
 
     def button_delegate_clicked(self, index):
         self.model().removeRows(index.row(), 1, index)
-        self.delete_callback(index.row())
 
     def insert_row(self):
         self.model().insertRowAtEnd()

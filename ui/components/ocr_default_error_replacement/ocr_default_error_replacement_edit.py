@@ -8,9 +8,7 @@ from ui.components.ocr_default_error_replacement.ocr_default_error_replacement_t
 
 
 class OcrDefaultErrorReplacementEdit(QWidget):
-    def __init__(
-        self, back_callback=None, save_callback=None, delete_entry_callback=None
-    ):
+    def __init__(self, back_callback=None, save_callback=None):
         super(OcrDefaultErrorReplacementEdit, self).__init__()
         self.layout = QGridLayout()
 
@@ -29,7 +27,7 @@ class OcrDefaultErrorReplacementEdit(QWidget):
         self.table_layout = QHBoxLayout()
         self.add_row_button = QPushButton("Eintrag hinzufügen")
         self.add_row_button.clicked.connect(self.add_row)
-        self.table = OcrDefaultErrorReplacementTable(self.delete_row)
+        self.table = OcrDefaultErrorReplacementTable()
         self.table_layout.addWidget(self.table)
         self.table_layout.addWidget(self.add_row_button)
         self.layout.addLayout(self.table_layout, 1, 1, 1, 1)
@@ -50,8 +48,6 @@ class OcrDefaultErrorReplacementEdit(QWidget):
 
         self.current_replacement_map = None
 
-        self.delete_entry_callback = delete_entry_callback
-
     def set_replacement_map(self, replacement_map: Dict):
         self.current_replacement_map = replacement_map
         self.header_label.setText(self.current_replacement_map["name"])
@@ -61,9 +57,6 @@ class OcrDefaultErrorReplacementEdit(QWidget):
         self.current_replacement_map["name"] = self.header_label.text()
         self.current_replacement_map["map"] = self.table.get_replacement_map_values()
         return self.current_replacement_map
-
-    def delete_row(self, index):
-        self.delete_entry_callback(index)
 
     def add_row(self):
         self.table.insert_row()
