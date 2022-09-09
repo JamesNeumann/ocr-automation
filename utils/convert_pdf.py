@@ -5,7 +5,7 @@ from typing import List, Callable
 
 import numpy as np
 from PIL.Image import Image
-from PyPDF2 import PdfFileReader
+from PyPDF2 import PdfReader
 from numpy import ndarray
 from pdf2image import convert_from_path
 from rich.progress import track
@@ -33,10 +33,9 @@ def convert_pdf_to_image(
     while i < attempts:
         try:
             wait_until_file_is_unlocked(path_to_pdf)
-            with open(path_to_pdf, "rb") as f:
-                pdf_file_reader = PdfFileReader(f)
-                if pdf_file_reader is not None:
-                    break
+            pdf_file_reader = PdfReader(path_to_pdf)
+            if pdf_file_reader is not None:
+                break
         except FileNotFoundError as e:
             console.log(e)
         i += 1
@@ -51,37 +50,36 @@ def convert_pdf_to_image(
     pts_dimensions = []
 
     file_name = Path(path_to_pdf).stem
-    with open(path_to_pdf, "rb") as f:
-        pdf_file_reader = PdfFileReader(f)
-        for number in range(pdf_file_reader.getNumPages()):
-            x, y, width, height = pdf_file_reader.getPage(number).mediaBox
+    pdf_file_reader = PdfReader(path_to_pdf)
+    for number in range(pdf_file_reader.getNumPages()):
+        x, y, width, height = pdf_file_reader.getPage(number).mediaBox
 
-            pts_dimensions.append(Rectangle(x, y, width, height))
+        pts_dimensions.append(Rectangle(x, y, width, height))
 
-            if width < min_width:
-                min_width = width
-                min_index = number
-            if height < min_height:
-                min_height = height
+        if width < min_width:
+            min_width = width
+            min_index = number
+        if height < min_height:
+            min_height = height
 
-        start_time = time()
-        console.log(f"{file_name} wird konvertiert")
-        try:
+    start_time = time()
+    console.log(f"{file_name} wird konvertiert")
+    try:
 
-            console.log(f"PDF wird mit {SaveConfig.get_dpi_value()} DPI gelesen")
-            converted_images = convert_from_path(
-                pdf_path=path_to_pdf,
-                output_folder=Config.OCR_WORKING_DIR,
-                poppler_path="./Poppler/Library/bin",
-                thread_count=multiprocessing.cpu_count(),
-                jpegopt=True,
-                dpi=SaveConfig.get_dpi_value(),
-            )
-            console.log(
-                f"Es wurden {time() - start_time} Sekunden benötigt um {file_name} zu Bildern zu konvertieren"
-            )
-        except Exception as e:
-            console.log(e, e)
+        console.log(f"PDF wird mit {SaveConfig.get_dpi_value()} DPI gelesen")
+        converted_images = convert_from_path(
+            pdf_path=path_to_pdf,
+            output_folder=Config.OCR_WORKING_DIR,
+            poppler_path="./Poppler/Library/bin",
+            thread_count=multiprocessing.cpu_count(),
+            jpegopt=True,
+            dpi=SaveConfig.get_dpi_value(),
+        )
+        console.log(
+            f"Es wurden {time() - start_time} Sekunden benötigt um {file_name} zu Bildern zu konvertieren"
+        )
+    except Exception as e:
+        console.log(e, e)
 
     return converted_images, min_width, min_height, min_index, pts_dimensions
 

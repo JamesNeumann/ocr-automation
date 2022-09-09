@@ -1,7 +1,7 @@
 from typing import List, Callable
 
 import cv2
-from PyPDF2 import PdfFileReader
+from PyPDF2 import PdfReader
 from numpy import ndarray
 from rich.progress import track
 
@@ -277,26 +277,24 @@ def analyze_pdf_orientation(
     :param progress_callback: Callback for execution progress
     :return: (Amount of landscaped images, Amount of portraits images)
     """
-    with open(path_to_pdf, "rb") as f:
-        pdf_file_reader = PdfFileReader(f)
+    pdf_file_reader = PdfReader(path_to_pdf)
 
-        landscaped = []
-        portraits = []
+    landscaped = []
+    portraits = []
 
-        num_pdf_files = pdf_file_reader.getNumPages()
+    num_pdf_files = pdf_file_reader.getNumPages()
 
-        for index in range(num_pdf_files):
-            box = pdf_file_reader.getPage(index).mediaBox
-            if (
-                box.getUpperRight_x() - box.getUpperLeft_x()
-                > box.getUpperRight_y() - box.getLowerRight_y()
-            ):
-                landscaped.append(index)
-            else:
-                portraits.append(index)
-            progress_callback(index / num_pdf_files)
-
-        progress_callback(1)
+    for index in range(num_pdf_files):
+        box = pdf_file_reader.getPage(index).mediabox
+        if (
+            box.getUpperRight_x() - box.getUpperLeft_x()
+            > box.getUpperRight_y() - box.getLowerRight_y()
+        ):
+            landscaped.append(index)
+        else:
+            portraits.append(index)
+        progress_callback(index / num_pdf_files)
+    progress_callback(1)
     return landscaped, portraits
 
 
@@ -322,7 +320,11 @@ def crop_images_multiple_boxes(images: List[ndarray], crop_boxes: List[Rectangle
 
     cropped_images = []
     for index, image in enumerate(images):
-        cropped_images.append(crop_image(image, crop_boxes[index]))
+        cropped_image = crop_image(image, crop_boxes[index])
+        cropped_shape = cropped_image.shape
+        image_shape = image.shape
+        console.log("Percentage difference", cropped_shape[0] / image_shape[0], cropped_shape[1] / image_shape[1])
+        cropped_images.append(cropped_image)
 
     return cropped_images
 
