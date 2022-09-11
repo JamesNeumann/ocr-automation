@@ -75,12 +75,20 @@ class CropRunningWorker(QRunnable):
             crop_rectangle = self.crop_rectangles[index]
 
             y_diff = image_height - crop_rectangle.height - crop_rectangle.y
-            height_diff =  y_diff + crop_rectangle.height
+            height_diff = y_diff + crop_rectangle.height
 
             x_trans = translate(crop_rectangle.x, 0, image_width, pts_x, pts_width)
             y_trans = translate(y_diff, 0, image_height, abs(pts_y), pts_height)
-            width_trans = translate(crop_rectangle.width + crop_rectangle.x, 0, image_width, pts_x, pts_width)
-            height_trans = translate(height_diff, 0, image_height, abs(pts_y), pts_height)
+            width_trans = translate(
+                crop_rectangle.width + crop_rectangle.x,
+                0,
+                image_width,
+                pts_x,
+                pts_width,
+            )
+            height_trans = translate(
+                height_diff, 0, image_height, abs(pts_y), pts_height
+            )
 
             console.log("Pts Box", pts_width, pts_height)
             console.log("Translated", x_trans, y_trans, width_trans, height_trans)
@@ -101,8 +109,6 @@ class CropRunningWorker(QRunnable):
         OcrAutomation.open_pdf_in_ocr_editor(path)
 
         self.signals.finished.emit()
-
-
 
 
 class CropRunningStep(Step):
