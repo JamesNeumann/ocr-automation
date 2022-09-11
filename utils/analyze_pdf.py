@@ -323,11 +323,6 @@ def crop_images_multiple_boxes(images: List[ndarray], crop_boxes: List[Rectangle
         cropped_image = crop_image(image, crop_boxes[index])
         cropped_shape = cropped_image.shape
         image_shape = image.shape
-        console.log(
-            "Percentage difference",
-            cropped_shape[0] / image_shape[0],
-            cropped_shape[1] / image_shape[1],
-        )
         cropped_images.append(cropped_image)
 
     return cropped_images
