@@ -17,6 +17,8 @@ from utils.rectangle import Rectangle
 from utils.save_config import SaveConfig
 from PyPDF2 import PdfReader, PdfWriter
 
+from utils.translate import translate
+
 
 class CropRunningSignals(QObject):
     finished = pyqtSignal()
@@ -51,47 +53,11 @@ class CropRunningWorker(QRunnable):
                 if x_center_diff > max_x_center_diff:
                     max_x_center_diff = x_center_diff
 
-        cropped_images = crop_images_multiple_boxes(self.images, self.crop_rectangles)
-
-        pillow_images = []
-        saved_images = []
-
-        # amount = len(cropped_images)
-        # for index, image in enumerate(cropped_images):
-        #     img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        #     height, width = img.shape[:2]
-        #
-        #     current_dpi = SaveConfig.get_dpi_value()
-        #     new_dpi = 200
-        #     new_width = round(width * new_dpi / current_dpi)
-        #     new_height = round(height * new_dpi / current_dpi)
-        #     img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_AREA)
-        #     image_id = uuid.uuid4()
-        #     file_path = f"{Config.OCR_WORKING_DIR}\\{image_id}.jpg"
-        #     cv2.imwrite(file_path, img, [int(cv2.IMWRITE_JPEG_QUALITY), 90])
-        #
-        #     saved_images.append(file_path)
-        #
-        #     # encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 60]
-        #     # result, encimg = cv2.imencode('.jpg', img, encode_param)
-        #
-        #     # image_pillow = Image.fromarray(img)
-        #     # image_pillow.resize((round))
-        #     # pillow_images.append(image_pillow)
-        #
-        #     self.signals.progress.emit((index / amount) * 100)
-
-        amount = len(cropped_images)
         pdf = PdfReader(self.path_to_pdf)
         out = PdfWriter()
+        amount = 0
         for index, page in enumerate(pdf.pages):
             console.log("Media Box", page.mediabox)
-
-            # pixel_per_pts_width = self.images[index].shape[0] / page.mediabox.getUpperRight_x()
-            # pixel_per_pts_height = self.images[index].shape[1] / page.mediabox.getLowerRight_y()
-
-            x = convert_to_pts(self.crop_rectangles[index].x)
-            y = convert_to_pts(self.crop_rectangles[index].y)
 
             image_height = self.images[index].shape[0]
             image_width = self.images[index].shape[1]
@@ -111,45 +77,24 @@ class CropRunningWorker(QRunnable):
             y_diff = image_height - crop_rectangle.height - crop_rectangle.y
             height_diff =  y_diff + crop_rectangle.height
 
-            x_trans = self.translate(crop_rectangle.x, 0, image_width, pts_x, pts_width)
-            y_trans = self.translate(y_diff, 0, image_height, abs(pts_y), pts_height)
-            width_trans = self.translate(crop_rectangle.width + crop_rectangle.x, 0, image_width, pts_x, pts_width)
-            height_trans = self.translate(height_diff, 0, image_height, abs(pts_y), pts_height)
+            x_trans = translate(crop_rectangle.x, 0, image_width, pts_x, pts_width)
+            y_trans = translate(y_diff, 0, image_height, abs(pts_y), pts_height)
+            width_trans = translate(crop_rectangle.width + crop_rectangle.x, 0, image_width, pts_x, pts_width)
+            height_trans = translate(height_diff, 0, image_height, abs(pts_y), pts_height)
 
             console.log("Pts Box", pts_width, pts_height)
             console.log("Translated", x_trans, y_trans, width_trans, height_trans)
 
-            width = convert_to_pts(self.crop_rectangles[index].width) + x
-            height = convert_to_pts(self.crop_rectangles[index].height) + y
-
-            # console.log("New Box", x, y, width, height)
-
             page.mediabox.upper_right = (width_trans, height_trans)
             page.mediabox.lower_left = (x_trans, y_trans)
-            # page.mediabox.upper_left = (x, y)
-            # page.mediabox.lower_right = (width, height)
 
-            console.log("New Mediabox", page.mediabox)
             out.addPage(page)
             self.signals.progress.emit((index / amount) * 100)
-
-        out.write("out.pdf")
 
         temp_uuid = uuid.uuid4()
         path = f"{Config.OCR_WORKING_DIR}\\{temp_uuid}.pdf"
         out.write(path)
         console.log("Saving PDF")
-
-        # with open(path, "wb") as f:
-        #     f.write(img2pdf.convert(saved_images))
-
-        # pillow_images[0].save(
-        #     path,
-        #     "PDF",
-        #     resolution=100.0,
-        #     save_all=True,
-        #     append_images=pillow_images[1:],
-        # )
 
         self.signals.progress.emit(100)
 
@@ -157,16 +102,7 @@ class CropRunningWorker(QRunnable):
 
         self.signals.finished.emit()
 
-    def translate(sekf, value, leftMin, leftMax, rightMin, rightMax):
-        # Figure out how 'wide' each range is
-        leftSpan = leftMax - leftMin
-        rightSpan = rightMax - rightMin
 
-        # Convert the left range into a 0-1 range (float)
-        valueScaled = float(value - leftMin) / float(leftSpan)
-
-        # Convert the 0-1 range into a value in the right range.
-        return rightMin + (valueScaled * rightSpan)
 
 
 class CropRunningStep(Step):
