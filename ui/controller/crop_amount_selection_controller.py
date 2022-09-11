@@ -20,8 +20,11 @@ def get_crop_box_pixel_including_offset(
     image: np.ndarray,
     relative=True,
 ):
-    x = max(crop_box.x - offset.left + horizontal_offset, 0)
-    y = max(crop_box.y - offset.top + vertical_offset, 0)
+    # x = max(crop_box.x - offset.left + horizontal_offset, 0)
+    # y = max(crop_box.y - offset.top + vertical_offset, 0)
+
+    x = crop_box.x - offset.left + horizontal_offset
+    y = crop_box.y - offset.top + vertical_offset
 
     calculated_width = (
         crop_box.width
@@ -31,10 +34,11 @@ def get_crop_box_pixel_including_offset(
         - horizontal_offset
         - (0 if relative else crop_box.x)
     )
-    width = min(
-        calculated_width,
-        image.shape[1],
-    )
+    # width = min(
+    #     calculated_width,
+    #     image.shape[1],
+    # )
+    width = calculated_width
 
     calculated_height = (
         crop_box.height
@@ -44,10 +48,12 @@ def get_crop_box_pixel_including_offset(
         - vertical_offset
         - (0 if relative else crop_box.y)
     )
-    height = min(
-        calculated_height,
-        image.shape[0],
-    )
+    # height = min(
+    #     calculated_height,
+    #     image.shape[0],
+    # )
+
+    height = calculated_height
 
     return Rectangle(
         int(round(x)), int(round(y)), int(round(width)), int(round(height))
@@ -449,98 +455,103 @@ class CropAmountSelectionController:
         self.update_spin_boxes_max_value()
 
     def update_spin_boxes_max_value(self):
-        crop_box = self.analysis_result.transformed_box[self.current_image_index]
+        # crop_box = self.analysis_result.transformed_box[self.current_image_index]
+        #
+        # image_shape = self.analysis_result.images[self.current_image_index].shape
+        # width = image_shape[1]
+        # height = image_shape[0]
+        #
+        # page_offset = self.pages_offsets[self.current_image_index]
+        #
+        # crop_box_including_offset = get_crop_box_pixel_including_offset(
+        #     crop_box,
+        #     page_offset,
+        #     self.horizontal_pages_offsets[self.current_image_index],
+        #     self.vertical_pages_offsets[self.current_image_index],
+        #     self.analysis_result.images[self.current_image_index],
+        # )
+        #
+        # pts_per_width = float(
+        #     self.analysis_result.pts_dimensions[self.current_image_index].width / width
+        # )
+        # pts_per_height = float(
+        #     self.analysis_result.pts_dimensions[self.current_image_index].height
+        #     / height
+        # )
+        #
+        # minimal_vertical_value = convert_to_pts(
+        #     crop_box_including_offset.y * pts_per_height
+        # )
+        #
+        # maximal_vertical_value = convert_to_pts(
+        #     (height - crop_box_including_offset.y - crop_box_including_offset.height)
+        #     * pts_per_height
+        # )
+        #
+        # minimal_horizontal_value = convert_to_pts(
+        #     crop_box_including_offset.x * pts_per_width
+        # )
+        #
+        # maximal_horizontal_value = convert_to_pts(
+        #     (width - crop_box_including_offset.x - crop_box_including_offset.width)
+        #     * pts_per_width
+        # )
+        #
+        # vertical_spinbox = self.vertical_spinbox()
+        # horizontal_spinbox = self.horizontal_spinbox()
+        # top_spinbox = self.top_spinbox()
+        # right_spinbox = self.right_spinbox()
+        # bottom_spinbox = self.bottom_spinbox()
+        # left_spinbox = self.left_spinbox()
+        #
+        # if minimal_vertical_value > 0:
+        #     vertical_spinbox.setMinimum(-minimal_vertical_value)
+        #     top_spinbox.setMaximum(
+        #         minimal_vertical_value
+        #         + convert_to_pts(page_offset.top * pts_per_height)
+        #     )
+        # else:
+        #     vertical_spinbox.setMinimum(0)
+        #     top_spinbox.setMaximum(0)
+        #
+        # height_pts = convert_to_pts(height * pts_per_height)
+        #
+        # if maximal_vertical_value < height_pts:
+        #     vertical_spinbox.setMaximum(maximal_vertical_value)
+        #     bottom_spinbox.setMaximum(
+        #         maximal_vertical_value
+        #         + convert_to_pts(page_offset.bottom * pts_per_height)
+        #     )
+        # else:
+        #     vertical_spinbox.setMaximum(height_pts)
+        #     bottom_spinbox.setMaximum(height_pts)
+        #
+        # if minimal_horizontal_value > 0:
+        #     horizontal_spinbox.setMinimum(-minimal_horizontal_value)
+        #     left_spinbox.setMaximum(
+        #         minimal_horizontal_value
+        #         + convert_to_pts(page_offset.left * pts_per_height)
+        #     )
+        # else:
+        #     horizontal_spinbox.setMinimum(0)
+        #     left_spinbox.setMaximum(0)
+        #
+        # width_pts = convert_to_pts(width * pts_per_width)
+        #
+        # if maximal_horizontal_value < width_pts:
+        #     horizontal_spinbox.setMaximum(maximal_horizontal_value)
+        #     right_spinbox.setMaximum(
+        #         maximal_horizontal_value
+        #         + convert_to_pts(page_offset.right * pts_per_width)
+        #     )
+        # else:
+        #     horizontal_spinbox.setMaximum(width_pts)
+        #     right_spinbox.setMaximum(width_pts)
 
-        image_shape = self.analysis_result.images[self.current_image_index].shape
-        width = image_shape[1]
-        height = image_shape[0]
-
-        page_offset = self.pages_offsets[self.current_image_index]
-
-        crop_box_including_offset = get_crop_box_pixel_including_offset(
-            crop_box,
-            page_offset,
-            self.horizontal_pages_offsets[self.current_image_index],
-            self.vertical_pages_offsets[self.current_image_index],
-            self.analysis_result.images[self.current_image_index],
-        )
-
-        pts_per_width = float(
-            self.analysis_result.pts_dimensions[self.current_image_index].width / width
-        )
-        pts_per_height = float(
-            self.analysis_result.pts_dimensions[self.current_image_index].height
-            / height
-        )
-
-        minimal_vertical_value = convert_to_pts(
-            crop_box_including_offset.y * pts_per_height
-        )
-
-        maximal_vertical_value = convert_to_pts(
-            (height - crop_box_including_offset.y - crop_box_including_offset.height)
-            * pts_per_height
-        )
-
-        minimal_horizontal_value = convert_to_pts(
-            crop_box_including_offset.x * pts_per_width
-        )
-
-        maximal_horizontal_value = convert_to_pts(
-            (width - crop_box_including_offset.x - crop_box_including_offset.width)
-            * pts_per_width
-        )
-
-        vertical_spinbox = self.vertical_spinbox()
-        horizontal_spinbox = self.horizontal_spinbox()
-        top_spinbox = self.top_spinbox()
-        right_spinbox = self.right_spinbox()
-        bottom_spinbox = self.bottom_spinbox()
-        left_spinbox = self.left_spinbox()
-
-        if minimal_vertical_value > 0:
-            vertical_spinbox.setMinimum(-minimal_vertical_value)
-            top_spinbox.setMaximum(
-                minimal_vertical_value
-                + convert_to_pts(page_offset.top * pts_per_height)
-            )
-        else:
-            vertical_spinbox.setMinimum(0)
-            top_spinbox.setMaximum(0)
-
-        height_pts = convert_to_pts(height * pts_per_height)
-
-        if maximal_vertical_value < height_pts:
-            vertical_spinbox.setMaximum(maximal_vertical_value)
-            bottom_spinbox.setMaximum(
-                maximal_vertical_value
-                + convert_to_pts(page_offset.bottom * pts_per_height)
-            )
-        else:
-            vertical_spinbox.setMaximum(height_pts)
-            bottom_spinbox.setMaximum(height_pts)
-
-        if minimal_horizontal_value > 0:
-            horizontal_spinbox.setMinimum(-minimal_horizontal_value)
-            left_spinbox.setMaximum(
-                minimal_horizontal_value
-                + convert_to_pts(page_offset.left * pts_per_height)
-            )
-        else:
-            horizontal_spinbox.setMinimum(0)
-            left_spinbox.setMaximum(0)
-
-        width_pts = convert_to_pts(width * pts_per_width)
-
-        if maximal_horizontal_value < width_pts:
-            horizontal_spinbox.setMaximum(maximal_horizontal_value)
-            right_spinbox.setMaximum(
-                maximal_horizontal_value
-                + convert_to_pts(page_offset.right * pts_per_width)
-            )
-        else:
-            horizontal_spinbox.setMaximum(width_pts)
-            right_spinbox.setMaximum(width_pts)
+        self.top_spinbox().setMaximum(9999)
+        self.right_spinbox().setMaximum(9999)
+        self.bottom_spinbox().setMaximum(9999)
+        self.left_spinbox().setMaximum(9999)
 
     def get_transformed_crop_boxes_pts(self):
         transformed_boxes_pts = []

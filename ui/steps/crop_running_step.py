@@ -55,9 +55,8 @@ class CropRunningWorker(QRunnable):
 
         pdf = PdfReader(self.path_to_pdf)
         out = PdfWriter()
-        amount = 0
+        amount = len(self.images)
         for index, page in enumerate(pdf.pages):
-            console.log("Media Box", page.mediabox)
 
             image_height = self.images[index].shape[0]
             image_width = self.images[index].shape[1]
@@ -89,9 +88,6 @@ class CropRunningWorker(QRunnable):
             height_trans = translate(
                 height_diff, 0, image_height, abs(pts_y), pts_height
             )
-
-            console.log("Pts Box", pts_width, pts_height)
-            console.log("Translated", x_trans, y_trans, width_trans, height_trans)
 
             page.mediabox.upper_right = (width_trans, height_trans)
             page.mediabox.lower_left = (x_trans, y_trans)
