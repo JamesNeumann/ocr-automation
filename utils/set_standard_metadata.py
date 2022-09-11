@@ -2,7 +2,7 @@ from datetime import datetime
 from pathlib import Path
 
 import pytz
-from PyPDF2 import PdfFileReader, PdfFileWriter
+from PyPDF2 import PdfReader, PdfWriter
 
 from utils.console import console
 
@@ -14,10 +14,9 @@ def set_standard_metadata(path_to_pdf: str) -> None:
     :param path_to_pdf: Path to the PDF
     """
 
-    file_in = open(path_to_pdf, "rb")
-    pdf_reader = PdfFileReader(file_in)
+    pdf_reader = PdfReader(path_to_pdf)
     pdf_reader.getXmpMetadata()
-    writer = PdfFileWriter()
+    writer = PdfWriter()
     writer.appendPagesFromReader(pdf_reader)
 
     curr_date = datetime.utcnow()
@@ -38,9 +37,6 @@ def set_standard_metadata(path_to_pdf: str) -> None:
     }
     writer.addMetadata(new_metadata)
 
-    file_out = open(path_to_pdf, "ab")
-    writer.write(file_out)
-    file_in.close()
-    file_out.close()
+    writer.write(path_to_pdf)
 
     console.log(f"Metadaten wurden für '{file_name}' gesetzt")

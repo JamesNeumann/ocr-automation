@@ -1,5 +1,5 @@
 pdf2image>=1.16.0
-PyPDF2>=1.26.0
+PyPDF2>=2.10.5
 rich>=10.15.2
 Pillow>=8.4.0
 numpy>=1.22.3

@@ -586,6 +586,22 @@ class CropAmountSelectionController:
             )
         return transformed_boxes
 
+    def get_transformed_crop_boxes_pts(self):
+        transformed_boxes = []
+        for index, box in enumerate(self.analysis_result.transformed_box):
+            transformed_boxes.append(
+                get_crop_box_pts(
+                    box,
+                    self.pages_offsets[index],
+                    self.horizontal_pages_offsets[index],
+                    self.vertical_pages_offsets[index],
+                    self.analysis_result.images[index],
+                    self.analysis_result.pts_dimensions[index],
+                    True,
+                )
+            )
+        return transformed_boxes
+
     def get_max_crop_box_pixel(self):
         return get_crop_box_pixel_including_offset(
             self.analysis_result.max_box,
