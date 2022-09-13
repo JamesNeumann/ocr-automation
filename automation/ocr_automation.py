@@ -21,7 +21,9 @@ from utils.rectangle import Rectangle
 
 class OcrAutomation:
     @staticmethod
-    def open_pdf_in_ocr_editor(path_to_pdf: str, disble_image_editing_settings=False) -> None:
+    def open_pdf_in_ocr_editor(
+        path_to_pdf: str, disble_image_editing_settings=False
+    ) -> None:
         """
         Opens the given PDF in the OCR editor
 
