@@ -22,12 +22,12 @@ from utils.rectangle import Rectangle
 class OcrAutomation:
     @staticmethod
     def open_pdf_in_ocr_editor(
-        path_to_pdf: str, disble_image_editing_settings=False
+        path_to_pdf: str, disable_image_editing_settings=False
     ) -> None:
         """
         Opens the given PDF in the OCR editor
 
-        :param disble_image_editing_settings: If the image editing settings should be disabled
+        :param disable_image_editing_settings: If the image editing settings should be disabled
         :param path_to_pdf: path to the PDF that should be opened
         """
         os.startfile(Config.OCR_EDITOR_LNK_PATH)
@@ -36,10 +36,11 @@ class OcrAutomation:
         press_key(key_combination="alt+n")
         time.sleep(1)
         # OcrAutomation.disable_initial_ocr()
-        if disble_image_editing_settings:
-            OcrAutomation.disable_image_editing_settings()
+        if disable_image_editing_settings:
+            OcrAutomation.disable_image_editing_settings(False)
         else:
-            OcrAutomation.enable_image_editing_settings()
+            OcrAutomation.enable_image_editing_settings(False)
+        OcrAutomation.enable_preservation_of_metadata()
         GeneralProcedures.click_ocr_open_pdf_icon()
         time.sleep(0.5)
         write(path_to_pdf)
@@ -140,7 +141,8 @@ class OcrAutomation:
         Runs OCR detection by only using the text provided in the OCR of the file
         """
         OcrAutomation.open_ocr_editor_options()
-        OcrAutomation.set_ocr_mode(ocr_from_text=True, close=True)
+        OcrAutomation.set_ocr_mode(ocr_from_text=True, close=False)
+        OcrAutomation.set_ocr_languages("Deutsch;Latein")
         OcrAutomation.start_ocr()
 
     @staticmethod
@@ -319,7 +321,7 @@ class OcrAutomation:
         press_key(key_combination="enter", delay_in_seconds=0.3)
 
     @staticmethod
-    def disable_image_editing_settings():
+    def disable_image_editing_settings(should_close_settings=True):
         GeneralProcedures.open_options()
         GeneralProcedures.click_ocr_image_processing_icon()
         press_key(key_combination="tab", delay_in_seconds=0.1)
@@ -332,11 +334,12 @@ class OcrAutomation:
         press_key(key_combination="-", delay_in_seconds=0.3)
         press_key(key_combination="tab", delay_in_seconds=0.1)
         press_key(key_combination="enter", delay_in_seconds=0.3)
-        press_key(key_combination="tab", repetitions=2, delay_in_seconds=0.1)
-        press_key(key_combination="enter", delay_in_seconds=0.3)
+        if should_close_settings:
+            press_key(key_combination="tab", repetitions=2, delay_in_seconds=0.1)
+            press_key(key_combination="enter", delay_in_seconds=0.3)
 
     @staticmethod
-    def enable_image_editing_settings():
+    def enable_image_editing_settings(should_close_settings=True):
         GeneralProcedures.open_options()
         GeneralProcedures.click_ocr_image_processing_icon()
         press_key(key_combination="tab", delay_in_seconds=0.1)
@@ -363,8 +366,9 @@ class OcrAutomation:
         press_key(key_combination="+", delay_in_seconds=0.3)
         press_key(key_combination="tab", repetitions=13, delay_in_seconds=0.1)
         press_key(key_combination="enter", delay_in_seconds=0.3)
-        press_key(key_combination="tab", delay_in_seconds=0.1)
-        press_key(key_combination="enter", delay_in_seconds=0.3)
+        if should_close_settings:
+            press_key(key_combination="tab", delay_in_seconds=0.1)
+            press_key(key_combination="enter", delay_in_seconds=0.3)
 
     @staticmethod
     def disable_abby_precise_scan():
@@ -377,6 +381,15 @@ class OcrAutomation:
         press_key(key_combination="tab", repetitions=5, delay_in_seconds=0.3)
         press_key(key_combination="-", delay_in_seconds=0.3)
         press_key(key_combination="tab")
+        press_key(key_combination="enter", delay_in_seconds=0.3)
+
+    @staticmethod
+    def enable_preservation_of_metadata():
+        GeneralProcedures.open_options()
+        GeneralProcedures.click_format_settings_icon()
+        press_key(key_combination="shift+m")
+        press_key(key_combination="+")
+        press_key(key_combination="tab", repetitions=2, delay_in_seconds=0.1)
         press_key(key_combination="enter", delay_in_seconds=0.3)
 
     @staticmethod
