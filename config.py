@@ -20,7 +20,7 @@ class Config:
     MIN_DPI = 72
     MAX_DPI = 900
 
-    VERSION = "1.2.0"
+    VERSION = "1.2.9"
 
     STOP_STUCK_RUNNING = False
 
