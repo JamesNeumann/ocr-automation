@@ -18,7 +18,7 @@ class OcrFromFileRunningWorker(QRunnable):
 
     @pyqtSlot()
     def run(self):
-        OcrAutomation.open_pdf_in_ocr_editor(Store.SELECTED_FILE_PATH)
+        OcrAutomation.open_pdf_in_ocr_editor(Store.SELECTED_FILE_PATH, True)
         OcrAutomation.run_ocr_with_ocr_from_text()
         self.signals.finished.emit()
 
