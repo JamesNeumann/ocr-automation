@@ -21,10 +21,13 @@ from utils.rectangle import Rectangle
 
 class OcrAutomation:
     @staticmethod
-    def open_pdf_in_ocr_editor(path_to_pdf: str) -> None:
+    def open_pdf_in_ocr_editor(
+        path_to_pdf: str, disble_image_editing_settings=False
+    ) -> None:
         """
         Opens the given PDF in the OCR editor
 
+        :param disble_image_editing_settings: If the image editing settings should be disabled
         :param path_to_pdf: path to the PDF that should be opened
         """
         os.startfile(Config.OCR_EDITOR_LNK_PATH)
@@ -32,7 +35,11 @@ class OcrAutomation:
         time.sleep(1)
         press_key(key_combination="alt+n")
         time.sleep(1)
-        OcrAutomation.disable_initial_ocr()
+        # OcrAutomation.disable_initial_ocr()
+        if disble_image_editing_settings:
+            OcrAutomation.disable_image_editing_settings()
+        else:
+            OcrAutomation.enable_image_editing_settings()
         GeneralProcedures.click_ocr_open_pdf_icon()
         time.sleep(0.5)
         write(path_to_pdf)
@@ -309,6 +316,54 @@ class OcrAutomation:
         press_key(key_combination="tab", repetitions=5, delay_in_seconds=0.3)
         press_key(key_combination="-", delay_in_seconds=0.3)
         press_key(key_combination="tab")
+        press_key(key_combination="enter", delay_in_seconds=0.3)
+
+    @staticmethod
+    def disable_image_editing_settings():
+        GeneralProcedures.open_options()
+        GeneralProcedures.click_ocr_image_processing_icon()
+        press_key(key_combination="tab", delay_in_seconds=0.1)
+        press_key(key_combination="-", delay_in_seconds=0.3)
+        press_key(key_combination="tab", repetitions=2, delay_in_seconds=0.1)
+        press_key(key_combination="-", delay_in_seconds=0.3)
+        press_key(key_combination="tab", delay_in_seconds=0.1)
+        press_key(key_combination="-", delay_in_seconds=0.3)
+        press_key(key_combination="tab", delay_in_seconds=0.1)
+        press_key(key_combination="-", delay_in_seconds=0.3)
+        press_key(key_combination="tab", delay_in_seconds=0.1)
+        press_key(key_combination="enter", delay_in_seconds=0.3)
+        press_key(key_combination="tab", repetitions=2, delay_in_seconds=0.1)
+        press_key(key_combination="enter", delay_in_seconds=0.3)
+
+    @staticmethod
+    def enable_image_editing_settings():
+        GeneralProcedures.open_options()
+        GeneralProcedures.click_ocr_image_processing_icon()
+        press_key(key_combination="tab", delay_in_seconds=0.1)
+        press_key(key_combination="+", delay_in_seconds=0.3)
+        press_key(key_combination="tab", repetitions=3, delay_in_seconds=0.1)
+        press_key(key_combination="+", delay_in_seconds=0.3)
+        press_key(key_combination="tab", delay_in_seconds=0.1)
+        press_key(key_combination="+", delay_in_seconds=0.3)
+        press_key(key_combination="tab", repetitions=2, delay_in_seconds=0.1)
+        press_key(key_combination="enter", delay_in_seconds=0.3)
+        press_key(key_combination="shift+tab", repetitions=4, delay_in_seconds=0.1)
+        press_key(key_combination="+", delay_in_seconds=0.3)
+        press_key(key_combination="shift+tab", delay_in_seconds=0.1)
+        press_key(key_combination="+", delay_in_seconds=0.3)
+        press_key(key_combination="shift+tab", delay_in_seconds=0.1)
+        press_key(key_combination="+", delay_in_seconds=0.3)
+        press_key(key_combination="shift+tab", repetitions=3, delay_in_seconds=0.1)
+        press_key(key_combination="+", delay_in_seconds=0.3)
+        press_key(key_combination="shift+tab", repetitions=2, delay_in_seconds=0.1)
+        press_key(key_combination="+", delay_in_seconds=0.3)
+        press_key(key_combination="shift+tab", delay_in_seconds=0.1)
+        press_key(key_combination="+", delay_in_seconds=0.3)
+        press_key(key_combination="shift+tab", delay_in_seconds=0.1)
+        press_key(key_combination="+", delay_in_seconds=0.3)
+        press_key(key_combination="tab", repetitions=13, delay_in_seconds=0.1)
+        press_key(key_combination="enter", delay_in_seconds=0.3)
+        press_key(key_combination="tab", delay_in_seconds=0.1)
         press_key(key_combination="enter", delay_in_seconds=0.3)
 
     @staticmethod
