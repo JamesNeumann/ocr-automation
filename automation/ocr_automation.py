@@ -387,8 +387,8 @@ class OcrAutomation:
     def enable_preservation_of_metadata():
         GeneralProcedures.open_options()
         GeneralProcedures.click_format_settings_icon()
-        press_key(key_combination="shift+m")
-        press_key(key_combination="+")
+        press_key(key_combination="shift+m", delay_in_seconds=0.3)
+        press_key(key_combination="+", delay_in_seconds=0.3)
         press_key(key_combination="tab", repetitions=2, delay_in_seconds=0.1)
         press_key(key_combination="enter", delay_in_seconds=0.3)
 
