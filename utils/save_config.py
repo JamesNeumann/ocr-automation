@@ -187,6 +187,8 @@ class SaveConfig:
             not in SaveConfig.SAVE_CONFIG
         ):
             console.log("Save config not available")
+            if not SaveConfig.SAVE_CONFIG:
+                SaveConfig.SAVE_CONFIG = {}
             SaveConfig.SAVE_CONFIG[SaveConfig.OCR_DEFAULT_ERROR_REPLACEMENTS_KEY] = [
                 standard_ocr_default_error_replacement_map
             ]
