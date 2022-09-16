@@ -3,6 +3,7 @@ from typing import Dict, List
 from PyQt6.QtCore import QThreadPool, QRunnable, QObject, pyqtSignal, pyqtSlot
 
 from automation.ocr_automation import OcrAutomation
+from config import Config
 from ui.steps.step import Step
 
 
@@ -47,6 +48,10 @@ class OcrDefaultErrorReplacementRunningStep(Step):
         self.worker = None
 
     def start(self, selected_replacement_maps: List[Dict]):
+        Config.STOP_STUCK_RUNNING = False
         self.worker = ReplaceOcrDefaultErrorWorker(selected_replacement_maps)
         self.threadpool.start(self.worker)
         self.worker.signals.finished.connect(self.finished.emit)
+
+    def stop(self):
+        Config.STOP_STUCK_RUNNING = True

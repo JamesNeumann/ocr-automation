@@ -70,6 +70,11 @@ class OcrAutomation:
         OcrAutomation.close_replace_dialog()
         for replacement_map in selected_replacement_maps:
             for replacement in replacement_map["map"]:
+                if Config.STOP_STUCK_RUNNING:
+                    press_key(key_combination="alt+tab", delay_in_seconds=0.5)
+                    GeneralProcedures.click_ocr_pages_header()
+                    OcrAutomation.select_first_page()
+                    return
                 OcrAutomation.open_replace_dialog()
                 press_key(key_combination="ctrl+a")
                 write(replacement[0])
@@ -77,7 +82,7 @@ class OcrAutomation:
                 press_key(key_combination="ctrl+a")
                 write(replacement[1])
                 press_key(key_combination="alt+t", delay_in_seconds=0.1)
-                WaitingProcedures.wait_until_warning_symbol_is_visible(-1)
+                WaitingProcedures.wait_until_warning_symbol_is_visible(5)
                 press_key(key_combination="enter", delay_in_seconds=0.1)
                 OcrAutomation.close_replace_dialog()
                 OcrAutomation.select_first_page()

@@ -153,7 +153,7 @@ class WaitingProcedures:
         """
         console.log("Es wird gewartet bis das Warnungs-Symbol sichtbar ist")
         visible = WaitingProcedures.is_warning_symbol_visible(attempts)
-        while not visible:
+        while not visible and not Config.STOP_STUCK_RUNNING:
             console.log("Es wird gewartet bis das Warnungs-Symbol sichtbar ist")
             time.sleep(0.5)
             visible = WaitingProcedures.is_warning_symbol_visible(attempts)
@@ -257,6 +257,8 @@ class WaitingProcedures:
                 pass
             return True
         for i in range(attempts):
+            if Config.STOP_STUCK_RUNNING:
+                return True
             result = Screen.locate_on_screen("warning_symbol.png")
             if result is not None:
                 return True
