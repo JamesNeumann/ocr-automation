@@ -153,13 +153,6 @@ class MainWindow(QMainWindow):
         )
         self.ocr_from_file_running_step.finished.connect(self.ocr_running_finished)
 
-        # self.ocr_finished_step = Step(
-        #     text="OCR abgeschlossen. Bitte überprüfen und dann auf weiter.",
-        #     next_callback=self.open_ocr_default_error_replacement,
-        #     previous_text="OCR wiederholen",
-        #     previous_callback=lambda: self.open_step(self.ocr_language_selection_step),
-        # )
-
         self.ocr_default_error_replacement_finished_step = Step(
             text="Korrektur der Standardfehler abgeschlossen. Händische Nachkorrektur und dann weiter",
             next_callback=self.open_save_location_step,
@@ -170,22 +163,18 @@ class MainWindow(QMainWindow):
         self.ocr_finished_step = Step(
             text="OCR abgeschlossen. Sollen die OCR Standardfehler ersetzt werden?",
             previous_text="Nein",
-            previous_callback=lambda: self.open_step(self.ocr_default_error_replacement_finished_step),
+            previous_callback=lambda: self.open_step(
+                self.ocr_default_error_replacement_finished_step
+            ),
             next_text="Ja",
-            next_callback=self.open_ocr_default_error_replacement
+            next_callback=self.open_ocr_default_error_replacement,
         )
-
-        # self.ocr_default_error_replacement_step = OcrDefaultErrorReplacementStep(
-        #     text="Sollen die OCR Standardfehler ersetzt werden?",
-        #     next_callback=self.start_ocr_default_error_replacement,
-        #     previous_callback=self.open_save_location_step,
-        # )
 
         self.ocr_default_error_replacement_step = OcrDefaultErrorReplacementStep(
             text="Wähle welche Standardfehlerlisten verwendet werden sollen",
             next_callback=self.start_ocr_default_error_replacement,
             previous_callback=self.open_save_location_step,
-            previous_text="Überspringen"
+            previous_text="Überspringen",
         )
 
         self.ocr_default_error_replacement_running_step = (
