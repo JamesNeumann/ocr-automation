@@ -168,7 +168,9 @@ class MainWindow(QMainWindow):
 
         self.ocr_default_error_replacement_running_step = (
             OcrDefaultErrorReplacementRunningStep(
-                text="OCR Standardfehler werden korrigiert"
+                text="OCR Standardfehler werden korrigiert",
+                next_text="Überspringen",
+                next_callback=self.skip_ocr_standard_replacement_running
             )
         )
 
@@ -394,6 +396,9 @@ class MainWindow(QMainWindow):
             self.ocr_default_error_replacement_step.get_selected_replacement_maps()
         )
         self.ocr_default_error_replacement_running_step.start(selected_maps)
+
+    def skip_ocr_standard_replacement_running(self):
+        self.ocr_default_error_replacement_running_step.stop()
 
     def open_ocr_from_file_step(self):
         if Store.SELECTED_FILE_PATH != "":
