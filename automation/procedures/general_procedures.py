@@ -149,9 +149,9 @@ class GeneralProcedures:
         """
         i = 0
         while i < attempts:
-            x, y = Screen.locate_center_on_screen("ocr_file_icon.png")
-            if x is not None and y is not None:
-                pyautogui.click(x, y)
+            result = Screen.locate_center_on_screen("ocr_file_icon.png")
+            if result is not None:
+                pyautogui.click(result.x, result.y)
                 return
             i += 1
 
@@ -162,9 +162,9 @@ class GeneralProcedures:
         """
         i = 0
         while i < attempts:
-            x, y = Screen.locate_center_on_screen("ocr_option_icon.png")
-            if x is not None and y is not None:
-                pyautogui.click(x, y)
+            result = Screen.locate_center_on_screen("ocr_option_icon.png")
+            if result is not None:
+                pyautogui.click(result.x, result.y)
                 return
             i += 1
 

@@ -42,7 +42,7 @@ class Screen:
         :return: Any
         """
         return pyautogui.locateCenterOnScreen(
-            Screen.get_image_path(image_name, folder), confidence=0.95
+            Screen.get_image_path(image_name, folder), confidence=0.90
         )
 
     @staticmethod
@@ -55,7 +55,7 @@ class Screen:
         :return: Any
         """
         return pyautogui.locateOnScreen(
-            Screen.get_image_path(image_name, folder), confidence=0.95
+            Screen.get_image_path(image_name, folder), confidence=0.90
         )
 
     @staticmethod
