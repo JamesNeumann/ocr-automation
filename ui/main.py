@@ -170,7 +170,7 @@ class MainWindow(QMainWindow):
             OcrDefaultErrorReplacementRunningStep(
                 text="OCR Standardfehler werden korrigiert",
                 next_text="Überspringen",
-                next_callback=self.skip_ocr_standard_replacement_running
+                next_callback=self.skip_ocr_standard_replacement_running,
             )
         )
 
