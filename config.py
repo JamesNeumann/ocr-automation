@@ -29,6 +29,10 @@ class Config:
 
     DEFAULT_CROP_BOX_OFFSET = Offset(top=5, right=5, bottom=10, left=5)
 
+    IMAGE_SETTINGS_ENABLED = None
+    METADATA_IS_ENABLED = False
+    PREVIOUS_RUN_WAS_COMPLETE_PROCEDURE = None
+
     @staticmethod
     def initialize_directories() -> None:
         """
