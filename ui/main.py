@@ -356,6 +356,7 @@ class MainWindow(QMainWindow):
         self.open_next_step()
 
     def open_procedure_step(self):
+        Config.PREVIOUS_RUN_WAS_COMPLETE_PROCEDURE = True
         self.open_step(self.select_procedures_step)
         self.window().activateWindow()
 

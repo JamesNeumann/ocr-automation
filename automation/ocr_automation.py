@@ -37,10 +37,11 @@ class OcrAutomation:
         time.sleep(1)
         # OcrAutomation.disable_initial_ocr()
         if disable_image_editing_settings:
-            OcrAutomation.disable_image_editing_settings(False)
+            option_is_open = OcrAutomation.disable_image_editing_settings()
         else:
-            OcrAutomation.enable_image_editing_settings(False)
-        OcrAutomation.enable_preservation_of_metadata()
+            option_is_open = OcrAutomation.enable_image_editing_settings()
+        OcrAutomation.enable_preservation_of_metadata(option_is_open)
+
         GeneralProcedures.click_ocr_open_pdf_icon()
         time.sleep(0.5)
         write(path_to_pdf)
@@ -145,9 +146,14 @@ class OcrAutomation:
         """
         Runs OCR detection by only using the text provided in the OCR of the file
         """
-        OcrAutomation.open_ocr_editor_options()
-        OcrAutomation.set_ocr_mode(ocr_from_text=True, close=False)
-        OcrAutomation.set_ocr_languages("Deutsch;Latein")
+        if (
+            Config.PREVIOUS_RUN_WAS_COMPLETE_PROCEDURE
+            or Config.PREVIOUS_RUN_WAS_COMPLETE_PROCEDURE is None
+        ):
+            OcrAutomation.open_ocr_editor_options()
+            OcrAutomation.set_ocr_mode(ocr_from_text=True, close=False)
+            OcrAutomation.set_ocr_languages("Deutsch;Latein")
+            Config.PREVIOUS_RUN_WAS_COMPLETE_PROCEDURE = False
         OcrAutomation.start_ocr()
 
     @staticmethod
@@ -320,60 +326,89 @@ class OcrAutomation:
         press_key(key_combination="+", delay_in_seconds=0.3)
         press_key(key_combination="tab", delay_in_seconds=0.3)
         press_key(key_combination="+", delay_in_seconds=0.3)
-        press_key(key_combination="tab", repetitions=5, delay_in_seconds=0.3)
-        press_key(key_combination="-", delay_in_seconds=0.3)
-        press_key(key_combination="tab")
+        press_key(key_combination="tab", repetitions=7, delay_in_seconds=0.3)
         press_key(key_combination="enter", delay_in_seconds=0.3)
 
     @staticmethod
-    def disable_image_editing_settings(should_close_settings=True):
+    def disable_image_editing_settings():
+        if (
+            not Config.IMAGE_SETTINGS_ENABLED
+            and Config.IMAGE_SETTINGS_ENABLED is not None
+        ):
+            return False
         GeneralProcedures.open_options()
         GeneralProcedures.click_ocr_image_processing_icon()
-        press_key(key_combination="tab", delay_in_seconds=0.1)
-        press_key(key_combination="-", delay_in_seconds=0.3)
+        OcrAutomation.toggle_settings_item()
+        OcrAutomation.toggle_settings_item(repetitions=2)
+        OcrAutomation.toggle_settings_item()
+        OcrAutomation.toggle_settings_item()
         press_key(key_combination="tab", repetitions=2, delay_in_seconds=0.1)
-        press_key(key_combination="-", delay_in_seconds=0.3)
-        press_key(key_combination="tab", delay_in_seconds=0.1)
-        press_key(key_combination="-", delay_in_seconds=0.3)
-        press_key(key_combination="tab", delay_in_seconds=0.1)
-        press_key(key_combination="-", delay_in_seconds=0.3)
-        press_key(key_combination="tab", delay_in_seconds=0.1)
         press_key(key_combination="enter", delay_in_seconds=0.3)
-        if should_close_settings:
-            press_key(key_combination="tab", repetitions=2, delay_in_seconds=0.1)
-            press_key(key_combination="enter", delay_in_seconds=0.3)
+        for i in range(13):
+            OcrAutomation.toggle_settings_item(shift=True)
+        for i in range(13):
+            press_key(key_combination="tab", delay_in_seconds=0.05)
+        press_key(key_combination="enter")
+        Config.IMAGE_SETTINGS_ENABLED = False
+        return True
 
     @staticmethod
-    def enable_image_editing_settings(should_close_settings=True):
+    def enable_image_editing_settings():
+        if Config.IMAGE_SETTINGS_ENABLED:
+            return False
         GeneralProcedures.open_options()
         GeneralProcedures.click_ocr_image_processing_icon()
-        press_key(key_combination="tab", delay_in_seconds=0.1)
-        press_key(key_combination="+", delay_in_seconds=0.3)
-        press_key(key_combination="tab", repetitions=3, delay_in_seconds=0.1)
-        press_key(key_combination="+", delay_in_seconds=0.3)
-        press_key(key_combination="tab", delay_in_seconds=0.1)
-        press_key(key_combination="+", delay_in_seconds=0.3)
+        # Hintergrunderkennung im PDF-Editor aktivieren -> Deaktiviert
+        OcrAutomation.toggle_settings_item()
+        # Seitenbilder bei deren Hinzufügen -> Deaktiviert
+        OcrAutomation.toggle_settings_item(repetitions=2)
+        # Gegenüberliegende Seiten trennen -> Deaktiviert
+        OcrAutomation.toggle_settings_item()
+        # Seitenausrichtung -> Deaktiviert
+        OcrAutomation.toggle_settings_item(activate=True)
+        # Erweiterte Einstellungen -> Oeffnen
         press_key(key_combination="tab", repetitions=2, delay_in_seconds=0.1)
         press_key(key_combination="enter", delay_in_seconds=0.3)
-        press_key(key_combination="shift+tab", repetitions=4, delay_in_seconds=0.1)
-        press_key(key_combination="+", delay_in_seconds=0.3)
-        press_key(key_combination="shift+tab", delay_in_seconds=0.1)
-        press_key(key_combination="+", delay_in_seconds=0.3)
-        press_key(key_combination="shift+tab", delay_in_seconds=0.1)
-        press_key(key_combination="+", delay_in_seconds=0.3)
-        press_key(key_combination="shift+tab", repetitions=3, delay_in_seconds=0.1)
-        press_key(key_combination="+", delay_in_seconds=0.3)
-        press_key(key_combination="shift+tab", repetitions=2, delay_in_seconds=0.1)
-        press_key(key_combination="+", delay_in_seconds=0.3)
-        press_key(key_combination="shift+tab", delay_in_seconds=0.1)
-        press_key(key_combination="+", delay_in_seconds=0.3)
-        press_key(key_combination="shift+tab", delay_in_seconds=0.1)
-        press_key(key_combination="+", delay_in_seconds=0.3)
-        press_key(key_combination="tab", repetitions=13, delay_in_seconds=0.1)
+        # Farbmarkierungen -> Deaktiviert
+        OcrAutomation.toggle_settings_item(shift=True)
+        # Zu Schwarzweiß konvertieren -> Deaktiviert
+        OcrAutomation.toggle_settings_item(shift=True)
+        # Invertierte Farbe im Bild beheben -> Deaktiviert
+        OcrAutomation.toggle_settings_item(shift=True)
+        # Trapezverzerrung korrigieren -> Aktiviert
+        OcrAutomation.toggle_settings_item(shift=True, activate=True)
+        # Bewegungsunschärfe korrigieren -> Aktiviert
+        OcrAutomation.toggle_settings_item(shift=True, activate=True)
+        # ISO-Rauschen reduzieren -> Aktiviert
+        OcrAutomation.toggle_settings_item(shift=True, activate=True)
+        # Hintergrund weißen -> Deaktiviert
+        OcrAutomation.toggle_settings_item(shift=True)
+        # Seitenraender erkennen -> Deaktiviert
+        OcrAutomation.toggle_settings_item(shift=True)
+        # Bildauflösung korrigieren -> Aktiviert
+        OcrAutomation.toggle_settings_item(shift=True, activate=True)
+        # Textzeilen begradigen -> Deaktiviert
+        OcrAutomation.toggle_settings_item(shift=True)
+        # Bilder entzerren -> Aktiviert
+        OcrAutomation.toggle_settings_item(shift=True, activate=True)
+        # Seitenausrichtung korrigieren -> Deaktiviert
+        OcrAutomation.toggle_settings_item(shift=True, activate=True)
+        # Gegenueberliegende Seiten trennen -> Deaktiviert
+        OcrAutomation.toggle_settings_item(shift=True)
+        press_key(key_combination="tab", repetitions=13)
+        time.sleep(0.3)
         press_key(key_combination="enter", delay_in_seconds=0.3)
-        if should_close_settings:
-            press_key(key_combination="tab", delay_in_seconds=0.1)
-            press_key(key_combination="enter", delay_in_seconds=0.3)
+        Config.IMAGE_SETTINGS_ENABLED = True
+        return True
+
+    @staticmethod
+    def toggle_settings_item(shift=False, activate=False, repetitions=1):
+        press_key(
+            key_combination="shift + tab" if shift else "tab",
+            repetitions=repetitions,
+            delay_in_seconds=0.05,
+        )
+        press_key(key_combination="+" if activate else "-", delay_in_seconds=0.1)
 
     @staticmethod
     def disable_abby_precise_scan():
@@ -381,21 +416,28 @@ class OcrAutomation:
         GeneralProcedures.click_format_settings_icon()
         press_key(key_combination="tab", repetitions=8, delay_in_seconds=0.3)
         press_key(key_combination="-", delay_in_seconds=0.3)
-        press_key(key_combination="tab", delay_in_seconds=0.3)
-        press_key(key_combination="-", delay_in_seconds=0.3)
-        press_key(key_combination="tab", repetitions=5, delay_in_seconds=0.3)
-        press_key(key_combination="-", delay_in_seconds=0.3)
-        press_key(key_combination="tab")
+        press_key(key_combination="tab", repetitions=7, delay_in_seconds=0.3)
         press_key(key_combination="enter", delay_in_seconds=0.3)
 
     @staticmethod
-    def enable_preservation_of_metadata():
-        GeneralProcedures.open_options()
-        GeneralProcedures.click_format_settings_icon()
-        press_key(key_combination="shift+m", delay_in_seconds=0.3)
-        press_key(key_combination="+", delay_in_seconds=0.3)
-        press_key(key_combination="tab", repetitions=2, delay_in_seconds=0.1)
-        press_key(key_combination="enter", delay_in_seconds=0.3)
+    def enable_preservation_of_metadata(should_close_options):
+        def set_metadata():
+            GeneralProcedures.click_format_settings_icon()
+            press_key(key_combination="alt+m", delay_in_seconds=0.3)
+            press_key(key_combination="+", delay_in_seconds=0.3)
+
+        if Config.METADATA_IS_ENABLED:
+            if should_close_options:
+                time.sleep(0.5)
+                press_key(key_combination="tab", repetitions=1, delay_in_seconds=0.1)
+                press_key(key_combination="enter", delay_in_seconds=0.5)
+            return
+        set_metadata()
+        Config.METADATA_IS_ENABLED = True
+        if should_close_options:
+            time.sleep(0.5)
+            press_key(key_combination="tab", repetitions=2, delay_in_seconds=0.1)
+            press_key(key_combination="enter", delay_in_seconds=0.5)
 
     @staticmethod
     def close_ocr_project() -> None:
