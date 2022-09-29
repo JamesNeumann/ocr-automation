@@ -1,8 +1,7 @@
 import uuid
 from typing import List, Callable
 
-import cv2
-import img2pdf
+from PyPDF2 import PdfReader, PdfWriter
 from PyQt6.QtCore import QObject, pyqtSignal, QRunnable, QThreadPool, pyqtSlot
 from numpy import ndarray
 
@@ -10,13 +9,8 @@ from automation.ocr_automation import OcrAutomation
 from config import Config
 from ui.components.progress_bar import ProgressBar
 from ui.steps.step import Step
-from utils.analyze_pdf import crop_images_multiple_boxes
 from utils.console import console
-from utils.conversion import convert_to_pts
 from utils.rectangle import Rectangle
-from utils.save_config import SaveConfig
-from PyPDF2 import PdfReader, PdfWriter
-
 from utils.translate import translate
 
 
@@ -57,7 +51,6 @@ class CropRunningWorker(QRunnable):
         out = PdfWriter()
         amount = len(self.images)
         for index, page in enumerate(pdf.pages):
-
             image_height = self.images[index].shape[0]
             image_width = self.images[index].shape[1]
 
