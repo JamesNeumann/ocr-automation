@@ -12,14 +12,13 @@ class OcrRunningWorkerSignals(QObject):
 
 
 class OcrFromFileRunningWorker(QRunnable):
-    def __init__(self, open_ocr_editor):
+    def __init__(self):
         super(OcrFromFileRunningWorker, self).__init__()
         self.signals = OcrRunningWorkerSignals()
-        self.open_ocr_editor = open_ocr_editor
 
     @pyqtSlot()
     def run(self):
-        if self.open_ocr_editor:
+        if Store.CROPPED_PDF_PATH == "":
             OcrAutomation.open_pdf_in_ocr_editor(Store.SELECTED_FILE_PATH, True)
         OcrAutomation.run_ocr_with_ocr_from_text()
         self.signals.finished.emit()
@@ -54,9 +53,9 @@ class OcrFromFileRunningStep(Step):
         self.threadpool = QThreadPool()
         self.worker = None
 
-    def start(self, open_pdf_editor=False):
+    def start(self):
         Config.STOP_STUCK_RUNNING = False
-        self.worker = OcrFromFileRunningWorker(open_pdf_editor)
+        self.worker = OcrFromFileRunningWorker()
         self.worker.autoDelete()
         self.worker.signals.finished.connect(self.finished.emit)
         self.threadpool.start(self.worker)

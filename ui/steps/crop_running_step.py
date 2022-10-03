@@ -6,6 +6,7 @@ from PyQt6.QtCore import QObject, pyqtSignal, QRunnable, QThreadPool, pyqtSlot
 from numpy import ndarray
 
 from automation.ocr_automation import OcrAutomation
+from automation.store import Store
 from config import Config
 from ui.components.progress_bar import ProgressBar
 from ui.steps.step import Step
@@ -97,7 +98,8 @@ class CropRunningWorker(QRunnable):
 
         self.signals.progress.emit(100)
 
-        OcrAutomation.open_pdf_in_ocr_editor(path, self.disable_image_editing_settings)
+        OcrAutomation.open_pdf_in_default_program(path)
+        Store.CROPPED_PDF_PATH = path
 
         self.signals.finished.emit()
 

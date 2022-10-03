@@ -10,14 +10,18 @@ class OpenOcrEditorWorkerSignals(QObject):
 
 
 class OpenOcrEditorWorker(QRunnable):
-    def __init__(self, path: str):
+    def __init__(self, path: str, disable_image_editing_settings: bool):
         super(OpenOcrEditorWorker, self).__init__()
         self.signals = OpenOcrEditorWorkerSignals()
         self.path = path
+        self.disable_image_editing_settings = disable_image_editing_settings
 
     @pyqtSlot()
     def run(self) -> None:
-        OcrAutomation.open_pdf_in_ocr_editor(path_to_pdf=self.path)
+        OcrAutomation.open_pdf_in_ocr_editor(
+            path_to_pdf=self.path,
+            disable_image_editing_settings=self.disable_image_editing_settings,
+        )
         self.signals.finished.emit()
 
 
@@ -46,7 +50,7 @@ class OpenOcrEditorStep(Step):
         self.worker = None
         self.threadpool = QThreadPool()
 
-    def start(self, path: str):
-        self.worker = OpenOcrEditorWorker(path)
+    def start(self, path: str, disable_image_editing_settings=False):
+        self.worker = OpenOcrEditorWorker(path, disable_image_editing_settings)
         self.worker.signals.finished.connect(self.finished_signal.emit)
         self.threadpool.start(self.worker)
