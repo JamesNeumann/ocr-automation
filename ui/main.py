@@ -57,11 +57,29 @@ class MainWindow(QMainWindow):
             previous_callback=self.open_settings,
             next_callback=self.open_ocr_editor,
             set_metadata_callback=self.open_save_location_step_for_metadata,
-            read_ocr_callback=self.open_ocr_from_file_step,
+            read_ocr_callback=self.open_crop_ocr_question,
         )
 
         self.open_ocr_editor_step = OpenOcrEditorStep()
         self.open_ocr_editor_step.finished_signal.connect(self.open_procedure_step)
+
+        self.crop_ocr_pdf_question_step = CropPdfQuestionStep(
+            text="Soll die PDF zugeschnitten werden?",
+            next_callback=self.open_crop_ocr_pdf_step,
+            previous_callback=self.open_ocr_from_file_step,
+        )
+
+        self.crop_ocr_pdf_amount_step = CropAmountStep(
+            text="Die PDF wird analysiert",
+            next_callback=self.crop_ocr_pdf,
+            previous_text="Überspringen",
+            previous_callback=self.open_ocr_from_file_step,
+        )
+
+        self.crop_ocr_pdf_running_step = CropRunningStep(
+            text="Die PDF wird zugeschnitten"
+        )
+        self.crop_ocr_pdf_running_step.finished.connect(self.crop_ocr_pdf_finished)
 
         self.select_procedures_step = ProcedureSelectionStep(
             text="Welche Optimierungen sollen durchgeführt werden?",
@@ -270,6 +288,9 @@ class MainWindow(QMainWindow):
             self.finished_step,
             self.settings_controller.settings_step,
             self.open_ocr_editor_skip_crop,
+            self.crop_ocr_pdf_question_step,
+            self.crop_ocr_pdf_amount_step,
+            self.crop_ocr_pdf_running_step,
         ]
 
         for step in self.steps:
@@ -340,18 +361,14 @@ class MainWindow(QMainWindow):
             self.open_next_step()
             self.activateWindow()
 
-    def open_crop_step(self, path: str):
-        self.open_next_step()
-        self.window().activateWindow()
-        self.crop_amount_step.open_pdf_pages(path)
-
     def save_pdf_after_orientation_fix(self):
         self.open_next_step()
         self.save_temp_pdf_running_step.start()
 
-    def crop_finished(self):
+    def open_crop_step(self, path: str):
         self.open_next_step()
         self.window().activateWindow()
+        self.crop_amount_step.open_pdf_pages(path)
 
     def crop_pdf(self):
         self.crop_running_step.start(
@@ -360,8 +377,35 @@ class MainWindow(QMainWindow):
             self.crop_amount_step.crop_amount_selection_controller.get_transformed_crop_boxes_pixel(),
             self.crop_amount_step.crop_amount_selection_controller.analysis_result.images,
             self.crop_amount_step.crop_amount_selection_controller.get_transformed_crop_boxes_pts(),
+            False,
         )
         self.open_next_step()
+
+    def crop_finished(self):
+        self.open_next_step()
+        self.window().activateWindow()
+
+    def open_crop_ocr_question(self):
+        self.open_step(self.crop_ocr_pdf_question_step)
+
+    def open_crop_ocr_pdf_step(self):
+        if Store.SELECTED_FILE_PATH != "":
+            self.open_step(self.crop_ocr_pdf_amount_step)
+            self.crop_ocr_pdf_amount_step.open_pdf_pages(Store.SELECTED_FILE_PATH)
+
+    def crop_ocr_pdf(self):
+        self.crop_ocr_pdf_running_step.start(
+            self.crop_ocr_pdf_amount_step.path_to_pdf,
+            self.crop_ocr_pdf_amount_step.crop_amount_selection_controller.get_max_crop_box_pixel(),
+            self.crop_ocr_pdf_amount_step.crop_amount_selection_controller.get_transformed_crop_boxes_pixel(),
+            self.crop_ocr_pdf_amount_step.crop_amount_selection_controller.analysis_result.images,
+            self.crop_ocr_pdf_amount_step.crop_amount_selection_controller.get_transformed_crop_boxes_pts(),
+            True,
+        )
+        self.open_step(self.crop_ocr_pdf_running_step)
+
+    def crop_ocr_pdf_finished(self):
+        self.open_ocr_from_file_step()
 
     def open_image_improvement_tools(self):
         OcrAutomation.open_image_improvement_tools()
@@ -427,9 +471,8 @@ class MainWindow(QMainWindow):
         self.ocr_default_error_replacement_running_step.stop()
 
     def open_ocr_from_file_step(self):
-        if Store.SELECTED_FILE_PATH != "":
-            self.open_step(self.ocr_from_file_running_step)
-            self.ocr_from_file_running_step.start()
+        self.open_step(self.ocr_from_file_running_step)
+        self.ocr_from_file_running_step.start(True)
 
     def save_pdf(self, enable_precise_scan=False, save_without_abby=False):
 
