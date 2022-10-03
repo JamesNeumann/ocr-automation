@@ -193,7 +193,7 @@ class MainWindow(QMainWindow):
 
         self.ocr_from_file_running_step = OcrFromFileRunningStep(
             text="OCR läuft",
-            next_text="OCR is bereits abgeschlosse",
+            next_text="OCR ist bereits abgeschlossen",
             next_callback=self.ocr_from_file_skip_still_running,
         )
         self.ocr_from_file_running_step.finished.connect(self.ocr_running_finished)
