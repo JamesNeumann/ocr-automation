@@ -80,6 +80,14 @@ class MainWindow(QMainWindow):
             previous_callback=self.open_ocr_clean_up_step,
         )
 
+        self.ocr_clean_up_step_before_crop = OcrCleanUpStep(
+            text="Entferne Artefakte von den Seiten",
+            next_text="Fertig",
+            next_callback=self.ocr_clean_up_before_crop_finished,
+            previous_callback=lambda: self.open_step(self.crop_pdf_question_step),
+            previous_text="Zurück",
+        )
+
         self.save_temp_pdf_after_procedures = SaveTempPdfRunningStep(
             text="PDF wird zwischengespeichert"
         )
@@ -240,6 +248,7 @@ class MainWindow(QMainWindow):
             self.save_temp_pdf_after_procedures,
             self.check_pdf_orientation_running_step,
             self.check_pdf_orientation_step,
+            self.ocr_clean_up_step_before_crop,
             self.save_temp_pdf_running_step,
             self.crop_amount_step,
             self.crop_running_step,
@@ -306,6 +315,10 @@ class MainWindow(QMainWindow):
         self.procedures_after_crop.start()
 
     def crop_pdf_question_acceptance(self):
+        self.open_step(self.ocr_clean_up_step_before_crop)
+        self.ocr_clean_up_step_before_crop.start()
+
+    def ocr_clean_up_before_crop_finished(self):
         self.open_step(self.save_temp_pdf_after_procedures)
         self.save_temp_pdf_after_procedures.start()
 
