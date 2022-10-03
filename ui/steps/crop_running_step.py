@@ -28,6 +28,7 @@ class CropRunningWorker(QRunnable):
         images: List[ndarray],
         progress_callback: Callable,
         pts_rectangles: List[Rectangle],
+        disable_image_editing_settings: bool,
     ):
         super(CropRunningWorker, self).__init__()
         self.signals = CropRunningSignals()
@@ -37,6 +38,7 @@ class CropRunningWorker(QRunnable):
         self.images = images
         self.progress_callback = progress_callback
         self.pts_rectangles = pts_rectangles
+        self.disable_image_editing_settings = disable_image_editing_settings
 
     @pyqtSlot()
     def run(self) -> None:
@@ -95,7 +97,7 @@ class CropRunningWorker(QRunnable):
 
         self.signals.progress.emit(100)
 
-        OcrAutomation.open_pdf_in_ocr_editor(path)
+        OcrAutomation.open_pdf_in_ocr_editor(path, self.disable_image_editing_settings)
 
         self.signals.finished.emit()
 
@@ -139,6 +141,7 @@ class CropRunningStep(Step):
         rectangles: List[Rectangle],
         images: List[ndarray],
         pts_rectangles: List[Rectangle],
+        disable_image_editing_settings: bool,
     ):
         self.worker = CropRunningWorker(
             file_path,
@@ -147,6 +150,7 @@ class CropRunningStep(Step):
             images,
             self.update_progressbar,
             pts_rectangles,
+            disable_image_editing_settings,
         )
         self.worker.signals.finished.connect(self.finished.emit)
         self.worker.signals.progress.connect(self.update_progressbar)
