@@ -28,6 +28,7 @@ from ui.steps.ocr_language_selection_step import OcrLanguageSelectionStep
 from ui.steps.ocr_running_step import OcrRunningStep
 from ui.steps.open_ocr_editor_step import OpenOcrEditorStep
 from ui.steps.procedure_selection_step import ProcedureSelectionStep
+from ui.steps.redo_crop_option_step import RedoCropOptionStep
 from ui.steps.redo_save_pdf_step import RedoSavePdfStep
 from ui.steps.save_pdf_running_step import SavePDFRunningStep
 from ui.steps.save_temp_pdf_running import SaveTempPdfRunningStep
@@ -75,6 +76,14 @@ class MainWindow(QMainWindow):
             previous_text="Überspringen",
             previous_callback=self.open_ocr_from_file_step,
         )
+
+        self.crop_ocr_pdf_redo_option_step = RedoCropOptionStep(
+            next_callback=self.crop_ocr_pdf_redo_skip,
+            previous_callback=self.crop_ocr_pdf_redo,
+        )
+
+        self.open_cropped_ocr_pdf = OpenOcrEditorStep()
+        self.open_cropped_ocr_pdf.finished_signal.connect(self.open_ocr_from_file_step)
 
         self.crop_ocr_pdf_running_step = CropRunningStep(
             text="Die PDF wird zugeschnitten"
@@ -146,11 +155,21 @@ class MainWindow(QMainWindow):
         self.crop_running_step = CropRunningStep(text="Die PDF wird zugeschnitten")
         self.crop_running_step.finished.connect(self.crop_finished)
 
+        self.crop_redo_step = RedoCropOptionStep(
+            next_callback=self.open_cropped_pdf, previous_callback=self.crop_redo
+        )
+
+        self.open_cropped_pdf_step = OpenOcrEditorStep()
+
         self.procedures_after_crop = ProcedureSelectionStep(
             text="Welche Optimierungen sollen durchgeführt werden?",
             previous_text="Überspringen",
             previous_callback=self.open_ocr_clean_up_step,
             next_callback=self.start_procedures_after_crop,
+        )
+
+        self.open_cropped_pdf_step.finished_signal.connect(
+            self.open_cropped_pdf_finished
         )
 
         self.procedures_after_crop.finished.connect(self.open_ocr_clean_up_step)
@@ -270,6 +289,8 @@ class MainWindow(QMainWindow):
             self.save_temp_pdf_running_step,
             self.crop_amount_step,
             self.crop_running_step,
+            self.crop_redo_step,
+            self.open_cropped_pdf_step,
             self.procedures_after_crop,
             self.ocr_clean_up_step,
             self.ocr_language_selection_step,
@@ -291,6 +312,7 @@ class MainWindow(QMainWindow):
             self.crop_ocr_pdf_question_step,
             self.crop_ocr_pdf_amount_step,
             self.crop_ocr_pdf_running_step,
+            self.crop_ocr_pdf_redo_option_step,
         ]
 
         for step in self.steps:
@@ -322,6 +344,7 @@ class MainWindow(QMainWindow):
             self.open_ocr_editor_step.start(Store.SELECTED_FILE_PATH)
 
     def open_ocr_editor_after_crop_skip(self):
+        OcrAutomation.close_pdf_in_default_program()
         self.open_step(self.open_ocr_editor_skip_crop)
         self.open_ocr_editor_skip_crop.start(self.crop_amount_step.path_to_pdf)
 
@@ -382,8 +405,12 @@ class MainWindow(QMainWindow):
         self.open_next_step()
 
     def crop_finished(self):
-        self.open_next_step()
+        self.open_step(self.crop_redo_step)
         self.window().activateWindow()
+
+    def crop_redo(self):
+        OcrAutomation.close_pdf_in_default_program()
+        self.open_step(self.crop_amount_step)
 
     def open_crop_ocr_question(self):
         self.open_step(self.crop_ocr_pdf_question_step)
@@ -405,7 +432,24 @@ class MainWindow(QMainWindow):
         self.open_step(self.crop_ocr_pdf_running_step)
 
     def crop_ocr_pdf_finished(self):
-        self.open_ocr_from_file_step()
+        self.open_step(self.crop_ocr_pdf_redo_option_step)
+        self.activateWindow()
+
+    def open_cropped_pdf(self):
+        OcrAutomation.close_pdf_in_default_program()
+        self.open_cropped_pdf_step.start(Store.CROPPED_PDF_PATH)
+
+    def open_cropped_pdf_finished(self):
+        self.activateWindow()
+        self.open_step(self.procedures_after_crop)
+
+    def crop_ocr_pdf_redo(self):
+        OcrAutomation.close_pdf_in_default_program()
+        self.open_step(self.crop_ocr_pdf_amount_step)
+
+    def crop_ocr_pdf_redo_skip(self):
+        OcrAutomation.close_pdf_in_default_program()
+        self.open_cropped_ocr_pdf.start(Store.CROPPED_PDF_PATH, True)
 
     def open_image_improvement_tools(self):
         OcrAutomation.open_image_improvement_tools()
@@ -472,7 +516,7 @@ class MainWindow(QMainWindow):
 
     def open_ocr_from_file_step(self):
         self.open_step(self.ocr_from_file_running_step)
-        self.ocr_from_file_running_step.start(True)
+        self.ocr_from_file_running_step.start()
 
     def save_pdf(self, enable_precise_scan=False, save_without_abby=False):
 

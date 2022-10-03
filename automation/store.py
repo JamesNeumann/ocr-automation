@@ -6,6 +6,7 @@ class Store:
     PDF_APPLICATION_PROCESS = None
     SAVE_FILE_PATH = ""
     IMAGE_EDIT_TOOL_OPEN = False
+    CROPPED_PDF_PATH = ""
 
     @staticmethod
     def reset():
@@ -16,3 +17,4 @@ class Store:
         Store.PDF_APPLICATION_PROCESS = None
         Store.SAVE_FILE_PATH = ""
         Store.IMAGE_EDIT_TOOL_OPEN = False
+        Store.CROPPED_PDF_PATH = ""
