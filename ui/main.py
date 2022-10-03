@@ -85,7 +85,7 @@ class MainWindow(QMainWindow):
             next_text="Fertig",
             next_callback=self.ocr_clean_up_before_crop_finished,
             previous_callback=lambda: self.open_step(self.crop_pdf_question_step),
-            previous_text="Zurück"
+            previous_text="Zurück",
         )
 
         self.save_temp_pdf_after_procedures = SaveTempPdfRunningStep(
