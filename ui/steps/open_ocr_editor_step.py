@@ -1,7 +1,6 @@
 from PyQt6.QtCore import QRunnable, QObject, pyqtSignal, pyqtSlot, QThreadPool
 
 from automation.ocr_automation import OcrAutomation
-from config import Config
 from ui.steps.step import Step
 
 
