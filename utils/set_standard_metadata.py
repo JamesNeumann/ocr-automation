@@ -33,7 +33,7 @@ def set_standard_metadata(path_to_pdf: str) -> None:
         "/Title": file_name,
         "/ModDate": "",
         "/CreationDate": metadata_time_string,
-        "/Producer": "ABBYY FineReader PDF 15",
+        "/Producer": "ABBYY FineReader PDF 15 and OCR Automation by Jannes Neemann",
     }
     writer.addMetadata(new_metadata)
 
