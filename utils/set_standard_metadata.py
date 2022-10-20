@@ -33,7 +33,7 @@ def set_standard_metadata(path_to_pdf: str) -> None:
         "/Title": file_name,
         "/ModDate": "",
         "/CreationDate": metadata_time_string,
-        "/Producer": "libimg Image Output V6.92G (c) Image Access",
+        "/Producer": "ABBYY FineReader PDF 15",
     }
     writer.addMetadata(new_metadata)
 
