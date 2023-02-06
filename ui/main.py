@@ -32,6 +32,7 @@ from ui.steps.redo_crop_option_step import RedoCropOptionStep
 from ui.steps.redo_save_pdf_step import RedoSavePdfStep
 from ui.steps.save_pdf_running_step import SavePDFRunningStep
 from ui.steps.save_temp_pdf_running import SaveTempPdfRunningStep
+from ui.steps.set_metadata_step import SetMetadataStep
 from ui.steps.step import Step
 from utils.console import console
 from utils.dialog import create_dialog
@@ -237,15 +238,26 @@ class MainWindow(QMainWindow):
         self.choose_save_location_step = FileNameSelectionStep(
             text="Wähle Speicherort und Name der PDF",
             previous_text="Ohne Precise Scan speichern",
-            previous_callback=lambda: self.save_pdf(enable_precise_scan=False),
-            next_text="Mit Precise Scan speichern",
-            next_callback=lambda: self.save_pdf(enable_precise_scan=True),
+            previous_callback=None,
+            next_callback=self.open_set_metadata,
         )
 
+        self.set_metadata_step = SetMetadataStep(
+            text="Setze die Metadaten",
+            previous_text="Ohne Precise Scan speichern",
+            previous_callback=lambda: self.save_pdf_callback(enable_precise_scan=False),
+            next_text="Mit Precise Scan speichern",
+            next_callback=lambda: self.save_pdf_callback(enable_precise_scan=True),
+        )
+        self.set_metadata_step_for_metadata = SetMetadataStep(
+            text="Setze die Metadaten",
+            next_text="Speichern",
+            next_callback=lambda: self.save_pdf_callback(save_without_abby=True),
+        )
         self.choose_save_location_for_metadata_step = FileNameSelectionStep(
             text="Wähle Speicherort und Name der PDF",
-            next_text="Speichern",
-            next_callback=lambda: self.save_pdf(save_without_abby=True),
+            next_text="Weiter",
+            next_callback=self.open_set_metadata_for_metadata,
         )
 
         self.save_running_step = SavePDFRunningStep(text="PDF wird gespeichert")
@@ -302,6 +314,7 @@ class MainWindow(QMainWindow):
             self.ocr_default_error_replacement_finished_step,
             self.choose_save_location_step,
             self.choose_save_location_for_metadata_step,
+            self.set_metadata_step,
             self.save_running_step,
             self.redo_save_pdf_step,
             self.redo_save_pdf_for_metadata_step,
@@ -313,6 +326,7 @@ class MainWindow(QMainWindow):
             self.crop_ocr_pdf_amount_step,
             self.crop_ocr_pdf_running_step,
             self.crop_ocr_pdf_redo_option_step,
+            self.set_metadata_step_for_metadata,
         ]
 
         for step in self.steps:
@@ -518,8 +532,19 @@ class MainWindow(QMainWindow):
         self.open_step(self.ocr_from_file_running_step)
         self.ocr_from_file_running_step.start()
 
-    def save_pdf(self, enable_precise_scan=False, save_without_abby=False):
+    def open_set_metadata(self):
+        self.set_metadata_step.set_title(
+            self.choose_save_location_step.file_name_field.text()
+        )
+        self.open_step(self.set_metadata_step)
 
+    def open_set_metadata_for_metadata(self):
+        self.set_metadata_step_for_metadata.set_title(
+            self.choose_save_location_for_metadata_step.file_name_field.text()
+        )
+        self.open_step(self.set_metadata_step_for_metadata)
+
+    def save_pdf_callback(self, enable_precise_scan=False, save_without_abby=False):
         if self.choose_save_location_step.folder_selection.selected_folder != "":
             if save_without_abby:
                 folder = (
@@ -546,12 +571,18 @@ class MainWindow(QMainWindow):
                 button = dialog.exec()
                 if button == QMessageBox.StandardButton.Ok:
                     if save_without_abby:
-                        save_pdf(Store.SELECTED_FILE_PATH, Store.SAVE_FILE_PATH)
+                        save_pdf(
+                            Store.SELECTED_FILE_PATH,
+                            Store.SAVE_FILE_PATH,
+                            self.set_metadata_step_for_metadata.get_metadata(),
+                        )
                         self.open_step(self.redo_save_pdf_for_metadata_step)
                     else:
                         self.open_step(self.save_running_step)
                         self.save_running_step.start(
-                            Store.SAVE_FILE_PATH, enable_precise_scan
+                            Store.SAVE_FILE_PATH,
+                            enable_precise_scan,
+                            self.set_metadata_step.get_metadata(),
                         )
                 if button == QMessageBox.StandardButton.Abort:
                     dialog.close()
@@ -567,23 +598,35 @@ class MainWindow(QMainWindow):
                 button = dialog.exec()
                 if button == QMessageBox.StandardButton.Ok:
                     if save_without_abby:
-                        save_pdf(Store.SELECTED_FILE_PATH, Store.SAVE_FILE_PATH)
+                        save_pdf(
+                            Store.SELECTED_FILE_PATH,
+                            Store.SAVE_FILE_PATH,
+                            self.set_metadata_step_for_metadata.get_metadata(),
+                        )
                         self.open_step(self.redo_save_pdf_for_metadata_step)
                     else:
                         self.open_step(self.save_running_step)
                         self.save_running_step.start(
-                            Store.SAVE_FILE_PATH, enable_precise_scan
+                            Store.SAVE_FILE_PATH,
+                            enable_precise_scan,
+                            self.set_metadata_step.get_metadata(),
                         )
                 if button == QMessageBox.StandardButton.Abort:
                     dialog.close()
             else:
                 if save_without_abby:
-                    save_pdf(Store.SELECTED_FILE_PATH, Store.SAVE_FILE_PATH)
+                    save_pdf(
+                        Store.SELECTED_FILE_PATH,
+                        Store.SAVE_FILE_PATH,
+                        self.set_metadata_step_for_metadata.get_metadata(),
+                    )
                     self.open_step(self.redo_save_pdf_for_metadata_step)
                 else:
                     self.open_step(self.save_running_step)
                     self.save_running_step.start(
-                        Store.SAVE_FILE_PATH, enable_precise_scan
+                        Store.SAVE_FILE_PATH,
+                        enable_precise_scan,
+                        self.set_metadata_step.get_metadata(),
                     )
 
     def open_save_location_step_for_metadata(self):
