@@ -95,7 +95,6 @@ def get_maximum_crop_box(
         total=len(images),
         console=console,
     ):
-
         progress = i / (len(images) * 2)
         progress = round(progress, 2)
 

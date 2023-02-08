@@ -65,7 +65,6 @@ def convert_pdf_to_image(
     start_time = time()
     console.log(f"{file_name} wird konvertiert")
     try:
-
         console.log(f"PDF wird mit {SaveConfig.get_dpi_value()} DPI gelesen")
         converted_images = convert_from_path(
             pdf_path=path_to_pdf,

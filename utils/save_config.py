@@ -95,7 +95,6 @@ class SaveConfig:
 
     @staticmethod
     def update_all(crop_box: Offset, dpi: int, y_axis_threshold: float):
-
         offset_values = {
             SaveConfig.OFFSET_TOP_KEY: crop_box.top,
             SaveConfig.OFFSET_RIGHT_KEY: crop_box.right,
