@@ -16,6 +16,7 @@ from automation.store import Store
 from config import Config
 from utils.console import console
 from utils.keyboard_util import press_key, write
+from utils.ocr_languages import german_old
 from utils.rectangle import Rectangle
 
 
@@ -129,7 +130,7 @@ class OcrAutomation:
         :param languages: Languages which should be used for ocr
         """
         OcrAutomation.open_ocr_editor_options()
-        OcrAutomation.set_ocr_mode()
+        OcrAutomation.set_ocr_mode(languages=languages)
         OcrAutomation.set_ocr_languages(languages)
         OcrAutomation.start_ocr()
 
@@ -167,23 +168,50 @@ class OcrAutomation:
         press_key(key_combination="i")
         time.sleep(0.5)
 
+
     @staticmethod
-    def set_ocr_mode(ocr_from_text=False, close=False):
+    def set_custom_ocr_file():
+        GeneralProcedures.click_ocr_option_icon()
+        press_key(key_combination="tab")
+        press_key(key_combination="up", repetitions=2, delay_in_seconds=0.3)
+        press_key(key_combination="tab", repetitions=1)
+        press_key(key_combination="alt+d", delay_in_seconds=0.3)
+        press_key(key_combination="enter", delay_in_seconds=0.3)
+
+        press_key(key_combination="alt+shift+P")
+        press_key(key_combination="up", repetitions=2, delay_in_seconds=0.3)
+        press_key(key_combination="alt+r", delay_in_seconds=0.3)
+        press_key(key_combination="tab", repetitions=7)
+    @staticmethod
+    def set_ocr_mode(ocr_from_text=False, close=False, languages=None):
         """
         Sets the OCR mode
         :param ocr_from_text: If the OCR should be selected from the file
         :param close: If the OCR should be closed afterwards
+        :param languages: The languages to use for ocr
         """
         GeneralProcedures.click_ocr_option_icon()
         press_key(key_combination="tab")
-        press_key(key_combination="up", repetitions=2)
-        if ocr_from_text:
-            press_key(key_combination="down", repetitions=2)
+        press_key(key_combination="up", repetitions=2, delay_in_seconds=0.3)
+
+        if languages is not None and german_old in languages:
+            press_key(key_combination="tab", repetitions=1)
+            press_key(key_combination="alt+d", delay_in_seconds=0.3)
+            press_key(key_combination="enter", delay_in_seconds=0.3)
+            write(Store.FBT_FILE_PATH, delay=0.1)
+            press_key(key_combination="enter", delay_in_seconds=0.3)
+            press_key(key_combination="alt+shift+P")
+            press_key(key_combination="up", repetitions=3, delay_in_seconds=0.3)
+            press_key(key_combination="alt+r", delay_in_seconds=0.3)
+            press_key(key_combination="tab", repetitions=7)
         else:
-            press_key(key_combination="down", repetitions=1)
+            if ocr_from_text:
+                press_key(key_combination="down", repetitions=2)
+            else:
+                press_key(key_combination="down", repetitions=1)
+            press_key(key_combination="tab", repetitions=15)
 
         if close:
-            press_key(key_combination="tab", repetitions=15)
             press_key(key_combination="enter", delay_in_seconds=0.3)
 
     @staticmethod

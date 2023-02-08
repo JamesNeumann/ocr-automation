@@ -7,7 +7,7 @@ from utils.save_config import SaveConfig
 
 
 class FileSelection(QWidget):
-    def __init__(self):
+    def __init__(self, file_type="PDF"):
         super().__init__()
 
         self.selected_file_name = ""
@@ -15,7 +15,7 @@ class FileSelection(QWidget):
 
         self.layout = QHBoxLayout()
         self.dialogButton = QPushButton("Auswahl...")
-        self.dialogButton.clicked.connect(self.get_pdf_file)
+        self.dialogButton.clicked.connect(self.get_pdf_file if file_type == "PDF" else self.get_fbt_file)
 
         self.layout.addWidget(self.dialogButton)
         self.selected_file_label = QLabel()
@@ -35,6 +35,18 @@ class FileSelection(QWidget):
             self.selected_file_label.setText(self.selected_file_name)
 
         Store.SELECTED_FILE_PATH = os.path.abspath(self.file_path())
+
+    def get_fbt_file(self):
+        path = os.path.join(os.path.abspath(os.curdir), "Fraktur")
+        full_file_path = QFileDialog.getOpenFileName(
+            self, directory=path, caption="Wähle die Frakturmuster Datei"
+        )[0]
+        if full_file_path != "":
+            self.selected_file_name = os.path.basename(full_file_path)
+            self.file_folder = os.path.dirname(full_file_path)
+            self.selected_file_label.setText(self.selected_file_name)
+
+        Store.FBT_FILE_PATH = os.path.abspath(self.file_path())
 
     def file_path(self):
         return self.file_folder + "/" + self.selected_file_name

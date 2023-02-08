@@ -19,6 +19,7 @@ from ui.steps.crop_running_step import CropRunningStep
 from ui.steps.file_name_selection_step import FileNameSelectionStep
 from ui.steps.file_selection_step import FileSelectionStep
 from ui.steps.ocr_clean_up_step import OcrCleanUpStep
+from ui.steps.ocr_custom_ocr_file_step import OcrCustomOcrFileStep
 from ui.steps.ocr_default_error_replacement_running_step import (
     OcrDefaultErrorReplacementRunningStep,
 )
@@ -37,6 +38,7 @@ from ui.steps.step import Step
 from utils.console import console
 from utils.dialog import create_dialog
 from utils.file_utils import delete_file
+from utils.ocr_languages import german_old
 from utils.save_config import SaveConfig
 from utils.save_pdf import save_pdf
 
@@ -181,9 +183,12 @@ class MainWindow(QMainWindow):
         )
 
         self.ocr_language_selection_step = OcrLanguageSelectionStep(
-            text="Wähle die OCR-Sprachen für die PDF", next_callback=self.do_ocr
+            text="Wähle die OCR-Sprachen für die PDF", next_callback=self.check_ocr_languages
         )
 
+        self.select_custom_ocr_file = OcrCustomOcrFileStep(
+            next_callback=self.start_ocr
+        )
         self.ocr_running_step = OcrRunningStep(
             text="OCR läuft",
             next_text="OCR ist bereits abgeschlossen",
@@ -306,6 +311,7 @@ class MainWindow(QMainWindow):
             self.procedures_after_crop,
             self.ocr_clean_up_step,
             self.ocr_language_selection_step,
+            self.select_custom_ocr_file,
             self.ocr_running_step,
             self.ocr_from_file_running_step,
             self.ocr_finished_step,
@@ -475,10 +481,18 @@ class MainWindow(QMainWindow):
         self.open_step(self.select_procedures_step)
         self.window().activateWindow()
 
-    def do_ocr(self):
-        self.open_next_step()
+    def check_ocr_languages(self):
         languages = self.ocr_language_selection_step.get_selected_language()
+        if german_old in languages:
+            self.open_step(self.select_custom_ocr_file)
+        else:
+            self.start_ocr()
+
         console.log("OCR wird mit folgende Sprachen durchgeführt: ", languages)
+
+    def start_ocr(self):
+        languages = self.ocr_language_selection_step.get_selected_language()
+        self.open_step(self.ocr_running_step)
         self.ocr_running_step.start(languages)
 
     def ocr_running_finished(self):

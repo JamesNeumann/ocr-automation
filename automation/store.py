@@ -7,6 +7,7 @@ class Store:
     SAVE_FILE_PATH = ""
     IMAGE_EDIT_TOOL_OPEN = False
     CROPPED_PDF_PATH = ""
+    FBT_FILE_PATH = ""
 
     @staticmethod
     def reset():
@@ -18,3 +19,4 @@ class Store:
         Store.SAVE_FILE_PATH = ""
         Store.IMAGE_EDIT_TOOL_OPEN = False
         Store.CROPPED_PDF_PATH = ""
+        Store.FBT_FILE_PATH = ""
