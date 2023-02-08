@@ -168,7 +168,6 @@ class OcrAutomation:
         press_key(key_combination="i")
         time.sleep(0.5)
 
-
     @staticmethod
     def set_custom_ocr_file():
         GeneralProcedures.click_ocr_option_icon()
@@ -182,6 +181,7 @@ class OcrAutomation:
         press_key(key_combination="up", repetitions=2, delay_in_seconds=0.3)
         press_key(key_combination="alt+r", delay_in_seconds=0.3)
         press_key(key_combination="tab", repetitions=7)
+
     @staticmethod
     def set_ocr_mode(ocr_from_text=False, close=False, languages=None):
         """

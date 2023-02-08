@@ -183,12 +183,11 @@ class MainWindow(QMainWindow):
         )
 
         self.ocr_language_selection_step = OcrLanguageSelectionStep(
-            text="Wähle die OCR-Sprachen für die PDF", next_callback=self.check_ocr_languages
+            text="Wähle die OCR-Sprachen für die PDF",
+            next_callback=self.check_ocr_languages,
         )
 
-        self.select_custom_ocr_file = OcrCustomOcrFileStep(
-            next_callback=self.start_ocr
-        )
+        self.select_custom_ocr_file = OcrCustomOcrFileStep(next_callback=self.start_ocr)
         self.ocr_running_step = OcrRunningStep(
             text="OCR läuft",
             next_text="OCR ist bereits abgeschlossen",

@@ -15,7 +15,9 @@ class FileSelection(QWidget):
 
         self.layout = QHBoxLayout()
         self.dialogButton = QPushButton("Auswahl...")
-        self.dialogButton.clicked.connect(self.get_pdf_file if file_type == "PDF" else self.get_fbt_file)
+        self.dialogButton.clicked.connect(
+            self.get_pdf_file if file_type == "PDF" else self.get_fbt_file
+        )
 
         self.layout.addWidget(self.dialogButton)
         self.selected_file_label = QLabel()

@@ -4,14 +4,15 @@ from automation.ocr_automation import OcrAutomation
 from ui.components.file_selection import FileSelection
 from ui.steps.step import Step
 
+
 class OcrCustomOcrFileStep(Step):
     def __init__(
-            self,
-            *,
-            text: str="Wähle die Frakturmusterdatei ",
-            next_text="Fertig",
-            next_callback=None,
-            detail: str = ""
+        self,
+        *,
+        text: str = "Wähle die Frakturmusterdatei ",
+        next_text="Fertig",
+        next_callback=None,
+        detail: str = ""
     ):
         super().__init__(
             text=text,
