@@ -58,18 +58,19 @@ class OcrDefaultErrorReplacementList(QWidget):
         self.setLayout(self.layout)
 
     def do_migrate(self):
-        migrate()
-        dialog = create_dialog(
-            window_title="Info",
-            text="Standarfehler wurden eingelesen. Automation muss neugestartet werden",
-            icon=QMessageBox.Icon.Warning,
-            buttons=QMessageBox.StandardButton.Ok,
-            parent=self,
-        )
-        button = dialog.exec()
+        result = migrate()
+        if result:
+            dialog = create_dialog(
+                window_title="Info",
+                text="Standarfehler wurden eingelesen. Automation muss neugestartet werden",
+                icon=QMessageBox.Icon.Warning,
+                buttons=QMessageBox.StandardButton.Ok,
+                parent=self,
+            )
+            button = dialog.exec()
 
-        if button == QMessageBox.StandardButton.Ok:
-            quit()
+            if button == QMessageBox.StandardButton.Ok:
+                quit()
 
     def _generate_list(self):
         for replacement_map in load_all_ocr_default_error_replacement_maps():

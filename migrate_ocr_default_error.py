@@ -14,8 +14,14 @@ def migrate():
     save_files = [
         os.path.basename(x) for x in glob.glob("ocr_default_error_replacement/*.json")
     ]
+    if not os.path.exists("save.json"):
+        console.log("Save file does not exist. Überspringe migration...")
+        return False
     with open("save.json") as f:
         save_data = json.load(f)
+        if not OCR_DEFAULT_ERROR_REPLACEMENTS_KEY in save_data:
+            console.log("Keine Standardfehlerlisten gefunden. Überspringe migration")
+            return False
         ocr_error_maps = save_data[OCR_DEFAULT_ERROR_REPLACEMENTS_KEY]
         for error_map in ocr_error_maps:
             error_map_name = error_map["name"]
@@ -28,7 +34,7 @@ def migrate():
                 console.log("Saved: ", slugged_name)
             else:
                 console.log("Already exists:", slugged_name)
-
+    return True
 
 if __name__ == "__main__":
     migrate()
