@@ -2,6 +2,8 @@ from typing import Callable
 
 from PyQt6.QtWidgets import QWidget, QGroupBox, QHBoxLayout, QPushButton, QVBoxLayout
 
+from migrate_ocr_default_error import migrate
+
 
 class SpecialPdfActions(QWidget):
     def __init__(self, set_metadata_callback: Callable, read_ocr_callback: Callable):
@@ -20,8 +22,13 @@ class SpecialPdfActions(QWidget):
         self.read_ocr_button.clicked.connect(read_ocr_callback)
         self.read_ocr_button.setStyleSheet("padding: 10px;")
 
+        self.read_ocr_default_error_from_save_file = QPushButton("OCR Standardfehler aus Speicherdatei einlesen")
+        self.read_ocr_default_error_from_save_file.setStyleSheet("padding: 10px;")
         self.hbox_layout.addWidget(self.set_metadata_button)
         self.hbox_layout.addWidget(self.read_ocr_button)
+        self.hbox_layout.addWidget(self.read_ocr_default_error_from_save_file)
+
+        self.read_ocr_default_error_from_save_file.clicked.connect(migrate)
 
         self.group_box.setLayout(self.hbox_layout)
 

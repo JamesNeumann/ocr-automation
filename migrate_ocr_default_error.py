@@ -2,6 +2,7 @@ import glob
 import json
 import os
 
+from utils.console import console
 from utils.file_utils import slugify
 from utils.ocr_default_error_replacement import (
     save_ocr_default_error_replacement_map,
@@ -9,7 +10,7 @@ from utils.ocr_default_error_replacement import (
 )
 from utils.save_config import SaveConfig
 
-if __name__ == "__main__":
+def migrate():
     save_files = [
         os.path.basename(x) for x in glob.glob("ocr_default_error_replacement/*.json")
     ]
@@ -24,6 +25,9 @@ if __name__ == "__main__":
                     if "Löschen" in error_map["map"][i]:
                         error_map["map"][i].remove("Löschen")
                 save_ocr_default_error_replacement_map(error_map)
-                print("Saved: ", slugged_name)
+                console.log("Saved: ", slugged_name)
             else:
-                print("Already exists:", slugged_name)
+                console.log("Already exists:", slugged_name)
+
+if __name__ == "__main__":
+    migrate()
