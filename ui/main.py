@@ -223,6 +223,7 @@ class MainWindow(QMainWindow):
         self.ocr_default_error_replacement_step = OcrDefaultErrorReplacementStep(
             text="Wähle welche Standardfehlerlisten verwendet werden sollen",
             next_callback=self.start_ocr_default_error_replacement,
+            next_text="Weiter",
             previous_callback=self.open_save_location_step,
             previous_text="Überspringen",
         )
@@ -236,7 +237,9 @@ class MainWindow(QMainWindow):
         )
 
         self.ocr_default_error_replacement_running_step.finished.connect(
-            lambda: self.open_step(self.ocr_default_error_replacement_finished_step)
+            lambda: self.open_step(
+                self.ocr_default_error_replacement_finished_step, focus_window=True
+            )
         )
 
         self.choose_save_location_step = FileNameSelectionStep(
@@ -348,10 +351,12 @@ class MainWindow(QMainWindow):
         self.current_index += 1
         self.layout.setCurrentIndex(self.current_index)
 
-    def open_step(self, step: Step):
+    def open_step(self, step: Step, focus_window=False):
         index = self.steps.index(step)
         self.current_index = index
         self.layout.setCurrentIndex(self.current_index)
+        if focus_window:
+            self.window().activateWindow()
 
     def open_settings(self):
         self.settings_controller.update_values()

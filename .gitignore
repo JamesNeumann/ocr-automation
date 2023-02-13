@@ -5,6 +5,7 @@ converted_files/
 path.save
 save.json
 *.pdf
+ocr_default_error_replacement/*.json
 #Poppler/
 # Created by .ignore support plugin (hsz.mobi)
 ### Python template

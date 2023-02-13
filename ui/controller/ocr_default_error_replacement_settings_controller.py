@@ -6,7 +6,12 @@ from ui.components.ocr_default_error_replacement.ocr_default_error_replacement_s
     OcrDefaultErrorReplacementSettings,
 )
 from utils.dialog import create_dialog
-from utils.ocr_default_error_replacement import create_new_default_error_replacement_map
+from utils.ocr_default_error_replacement import (
+    create_new_default_error_replacement_map,
+    delete_ocr_default_error_replacement_map,
+    upsert_ocr_default_error_replacement_map,
+    save_ocr_default_error_replacement_map,
+)
 from utils.save_config import SaveConfig
 
 
@@ -35,7 +40,7 @@ class OcrDefaultErrorReplacementSettingsController:
         button = dialog.exec()
 
         if button == QMessageBox.StandardButton.Ok:
-            SaveConfig.delete_replacement_map(replacement_map)
+            delete_ocr_default_error_replacement_map(replacement_map)
             self.settings.list.reload()
         else:
             dialog.close()
@@ -44,9 +49,25 @@ class OcrDefaultErrorReplacementSettingsController:
         self.settings.layout.setCurrentIndex(0)
 
     def edit_save_button_clicked(self, updated_replacement_map: Dict):
-        SaveConfig.update_replacement_map(updated_replacement_map)
-        self.settings.list.reload()
-        self.settings.layout.setCurrentIndex(0)
+        # SaveConfig.update_replacement_map(updated_replacement_map)
+        success = upsert_ocr_default_error_replacement_map(updated_replacement_map)
+        if success:
+            self.settings.list.reload()
+            self.settings.layout.setCurrentIndex(0)
+        else:
+            dialog = create_dialog(
+                window_title="Achtung",
+                text="Standardfehlerliste existiert bereits.",
+                icon=QMessageBox.Icon.Warning,
+                buttons=QMessageBox.StandardButton.Close,
+                parent=self,
+            )
+            button = dialog.exec()
+
+            if button == QMessageBox.StandardButton.Ok:
+                self.settings.list.reload()
+            else:
+                dialog.close()
 
     def create_new_callback(self):
         replacement_map = create_new_default_error_replacement_map()

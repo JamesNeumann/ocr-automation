@@ -14,6 +14,9 @@ from PyQt6.QtWidgets import (
 from ui.components.ocr_default_error_replacement.ocr_default_error_replacement_list_item import (
     OcrDefaultErrorReplacementListItem,
 )
+from utils.ocr_default_error_replacement import (
+    load_all_ocr_default_error_replacement_maps,
+)
 from utils.save_config import SaveConfig
 
 
@@ -44,7 +47,7 @@ class OcrDefaultErrorReplacementList(QWidget):
         self.setLayout(self.layout)
 
     def _generate_list(self):
-        for replacement_map in SaveConfig.get_default_error_replacement_maps():
+        for replacement_map in load_all_ocr_default_error_replacement_maps():
             item = QListWidgetItem(self.error_list)
             item.setFlags(Qt.ItemFlag.NoItemFlags)
             self.error_list.addItem(item)

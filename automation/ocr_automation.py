@@ -70,6 +70,8 @@ class OcrAutomation:
         press_key(key_combination="tab", repetitions=5, delay_in_seconds=0.1)
         press_key(key_combination="+")
         OcrAutomation.close_replace_dialog()
+        GeneralProcedures.click_ocr_pages_header()
+        OcrAutomation.select_first_page()
         for replacement_map in selected_replacement_maps:
             for replacement in replacement_map["map"]:
                 if Config.STOP_STUCK_RUNNING:
