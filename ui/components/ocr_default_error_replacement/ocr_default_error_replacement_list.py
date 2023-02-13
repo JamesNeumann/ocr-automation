@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import (
     QListWidgetItem,
 )
 
+from migrate_ocr_default_error import migrate
 from ui.components.ocr_default_error_replacement.ocr_default_error_replacement_list_item import (
     OcrDefaultErrorReplacementListItem,
 )
@@ -34,9 +35,16 @@ class OcrDefaultErrorReplacementList(QWidget):
 
         header_layout = QHBoxLayout()
         header_label = QLabel("<h1>Standardfehlerlisten</h1>")
+
+        self.read_ocr_default_error_from_save_file = QPushButton(
+            "OCR Standardfehler aus Speicherdatei einlesen"
+        )
+        self.read_ocr_default_error_from_save_file.clicked.connect(migrate)
+
         add_new_replacement_button = QPushButton("Neue Standardfehlerliste hinzufügen")
         add_new_replacement_button.clicked.connect(create_new_callback)
         header_layout.addWidget(header_label)
+        header_layout.addWidget(self.read_ocr_default_error_from_save_file)
         header_layout.addWidget(add_new_replacement_button)
 
         self.layout.addLayout(header_layout, 0, 1, 1, 1)

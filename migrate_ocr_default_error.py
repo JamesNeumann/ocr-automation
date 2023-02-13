@@ -8,7 +8,7 @@ from utils.ocr_default_error_replacement import (
     save_ocr_default_error_replacement_map,
     OCR_DEFAULT_ERROR_REPLACEMENTS_KEY,
 )
-from utils.save_config import SaveConfig
+
 
 def migrate():
     save_files = [
@@ -28,6 +28,7 @@ def migrate():
                 console.log("Saved: ", slugged_name)
             else:
                 console.log("Already exists:", slugged_name)
+
 
 if __name__ == "__main__":
     migrate()
