@@ -8,13 +8,14 @@ from PyQt6.QtWidgets import (
     QLabel,
     QPushButton,
     QListWidget,
-    QListWidgetItem,
+    QListWidgetItem, QMessageBox,
 )
 
 from migrate_ocr_default_error import migrate
 from ui.components.ocr_default_error_replacement.ocr_default_error_replacement_list_item import (
     OcrDefaultErrorReplacementListItem,
 )
+from utils.dialog import create_dialog
 from utils.ocr_default_error_replacement import (
     load_all_ocr_default_error_replacement_maps,
 )
@@ -37,9 +38,9 @@ class OcrDefaultErrorReplacementList(QWidget):
         header_label = QLabel("<h1>Standardfehlerlisten</h1>")
 
         self.read_ocr_default_error_from_save_file = QPushButton(
-            "OCR Standardfehler aus Speicherdatei einlesen"
-        )
-        self.read_ocr_default_error_from_save_file.clicked.connect(migrate)
+            "OCR Standardfehler aus Speicherdatei einlesen")
+
+        self.read_ocr_default_error_from_save_file.clicked.connect(self.do_migrate)
 
         add_new_replacement_button = QPushButton("Neue Standardfehlerliste hinzufügen")
         add_new_replacement_button.clicked.connect(create_new_callback)
@@ -53,6 +54,20 @@ class OcrDefaultErrorReplacementList(QWidget):
         self._generate_list()
         self.layout.addWidget(self.error_list, 1, 1, 1, 1)
         self.setLayout(self.layout)
+
+    def do_migrate(self):
+        migrate()
+        dialog = create_dialog(
+            window_title="Info",
+            text="Standarfehler wurden eingelesen. Automation muss neugestartet werden",
+            icon=QMessageBox.Icon.Warning,
+            buttons=QMessageBox.StandardButton.Ok,
+            parent=self,
+        )
+        button = dialog.exec()
+
+        if button == QMessageBox.StandardButton.Ok:
+            quit()
 
     def _generate_list(self):
         for replacement_map in load_all_ocr_default_error_replacement_maps():
