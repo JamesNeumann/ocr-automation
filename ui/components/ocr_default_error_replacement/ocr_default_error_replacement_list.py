@@ -8,7 +8,8 @@ from PyQt6.QtWidgets import (
     QLabel,
     QPushButton,
     QListWidget,
-    QListWidgetItem, QMessageBox,
+    QListWidgetItem,
+    QMessageBox,
 )
 
 from migrate_ocr_default_error import migrate
@@ -38,7 +39,8 @@ class OcrDefaultErrorReplacementList(QWidget):
         header_label = QLabel("<h1>Standardfehlerlisten</h1>")
 
         self.read_ocr_default_error_from_save_file = QPushButton(
-            "OCR Standardfehler aus Speicherdatei einlesen")
+            "OCR Standardfehler aus Speicherdatei einlesen"
+        )
 
         self.read_ocr_default_error_from_save_file.clicked.connect(self.do_migrate)
 
