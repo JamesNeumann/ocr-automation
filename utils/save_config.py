@@ -3,6 +3,8 @@ import os.path
 from json import JSONDecodeError
 from typing import Dict
 
+import deprecation
+
 from config import Config
 from utils.console import console
 from utils.ocr_default_error_replacement import (
@@ -25,8 +27,6 @@ class SaveConfig:
     DPI_KEY = "DPI"
 
     Y_AXIS_OFFSET_KEY = "y_axis_threshold"
-
-    OCR_DEFAULT_ERROR_REPLACEMENTS_KEY = "ocr_default_error_replacements"
 
     @staticmethod
     def init():
@@ -114,37 +114,6 @@ class SaveConfig:
         SaveConfig.save_file()
 
     @staticmethod
-    def update_replacement_map(replacement_map: Dict):
-        map_id = replacement_map["id"]
-
-        is_already_saved = False
-
-        for save_map in SaveConfig.SAVE_CONFIG[
-            SaveConfig.OCR_DEFAULT_ERROR_REPLACEMENTS_KEY
-        ]:
-            if save_map["id"] == map_id:
-                save_map["map"] = replacement_map["map"]
-                save_map["name"] = replacement_map["name"]
-                is_already_saved = True
-        if not is_already_saved:
-            SaveConfig.SAVE_CONFIG[
-                SaveConfig.OCR_DEFAULT_ERROR_REPLACEMENTS_KEY
-            ].append(replacement_map)
-        SaveConfig.save_file()
-
-    @staticmethod
-    def delete_replacement_map(replacement_map: Dict):
-        for index, save_map in enumerate(
-            SaveConfig.SAVE_CONFIG[SaveConfig.OCR_DEFAULT_ERROR_REPLACEMENTS_KEY]
-        ):
-            if save_map["id"] == replacement_map["id"]:
-                del SaveConfig.SAVE_CONFIG[
-                    SaveConfig.OCR_DEFAULT_ERROR_REPLACEMENTS_KEY
-                ][index]
-                SaveConfig.save_file()
-                return
-
-    @staticmethod
     def get_dpi_value() -> int:
         if (
             not SaveConfig.SAVE_CONFIG
@@ -177,21 +146,6 @@ class SaveConfig:
             SaveConfig.SAVE_CONFIG[SaveConfig.PATH_KEY]
             or SaveConfig.read_default_dropbox_folder()
         )
-
-    @staticmethod
-    def get_default_error_replacement_maps():
-        if (
-            not SaveConfig.SAVE_CONFIG
-            or SaveConfig.OCR_DEFAULT_ERROR_REPLACEMENTS_KEY
-            not in SaveConfig.SAVE_CONFIG
-        ):
-            console.log("Save config not available")
-            if not SaveConfig.SAVE_CONFIG:
-                SaveConfig.SAVE_CONFIG = {}
-            SaveConfig.SAVE_CONFIG[SaveConfig.OCR_DEFAULT_ERROR_REPLACEMENTS_KEY] = [
-                standard_ocr_default_error_replacement_map
-            ]
-        return SaveConfig.SAVE_CONFIG[SaveConfig.OCR_DEFAULT_ERROR_REPLACEMENTS_KEY]
 
     @staticmethod
     def save_file():

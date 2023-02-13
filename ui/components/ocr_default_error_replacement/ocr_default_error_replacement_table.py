@@ -123,7 +123,7 @@ class OcrDefaultErrorReplacementTable(QTableView):
         data = []
         for row in range(self.default_replacement_model.rowCount()):
             data.append([])
-            for column in range(self.default_replacement_model.columnCount()):
+            for column in range(self.default_replacement_model.columnCount() - 1):
                 index = self.default_replacement_model.index(row, column)
                 # We suppose data are strings
                 data[row].append(
