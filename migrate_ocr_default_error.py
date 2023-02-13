@@ -36,5 +36,6 @@ def migrate():
                 console.log("Existiert bereits:", slugged_name)
     return True
 
+
 if __name__ == "__main__":
     migrate()
