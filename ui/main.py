@@ -237,7 +237,9 @@ class MainWindow(QMainWindow):
         )
 
         self.ocr_default_error_replacement_running_step.finished.connect(
-            lambda: self.open_step(self.ocr_default_error_replacement_finished_step, focus_window=True)
+            lambda: self.open_step(
+                self.ocr_default_error_replacement_finished_step, focus_window=True
+            )
         )
 
         self.choose_save_location_step = FileNameSelectionStep(

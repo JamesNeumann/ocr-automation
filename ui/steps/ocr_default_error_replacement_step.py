@@ -64,8 +64,6 @@ class OcrDefaultErrorReplacementStep(Step):
                 if check_box != self.sender():
                     check_box.setChecked(False)
 
-
-
     def get_selected_replacement_maps(self):
         maps = load_all_ocr_default_error_replacement_maps()
         selected_maps = []
