@@ -6,7 +6,12 @@ from migrate_ocr_default_error import migrate
 
 
 class SpecialPdfActions(QWidget):
-    def __init__(self, set_metadata_callback: Callable, read_ocr_callback: Callable):
+    def __init__(
+        self,
+        set_metadata_callback: Callable,
+        read_ocr_callback: Callable,
+        author_administration_callback: Callable,
+    ):
         super().__init__()
         self.parent_layout = QVBoxLayout()
 
@@ -22,8 +27,13 @@ class SpecialPdfActions(QWidget):
         self.read_ocr_button.clicked.connect(read_ocr_callback)
         self.read_ocr_button.setStyleSheet("padding: 10px;")
 
+        self.author_list_button = QPushButton("Autoren bearbeiten")
+        self.author_list_button.clicked.connect(author_administration_callback)
+        self.author_list_button.setStyleSheet("padding: 10px;")
+
         self.hbox_layout.addWidget(self.set_metadata_button)
         self.hbox_layout.addWidget(self.read_ocr_button)
+        self.hbox_layout.addWidget(self.author_list_button)
 
         self.group_box.setLayout(self.hbox_layout)
 

@@ -10,6 +10,7 @@ from automation.procedures.general_procedures import GeneralProcedures
 from automation.store import Store
 from config import Config
 from ui.controller.settings_controller import SettingsController
+from ui.steps.author_administration_step import AuthorAdministrationStep
 from ui.steps.check_pdf_orientation_running_step import CheckPdfOrientationRunningStep
 from ui.steps.check_pdf_orientation_step import CheckPdfOrientationStep
 from ui.steps.clean_up_running_step import CleanUpRunningStep
@@ -17,7 +18,7 @@ from ui.steps.crop_amount_step import CropAmountStep
 from ui.steps.crop_pdf_question_step import CropPdfQuestionStep
 from ui.steps.crop_running_step import CropRunningStep
 from ui.steps.file_name_selection_step import FileNameSelectionStep
-from ui.steps.file_selection_step import FileSelectionStep
+from ui.steps.start_step import StartStep
 from ui.steps.ocr_clean_up_step import OcrCleanUpStep
 from ui.steps.ocr_custom_ocr_file_step import OcrCustomOcrFileStep
 from ui.steps.ocr_default_error_replacement_running_step import (
@@ -55,13 +56,19 @@ class MainWindow(QMainWindow):
         self.current_index = 0
         self.steps = []
 
-        self.file_selection_step = FileSelectionStep(
+        self.file_selection_step = StartStep(
             text="Wähle eine PDF-Datei aus",
             previous_text="Einstellungen",
             previous_callback=self.open_settings,
             next_callback=self.open_ocr_editor,
             set_metadata_callback=self.open_save_location_step_for_metadata,
             read_ocr_callback=self.open_crop_ocr_question,
+            author_administration_callback=self.open_author_administration,
+        )
+
+        self.author_administration_step = AuthorAdministrationStep(
+            text="Autoren",
+            previous_callback=lambda: self.open_step(self.file_selection_step),
         )
 
         self.open_ocr_editor_step = OpenOcrEditorStep()
@@ -298,6 +305,7 @@ class MainWindow(QMainWindow):
 
         self.steps = [
             self.file_selection_step,
+            self.author_administration_step,
             self.open_ocr_editor_step,
             self.select_procedures_step,
             self.crop_pdf_question_step,
@@ -657,6 +665,10 @@ class MainWindow(QMainWindow):
             )
 
             self.open_step(self.choose_save_location_for_metadata_step)
+
+    def open_author_administration(self):
+        self.open_step(self.author_administration_step)
+        self.author_administration_step.init()
 
     def go_back_to_save_pdf_step(self):
         OcrAutomation.close_pdf_in_default_program()

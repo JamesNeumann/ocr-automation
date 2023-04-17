@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import QFormLayout, QLineEdit
 
 from ui.components.folder_selection import FolderSelection
 from ui.steps.step import Step
+from utils.save_config import SaveConfig
 
 
 class FileNameSelectionStep(Step):
@@ -26,7 +27,9 @@ class FileNameSelectionStep(Step):
             detail=detail,
         )
 
-        self.folder_selection = FolderSelection()
+        self.folder_selection = FolderSelection(
+            default_folder=SaveConfig.get_default_save_location()
+        )
         self.layout.addWidget(self.folder_selection, 2, 0, 1, 4)
 
         self.file_name_field = QLineEdit()

@@ -33,6 +33,8 @@ class Config:
     METADATA_IS_ENABLED = False
     PREVIOUS_RUN_WAS_COMPLETE_PROCEDURE = None
 
+    AUTHOR_DB_NAME = "authors.sqlite"
+
     @staticmethod
     def initialize_directories() -> None:
         """

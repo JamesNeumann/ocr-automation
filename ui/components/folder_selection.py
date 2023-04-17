@@ -4,10 +4,10 @@ from utils.save_config import SaveConfig
 
 
 class FolderSelection(QWidget):
-    def __init__(self):
+    def __init__(self, default_folder: str):
         super().__init__()
 
-        self.selected_folder = SaveConfig.get_default_save_location()
+        self.selected_folder = default_folder
 
         self.layout = QHBoxLayout()
         self.dialogButton = QPushButton("Wähle Ordner...")

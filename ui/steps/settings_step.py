@@ -9,12 +9,14 @@ from PyQt6.QtWidgets import (
 )
 
 from config import Config
+from ui.components.folder_selection import FolderSelection
 from ui.components.spin_boxes import create_mm_spinbox, create_spinbox
 from ui.controller.ocr_default_error_replacement_settings_controller import (
     OcrDefaultErrorReplacementSettingsController,
 )
 from ui.steps.step import Step
 from utils.offset import Offset
+from utils.save_config import SaveConfig
 
 
 class SettingsStep(Step):
@@ -100,17 +102,28 @@ class SettingsStep(Step):
         self.y_axis_threshold_parent_layout.addLayout(self.y_axis_threshold_layout)
         self.y_axis_threshold_group_box.setLayout(self.y_axis_threshold_parent_layout)
 
-        self.layout.addWidget(self.crop_group_box, 2, 0, 1, 4)
-        self.layout.addWidget(self.dpi_group_box, 3, 0, 1, 4)
-        self.layout.addWidget(self.y_axis_threshold_group_box, 4, 0, 1, 4)
+        self.layout.addWidget(self.crop_group_box, 1, 0, 1, 4)
+        self.layout.addWidget(self.dpi_group_box, 2, 0, 1, 4)
+        self.layout.addWidget(self.y_axis_threshold_group_box, 3, 0, 1, 4)
 
         self.ocr_default_error_replacement_settings_controller = (
             OcrDefaultErrorReplacementSettingsController()
         )
 
         self.layout.addWidget(
-            self.ocr_default_error_replacement_settings_controller.settings, 5, 0, 1, 4
+            self.ocr_default_error_replacement_settings_controller.settings, 4, 0, 1, 4
         )
+
+        self.author_db_group_box = QGroupBox("Pfad zur Autoren Datenbank")
+
+        self.author_db_path_selection = FolderSelection(
+            default_folder=SaveConfig.get_author_db_path()
+        )
+        self.author_db_layout = QHBoxLayout()
+        self.author_db_layout.addWidget(self.author_db_path_selection)
+        self.author_db_group_box.setLayout(self.author_db_layout)
+
+        self.layout.addWidget(self.author_db_group_box, 5, 0, 1, 4)
 
     def update_crop_box(self, crop_box: Offset):
         self.crop_box_top_spinner.setValue(crop_box.top)
@@ -123,6 +136,9 @@ class SettingsStep(Step):
 
     def update_y_axis_threshold(self, value: int):
         self.y_axis_threshold_spinner.setValue(value)
+
+    def update_author_db_path(self, value: str):
+        self.author_db_path_selection.set_folder(value)
 
     @staticmethod
     def _create_spinbox(
@@ -173,3 +189,6 @@ class SettingsStep(Step):
 
     def get_y_axis_threshold(self) -> int:
         return self.y_axis_threshold_spinner.value()
+
+    def get_author_db_path(self):
+        return self.author_db_path_selection.selected_folder

@@ -28,6 +28,8 @@ class SaveConfig:
 
     Y_AXIS_OFFSET_KEY = "y_axis_threshold"
 
+    AUTHOR_DB_PATH = "author_db_path"
+
     @staticmethod
     def init():
         SaveConfig.SAVE_CONFIG = SaveConfig.load_save_file()
@@ -94,7 +96,9 @@ class SaveConfig:
         SaveConfig.save_file()
 
     @staticmethod
-    def update_all(crop_box: Offset, dpi: int, y_axis_threshold: float):
+    def update_all(
+        crop_box: Offset, dpi: int, y_axis_threshold: float, author_db_path: str
+    ):
         offset_values = {
             SaveConfig.OFFSET_TOP_KEY: crop_box.top,
             SaveConfig.OFFSET_RIGHT_KEY: crop_box.right,
@@ -106,11 +110,13 @@ class SaveConfig:
                 SaveConfig.DPI_KEY: dpi,
                 SaveConfig.OFFSET_KEY: offset_values,
                 SaveConfig.Y_AXIS_OFFSET_KEY: y_axis_threshold,
+                SaveConfig.AUTHOR_DB_PATH: author_db_path,
             }
         else:
             SaveConfig.SAVE_CONFIG[SaveConfig.DPI_KEY] = dpi
             SaveConfig.SAVE_CONFIG[SaveConfig.OFFSET_KEY] = offset_values
             SaveConfig.SAVE_CONFIG[SaveConfig.Y_AXIS_OFFSET_KEY] = y_axis_threshold
+            SaveConfig.SAVE_CONFIG[SaveConfig.AUTHOR_DB_PATH] = author_db_path
         SaveConfig.save_file()
 
     @staticmethod
@@ -146,6 +152,15 @@ class SaveConfig:
             SaveConfig.SAVE_CONFIG[SaveConfig.PATH_KEY]
             or SaveConfig.read_default_dropbox_folder()
         )
+
+    @staticmethod
+    def get_author_db_path():
+        if (
+            not SaveConfig.SAVE_CONFIG
+            or SaveConfig.AUTHOR_DB_PATH not in SaveConfig.SAVE_CONFIG
+        ):
+            return ""
+        return SaveConfig.SAVE_CONFIG[SaveConfig.AUTHOR_DB_PATH]
 
     @staticmethod
     def save_file():
