@@ -45,6 +45,7 @@ def import_authors(*, excel_path: str, db_path: str) -> int:
     c.execute("""DROP TABLE IF EXISTS authors""")
 
     df = pd.read_excel(excel_path)
+    df = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
     df.to_sql(name="authors", con=connection)
 
     result = c.execute("""SELECT COUNT(*) FROM authors""")

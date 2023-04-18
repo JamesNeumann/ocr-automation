@@ -16,7 +16,7 @@ class AuthorSelectCombo(QWidget):
             self.con.con.open()
         model = QSqlQueryModel(self)
         model.setQuery(
-            """SELECT IFNULL(Vorname, 'x') || ' ' || IFNULL(Nachname, 'x') || ' (' || IFNULL(Geburtsjahr, 'x') ||'-' || IFNULL(Todesjahr, 'x') || ')' || IFNULL(' [' || "Zusatzinformationen (mit Semikolon trenn)" || ']', '') AS Gesamt FROM authors ORDER BY Gesamt"""
+            """SELECT IFNULL("Nachname", '?') || ', '  || IFNULL("Vorname", '?') || ' ' || CASE WHEN Geburtsjahr IS NULL AND Todesjahr IS NULL THEN '(?)' WHEN Todesjahr IS NULL THEN '(*' || Geburtsjahr || ')' WHEN Geburtsjahr IS NULL THEN '(† ' || Todesjahr || ')' ELSE '(' || Geburtsjahr || '-' || Todesjahr || ')' END || IFNULL(', ' || "Link", '') || IFNULL(' [' || "Zusatzinformationen (mit Semikolon trenn)" || ']', '') AS Gesamt FROM authors ORDER BY Gesamt;"""
         )
 
         self.combo.setModel(model)
