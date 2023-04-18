@@ -38,17 +38,22 @@ def query_yes_no(question, default="yes"):
             sys.stdout.write("Please respond with 'yes' or 'no' " "(or 'y' or 'n').\n")
 
 
-def import_authors(*, excel_path: str, db_path: str):
-    connection = sqlite3.connect(database_path)
+def import_authors(*, excel_path: str, db_path: str) -> int:
+    connection = sqlite3.connect(db_path)
     c = connection.cursor()
 
     c.execute("""DROP TABLE IF EXISTS authors""")
 
-    df = pd.read_excel(args.file)
+    df = pd.read_excel(excel_path)
     df.to_sql(name="authors", con=connection)
 
     result = c.execute("""SELECT COUNT(*) FROM authors""")
-    return result.fetchone()[0]
+    authors = result.fetchone()[0]
+
+    c.close()
+    connection.commit()
+    connection.close()
+    return authors
 
 
 if __name__ == "__main__":

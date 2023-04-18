@@ -13,8 +13,11 @@ from PyQt6.QtCore import Qt, QSortFilterProxyModel, QModelIndex, QTimer
 
 from utils.db_connection import DBConnection
 from utils.save_config import SaveConfig
+from utils.dialog import create_dialog
 from config import Config
 from ui.steps.step import Step
+from ui.components.file_selection import FileSelection, FileType
+from utils.import_authors import import_authors
 
 
 class FilterProxyModel(QSortFilterProxyModel):
@@ -76,7 +79,7 @@ class AuthorAdministrationStep(Step):
         )
 
     def init(self):
-        self.con = DBConnection().con
+        self.con = DBConnection()
         author_folder_path = SaveConfig.get_author_db_path()
 
         if author_folder_path == "" or not os.path.exists(author_folder_path):
@@ -89,13 +92,13 @@ class AuthorAdministrationStep(Step):
 
         author_db_path = os.path.join(author_folder_path, Config.AUTHOR_DB_NAME)
 
-        self.con.setDatabaseName(author_db_path)
+        self.con.con.setDatabaseName(author_db_path)
 
-        if not self.con.open():
+        if not self.con.con.open():
             QMessageBox.critical(
                 None,
                 "Fehler",
-                "Datenbank Fehler: %s" % self.con.lastError().databaseText(),
+                "Datenbank Fehler: %s" % self.con.con.lastError().databaseText(),
             )
 
         self.model = QSqlTableModel(self)
@@ -141,11 +144,35 @@ class AuthorAdministrationStep(Step):
         self.author_actions_layout.addWidget(self.author_add_button)
         self.author_actions_layout.addWidget(self.author_delete_button)
 
+        self.author_import_file_select = FileSelection(
+            file_type=FileType.XLSX,
+            button_text="Autoren importieren",
+            select_callback=self.excel_file_selected,
+        )
+
         self.author_layout = QVBoxLayout()
         self.author_layout.addLayout(self.author_search_layout)
         self.author_layout.addWidget(self.view)
         self.author_layout.addLayout(self.author_actions_layout)
+        self.author_layout.addWidget(self.author_import_file_select)
         self.layout.addLayout(self.author_layout, 1, 0, 1, 5)
+
+    def excel_file_selected(self, full_file_path: str):
+        if full_file_path == "":
+            return
+        dialog = create_dialog(
+            window_title="Importieren - Achtung",
+            text="Alle Autoren in der Datenbank werden gelöscht und mit den Autoren in der Excel-Datei überschrieben. Fortfahren?",
+            icon=QMessageBox.Icon.Warning,
+            buttons=QMessageBox.StandardButton.Abort | QMessageBox.StandardButton.Ok,
+            parent=self,
+        )
+        button = dialog.exec()
+        if button == QMessageBox.StandardButton.Ok:
+            import_authors(excel_path=full_file_path, db_path=self.con.get_db_path())
+            self.init()
+        else:
+            self.author_import_file_select.reset()
 
     def on_line_edit(self, value: str):
         self.proxy.setFilterFixedString(self.author_search_input.text())
@@ -167,9 +194,10 @@ class AuthorAdministrationStep(Step):
         self.proxy.setFilterFixedString(self.author_search_input.text())
 
         self.model.select()
+        self.proxy.fetchMore(QModelIndex())
         self.view.selectRow(0)
 
     def close(self):
         super().close()
-        self.con.commit()
-        self.con.close()
+        self.con.con.commit()
+        self.con.con.close()

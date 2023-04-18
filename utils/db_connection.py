@@ -32,3 +32,6 @@ class DBConnection(object):
                     "Datenbank Fehler: %s" % cls.con.lastError().databaseText(),
                 )
         return cls._instance
+
+    def get_db_path(self) -> str:
+        return os.path.join(SaveConfig.get_author_db_path(), Config.AUTHOR_DB_NAME)
