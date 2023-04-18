@@ -38,8 +38,9 @@ class Step(QWidget):
             self.layout.addWidget(self.optional_button, 6, 1)
 
         if previous_callback:
+            self.previous_callback = previous_callback
             self.previous_button = NavigationButton(previous_text, 10, 10, 100, 100)
-            self.previous_button.clicked.connect(previous_callback)
+            self.previous_button.clicked.connect(self._previous_callback)
             self.layout.addWidget(self.previous_button, 6, 2)
 
         if next_callback:
@@ -49,5 +50,12 @@ class Step(QWidget):
 
         self.setLayout(self.layout)
 
+    def _previous_callback(self):
+        self.previous_callback()
+        self.close()
+
     def reset(self):
+        pass
+
+    def close(self):
         pass

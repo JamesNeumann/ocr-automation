@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QSpacerItem, QSizePolicy
 
 from automation.ocr_automation import OcrAutomation
-from ui.components.file_selection import FileSelection
+from ui.components.file_selection import FileSelection, FileType
 from ui.steps.step import Step
 
 
@@ -21,7 +21,7 @@ class OcrCustomOcrFileStep(Step):
             detail=detail,
         )
 
-        self.file_selection = FileSelection(file_type="FBT")
+        self.file_selection = FileSelection(file_type=FileType.FBT)
         self.layout.addWidget(self.file_selection, 2, 0, 2, 4)
         self.layout.addItem(
             QSpacerItem(

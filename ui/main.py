@@ -4,12 +4,14 @@ from sys import exit
 
 from PyQt6.QtWidgets import QWidget, QStackedLayout, QMainWindow, QMessageBox
 from rich.panel import Panel
+from automation.check_pdf_save_location import check_pdf_save_location
 
 from automation.ocr_automation import OcrAutomation
 from automation.procedures.general_procedures import GeneralProcedures
 from automation.store import Store
 from config import Config
 from ui.controller.settings_controller import SettingsController
+from ui.steps.author_administration_step import AuthorAdministrationStep
 from ui.steps.check_pdf_orientation_running_step import CheckPdfOrientationRunningStep
 from ui.steps.check_pdf_orientation_step import CheckPdfOrientationStep
 from ui.steps.clean_up_running_step import CleanUpRunningStep
@@ -17,7 +19,7 @@ from ui.steps.crop_amount_step import CropAmountStep
 from ui.steps.crop_pdf_question_step import CropPdfQuestionStep
 from ui.steps.crop_running_step import CropRunningStep
 from ui.steps.file_name_selection_step import FileNameSelectionStep
-from ui.steps.file_selection_step import FileSelectionStep
+from ui.steps.start_step import StartStep
 from ui.steps.ocr_clean_up_step import OcrCleanUpStep
 from ui.steps.ocr_custom_ocr_file_step import OcrCustomOcrFileStep
 from ui.steps.ocr_default_error_replacement_running_step import (
@@ -55,13 +57,19 @@ class MainWindow(QMainWindow):
         self.current_index = 0
         self.steps = []
 
-        self.file_selection_step = FileSelectionStep(
+        self.file_selection_step = StartStep(
             text="Wähle eine PDF-Datei aus",
             previous_text="Einstellungen",
             previous_callback=self.open_settings,
             next_callback=self.open_ocr_editor,
             set_metadata_callback=self.open_save_location_step_for_metadata,
             read_ocr_callback=self.open_crop_ocr_question,
+            author_administration_callback=self.open_author_administration,
+        )
+
+        self.author_administration_step = AuthorAdministrationStep(
+            text="Autoren",
+            previous_callback=lambda: self.open_step(self.file_selection_step),
         )
 
         self.open_ocr_editor_step = OpenOcrEditorStep()
@@ -298,6 +306,7 @@ class MainWindow(QMainWindow):
 
         self.steps = [
             self.file_selection_step,
+            self.author_administration_step,
             self.open_ocr_editor_step,
             self.select_procedures_step,
             self.crop_pdf_question_step,
@@ -551,101 +560,120 @@ class MainWindow(QMainWindow):
         self.ocr_from_file_running_step.start()
 
     def open_set_metadata(self):
-        self.set_metadata_step.set_title(
-            self.choose_save_location_step.file_name_field.text()
-        )
-        self.open_step(self.set_metadata_step)
+        folder = self.choose_save_location_step.folder_selection.selected_folder
+        file_name = self.choose_save_location_step.file_name_field.text()
+        suffix = "" if ".pdf" in file_name else ".pdf"
+        path = os.path.abspath(folder + "\\" + file_name + suffix)
+        if self.handle_pdf_save_location(path):
+            self.set_metadata_step.set_title(
+                self.choose_save_location_step.file_name_field.text()
+            )
+            self.set_metadata_step.init()
+            self.open_step(self.set_metadata_step)
 
     def open_set_metadata_for_metadata(self):
-        self.set_metadata_step_for_metadata.set_title(
-            self.choose_save_location_for_metadata_step.file_name_field.text()
+        folder = (
+            self.choose_save_location_for_metadata_step.folder_selection.selected_folder
         )
-        self.open_step(self.set_metadata_step_for_metadata)
+        file_name = self.choose_save_location_for_metadata_step.file_name_field.text()
+        suffix = "" if file_name.endswith(".pdf") else ".pdf"
+        path = os.path.abspath(folder + "\\" + file_name + suffix)
+        if self.handle_pdf_save_location(path):
+            self.set_metadata_step_for_metadata.set_title(
+                self.choose_save_location_for_metadata_step.file_name_field.text()
+            )
+            self.set_metadata_step_for_metadata.init()
+            self.open_step(self.set_metadata_step_for_metadata)
+
+    def handle_pdf_save_location(self, pdf_save_path: str):
+        Store.SAVE_FILE_PATH = pdf_save_path
+        return check_pdf_save_location(self)
 
     def save_pdf_callback(self, enable_precise_scan=False, save_without_abby=False):
-        if self.choose_save_location_step.folder_selection.selected_folder != "":
-            if save_without_abby:
-                folder = (
-                    self.choose_save_location_for_metadata_step.folder_selection.selected_folder
-                )
-                file_name = (
-                    self.choose_save_location_for_metadata_step.file_name_field.text()
-                )
-            else:
-                folder = self.choose_save_location_step.folder_selection.selected_folder
-                file_name = self.choose_save_location_step.file_name_field.text()
-            suffix = "" if ".pdf" in file_name else ".pdf"
-            path = os.path.abspath(folder + "\\" + file_name + suffix)
-            Store.SAVE_FILE_PATH = path
-            if Store.SELECTED_FILE_PATH == Store.SAVE_FILE_PATH:
-                dialog = create_dialog(
-                    window_title="Achtung",
-                    text="Die Originaldatei würde überschrieben werden",
-                    buttons=QMessageBox.StandardButton.Abort
-                    | QMessageBox.StandardButton.Ok,
-                    icon=QMessageBox.Icon.Warning,
-                    parent=self,
-                )
-                button = dialog.exec()
-                if button == QMessageBox.StandardButton.Ok:
-                    if save_without_abby:
-                        save_pdf(
-                            Store.SELECTED_FILE_PATH,
-                            Store.SAVE_FILE_PATH,
-                            self.set_metadata_step_for_metadata.get_metadata(),
-                        )
-                        self.open_step(self.redo_save_pdf_for_metadata_step)
-                    else:
-                        self.open_step(self.save_running_step)
-                        self.save_running_step.start(
-                            Store.SAVE_FILE_PATH,
-                            enable_precise_scan,
-                            self.set_metadata_step.get_metadata(),
-                        )
-                if button == QMessageBox.StandardButton.Abort:
-                    dialog.close()
-            elif os.path.exists(Store.SAVE_FILE_PATH):
-                dialog = create_dialog(
-                    window_title="Achtung",
-                    text="Es existiert bereits eine Datei mit diesem Namen",
-                    buttons=QMessageBox.StandardButton.Abort
-                    | QMessageBox.StandardButton.Ok,
-                    icon=QMessageBox.Icon.Warning,
-                    parent=self,
-                )
-                button = dialog.exec()
-                if button == QMessageBox.StandardButton.Ok:
-                    if save_without_abby:
-                        save_pdf(
-                            Store.SELECTED_FILE_PATH,
-                            Store.SAVE_FILE_PATH,
-                            self.set_metadata_step_for_metadata.get_metadata(),
-                        )
-                        self.open_step(self.redo_save_pdf_for_metadata_step)
-                    else:
-                        self.open_step(self.save_running_step)
-                        self.save_running_step.start(
-                            Store.SAVE_FILE_PATH,
-                            enable_precise_scan,
-                            self.set_metadata_step.get_metadata(),
-                        )
-                if button == QMessageBox.StandardButton.Abort:
-                    dialog.close()
-            else:
-                if save_without_abby:
-                    save_pdf(
-                        Store.SELECTED_FILE_PATH,
-                        Store.SAVE_FILE_PATH,
-                        self.set_metadata_step_for_metadata.get_metadata(),
-                    )
-                    self.open_step(self.redo_save_pdf_for_metadata_step)
-                else:
-                    self.open_step(self.save_running_step)
-                    self.save_running_step.start(
-                        Store.SAVE_FILE_PATH,
-                        enable_precise_scan,
-                        self.set_metadata_step.get_metadata(),
-                    )
+        if save_without_abby:
+            save_pdf(
+                Store.SELECTED_FILE_PATH,
+                Store.SAVE_FILE_PATH,
+                self.set_metadata_step_for_metadata.get_metadata(),
+            )
+            self.open_step(self.redo_save_pdf_for_metadata_step)
+        else:
+            self.open_step(self.save_running_step)
+            self.save_running_step.start(
+                Store.SAVE_FILE_PATH,
+                enable_precise_scan,
+                self.set_metadata_step.get_metadata(),
+            )
+        # if self.choose_save_location_step.folder_selection.selected_folder != "":
+        #     if save_without_abby:
+        #         folder = (
+        #             self.choose_save_location_for_metadata_step.folder_selection.selected_folder
+        #         )
+        #         file_name = (
+        #             self.choose_save_location_for_metadata_step.file_name_field.text()
+        #         )
+        #     else:
+        #         folder = self.choose_save_location_step.folder_selection.selected_folder
+        #         file_name = self.choose_save_location_step.file_name_field.text()
+        #     suffix = "" if ".pdf" in file_name else ".pdf"
+        #     path = os.path.abspath(folder + "\\" + file_name + suffix)
+        #     Store.SAVE_FILE_PATH = path
+        #     if Store.SELECTED_FILE_PATH == Store.SAVE_FILE_PATH:
+        #         dialog = create_dialog(
+        #             window_title="Achtung",
+        #             text="Die Originaldatei würde überschrieben werden",
+        #             buttons=QMessageBox.StandardButton.Abort
+        #             | QMessageBox.StandardButton.Ok,
+        #             icon=QMessageBox.Icon.Warning,
+        #             parent=self,
+        #         )
+        #         button = dialog.exec()
+        #         if button == QMessageBox.StandardButton.Ok:
+
+        #         if button == QMessageBox.StandardButton.Abort:
+        #             dialog.close()
+        #     elif os.path.exists(Store.SAVE_FILE_PATH):
+        #         dialog = create_dialog(
+        #             window_title="Achtung",
+        #             text="Es existiert bereits eine Datei mit diesem Namen",
+        #             buttons=QMessageBox.StandardButton.Abort
+        #             | QMessageBox.StandardButton.Ok,
+        #             icon=QMessageBox.Icon.Warning,
+        #             parent=self,
+        #         )
+        #         button = dialog.exec()
+        #         if button == QMessageBox.StandardButton.Ok:
+        #             if save_without_abby:
+        #                 save_pdf(
+        #                     Store.SELECTED_FILE_PATH,
+        #                     Store.SAVE_FILE_PATH,
+        #                     self.set_metadata_step_for_metadata.get_metadata(),
+        #                 )
+        #                 self.open_step(self.redo_save_pdf_for_metadata_step)
+        #             else:
+        #                 self.open_step(self.save_running_step)
+        #                 self.save_running_step.start(
+        #                     Store.SAVE_FILE_PATH,
+        #                     enable_precise_scan,
+        #                     self.set_metadata_step.get_metadata(),
+        #                 )
+        #         if button == QMessageBox.StandardButton.Abort:
+        #             dialog.close()
+        #     else:
+        #         if save_without_abby:
+        #             save_pdf(
+        #                 Store.SELECTED_FILE_PATH,
+        #                 Store.SAVE_FILE_PATH,
+        #                 self.set_metadata_step_for_metadata.get_metadata(),
+        #             )
+        #             self.open_step(self.redo_save_pdf_for_metadata_step)
+        #         else:
+        #             self.open_step(self.save_running_step)
+        #             self.save_running_step.start(
+        #                 Store.SAVE_FILE_PATH,
+        #                 enable_precise_scan,
+        #                 self.set_metadata_step.get_metadata(),
+        # )
 
     def open_save_location_step_for_metadata(self):
         if Store.SELECTED_FILE_PATH != "":
@@ -657,6 +685,10 @@ class MainWindow(QMainWindow):
             )
 
             self.open_step(self.choose_save_location_for_metadata_step)
+
+    def open_author_administration(self):
+        self.open_step(self.author_administration_step)
+        self.author_administration_step.init()
 
     def go_back_to_save_pdf_step(self):
         OcrAutomation.close_pdf_in_default_program()

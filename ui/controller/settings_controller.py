@@ -8,7 +8,7 @@ class SettingsController:
         self.previous_callback = previous_callback
 
         self.settings_step = SettingsStep(
-            text="Einstellungen",
+            text="",
             next_callback=self.save_settings,
             previous_callback=self.previous_callback,
         )
@@ -22,11 +22,13 @@ class SettingsController:
         self.settings_step.update_crop_box(offset)
         self.settings_step.update_dpi(dpi)
         self.settings_step.update_y_axis_threshold(int(y_axis_threshold * 100))
+        self.settings_step.update_author_db_path(SaveConfig.get_author_db_path())
 
     def save_settings(self):
         SaveConfig.update_all(
             self.settings_step.get_crop_box(),
             self.settings_step.get_dpi_value(),
             self.settings_step.get_y_axis_threshold() / 100,
+            self.settings_step.get_author_db_path(),
         )
         self.next_callback()
