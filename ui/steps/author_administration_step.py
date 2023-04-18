@@ -44,13 +44,6 @@ class FilterProxyModel(QSortFilterProxyModel):
     def filterAcceptsRow(self, source_row: int, source_parent: QModelIndex) -> bool:
         if self.filter_value is None:
             return super().filterAcceptsRow(source_row, source_parent)
-        # if self.filterKeyColumn() >= 0:
-        #     value = (
-        #         self.sourceModel()
-        #         .index(source_row, self.filterKeyColumn(), source_parent)
-        #         .data(self.filterRole())
-        #     )
-        #     return value == self.filter_value
         for column in range(self.columnCount()):
             value = (
                 self.sourceModel()
