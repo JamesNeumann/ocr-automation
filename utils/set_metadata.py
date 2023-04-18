@@ -38,7 +38,7 @@ def set_standard_metadata(path_to_pdf: str, metadata: Metadata) -> None:
     file_name = Path(path_to_pdf).stem
 
     new_metadata = {
-        "/Creator": "BE4-BDLK2-V2",
+        "/Creator": "BE5-V2",
         "/Title": metadata.title,
         "/ModDate": "",
         "/CreationDate": metadata_time_string,
