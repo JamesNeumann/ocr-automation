@@ -1,5 +1,4 @@
-from config import Config
-from ui.steps.step import Step
+import os
 from PyQt6.QtSql import QSqlDatabase, QSqlTableModel
 from PyQt6.QtWidgets import (
     QMessageBox,
@@ -10,11 +9,12 @@ from PyQt6.QtWidgets import (
     QLabel,
     QPushButton,
 )
-from utils.console import console
 from PyQt6.QtCore import Qt, QSortFilterProxyModel, QModelIndex, QTimer
-import os
 
+from utils.db_connection import DBConnection
 from utils.save_config import SaveConfig
+from config import Config
+from ui.steps.step import Step
 
 
 class FilterProxyModel(QSortFilterProxyModel):
@@ -81,9 +81,9 @@ class AuthorAdministrationStep(Step):
             next_callback=next_callback,
             detail=detail,
         )
-        self.con = QSqlDatabase.addDatabase("QSQLITE")
 
     def init(self):
+        self.con = DBConnection().con
         author_folder_path = SaveConfig.get_author_db_path()
 
         if author_folder_path == "" or not os.path.exists(author_folder_path):
@@ -107,11 +107,12 @@ class AuthorAdministrationStep(Step):
 
         self.model = QSqlTableModel(self)
         self.model.setTable("authors")
+        self.model.setSort(1, Qt.SortOrder.AscendingOrder)
         self.model.setEditStrategy(QSqlTableModel.EditStrategy.OnFieldChange)
 
         self.model.setHeaderData(0, Qt.Orientation.Horizontal, "ID")
-        self.model.setHeaderData(1, Qt.Orientation.Horizontal, "Vorname")
-        self.model.setHeaderData(2, Qt.Orientation.Horizontal, "Nachname")
+        self.model.setHeaderData(2, Qt.Orientation.Horizontal, "Vorname")
+        self.model.setHeaderData(1, Qt.Orientation.Horizontal, "Nachname")
         self.model.setHeaderData(3, Qt.Orientation.Horizontal, "Geburtsjahr")
         self.model.setHeaderData(4, Qt.Orientation.Horizontal, "Todesjahr")
         self.model.setHeaderData(5, Qt.Orientation.Horizontal, "Link")
@@ -125,7 +126,10 @@ class AuthorAdministrationStep(Step):
         self.proxy = FilterProxyModel(self)
         self.proxy.setSourceModel(self.model)
         self.proxy.setFilterKeyColumn(-1)
+
         self.view.setModel(self.proxy)
+        # self.view.setSortingEnabled(True)
+        # self.view.sortByColumn(1, Qt.SortOrder.AscendingOrder)
 
         self.author_search_layout = QHBoxLayout()
         self.author_search_label = QLabel("Suche:")
@@ -155,18 +159,20 @@ class AuthorAdministrationStep(Step):
 
     def add_row(self):
         ret = self.model.insertRow(self.model.rowCount())
-        print(ret)
         if ret:
             count = self.model.rowCount() - 1
-            print(count)
             self.view.selectRow(count)
             item = self.view.selectedIndexes()[0]
             self.model.setData(item, str(count))
 
     def delete_row(self):
         selected = self.view.selectionModel().selectedRows()
-        for index in selected:
+        selection_x = [self.view.model().mapToSource(index) for index in selected]
+        for index in selection_x:
             self.model.removeRow(index.row())
+        self.author_search_input.setText("")
+        self.proxy.setFilterFixedString(self.author_search_input.text())
+
         self.model.select()
         self.view.selectRow(0)
 
