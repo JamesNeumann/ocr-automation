@@ -82,8 +82,15 @@ word in the file.
 Generate an XHTML file containing bounding box information for each
 block, line, and word in the file.
 .TP
+.B \-tsv
+Generate a TSV file containing the bounding box information for each
+block, line, and word in the file.
+.TP
 .B \-cropbox
 Use the crop box rather than the media box with \-bbox and \-bbox-layout.
+.TP
+.BI \-colspacing " number"
+Specifies how much spacing we allow after a word before considering adjacent text to be a new column, measured as a fraction of the font size. Current default is 0.7, old releases had a 0.3 default.
 .TP
 .BI \-enc " encoding-name"
 Sets the encoding to use for text output. This defaults to "UTF-8".

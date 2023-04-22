@@ -46,7 +46,19 @@ modification date
 In addition, the following information is printed:
 .PP
 .RS
+custom metadata (yes/no)
+.RE
+.RS
+metadata stream (yes/no)
+.RE
+.RS
 tagged (yes/no)
+.RE
+.RS
+userproperties (yes/no)
+.RE
+.RS
+suspects (yes/no)
 .RE
 .RS
 form (AcroForm / XFA / none)
@@ -99,6 +111,9 @@ TrimBox, and ArtBox.
 Prints document-level metadata.  (This is the "Metadata" stream from
 the PDF file's Catalog object.)
 .TP
+.B \-custom
+Prints custom and standard metadata.
+.TP
 .B \-js
 Prints all JavaScript in the PDF.
 .TP
@@ -110,6 +125,12 @@ Print the textual content along with the document structure of a Tagged-PDF
 file.  Note that extracting text this way might be slow for big PDF files.
 (Implies
 .BR \-struct .)
+.TP
+.B \-url
+Print all URLs in the PDF. Only the URL types supported by Poppler are listed.
+Currently, this is limited to Annotations. Note: only URLs referenced by the PDF objects
+such as Link Annotations are listed. pdfinfo does not attempt to extract strings
+matching http://... from the text content.
 .TP
 .B \-isodates
 Prints dates in ISO-8601 format (including the time zone).
