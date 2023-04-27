@@ -54,6 +54,7 @@ class MainWindow(QMainWindow):
 
         self.layout = QStackedLayout()
 
+        # self.current_index = 26
         self.current_index = 0
         self.steps = []
 
