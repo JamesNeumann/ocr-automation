@@ -31,7 +31,7 @@ class SetMetadataStep(Step):
 
         self.form = QFormLayout()
         self.form.addRow("Titel", self.title_field)
-        self.form.addRow("Verfasser", self.author_select.combo)
+        self.form.addRow("Verfasser", self.author_select.parent_layout)
         self.form.addRow("Thema", self.topic_field)
         self.layout.addLayout(self.form, 3, 0, 1, 4)
 
