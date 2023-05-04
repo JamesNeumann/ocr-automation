@@ -1,8 +1,10 @@
 from typing import List, Callable
 
 import cv2
+import numpy
 from PyPDF2 import PdfReader
 from numpy import ndarray
+import numpy as np
 from rich.progress import track
 
 from config import Config
@@ -150,10 +152,9 @@ def get_crop_boxes(
         total=len(images),
         console=console,
     ):
-        progress = i / (len(images) * 2)
+        progress = i / (len(images))
         progress = round(progress, 2)
-
-        progress_callback(progress * 100)
+        progress_callback(int(progress * 100))
 
         image_crop_box = get_image_crop_box(image)
         image_crop_boxes.append(image_crop_box)
@@ -205,8 +206,6 @@ def get_crop_boxes(
             #               2)
             # cropped_image = image[global_min_y:global_max_y, global_min_x:global_max_x]
             cv2.imwrite(f"converted_files/{i}.png", image)
-
-    progress_callback(50)
 
     return image_crop_boxes, max_crop_box, max_index
 
@@ -333,6 +332,9 @@ def crop_image(image: ndarray, crop_box: Rectangle) -> ndarray:
         crop_box.x : crop_box.x + crop_box.width,
     ]
 
+
+def is_grayscale(images: ndarray):
+    print(images.shape)
 
 def should_pdf_pages_be_cropped_individual(crop_boxes: Rectangle) -> bool:
     return True

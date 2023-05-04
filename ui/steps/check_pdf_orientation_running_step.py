@@ -4,7 +4,7 @@ from automation.ocr_automation import OcrAutomation
 from automation.store import Store
 from ui.components.progress_bar import ProgressBar
 from ui.steps.step import Step
-from utils.analyze_pdf import analyze_pdf_orientation
+from utils.analyse_pdf import analyze_pdf_orientation
 
 
 class CheckPdfOrientationSignals(QObject):

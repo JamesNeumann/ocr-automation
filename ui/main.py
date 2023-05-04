@@ -11,6 +11,7 @@ from automation.procedures.general_procedures import GeneralProcedures
 from automation.store import Store
 from config import Config
 from ui.controller.settings_controller import SettingsController
+from ui.steps.convert_pdf_step import ConvertPdfStep
 from ui.steps.author_administration_step import AuthorAdministrationStep
 from ui.steps.check_pdf_orientation_running_step import CheckPdfOrientationRunningStep
 from ui.steps.check_pdf_orientation_step import CheckPdfOrientationStep
@@ -38,6 +39,7 @@ from ui.steps.save_temp_pdf_running import SaveTempPdfRunningStep
 from ui.steps.set_metadata_step import SetMetadataStep
 from ui.steps.step import Step
 from utils.console import console
+from utils.convert_pdf_result import ConvertPdfResult
 from utils.dialog import create_dialog
 from utils.file_utils import delete_file
 from utils.ocr_languages import german_old
@@ -82,12 +84,21 @@ class MainWindow(QMainWindow):
             previous_callback=self.open_ocr_from_file_step,
         )
 
+        self.convert_pdf_step = ConvertPdfStep(
+            text="Die PDF wird analysiert",
+            next_callback=self.crop_ocr_pdf,
+            previous_text="Überspringen",
+            previous_callback=self.open_ocr_from_file_step,
+        )
+
         self.crop_ocr_pdf_amount_step = CropAmountStep(
             text="Die PDF wird analysiert",
             next_callback=self.crop_ocr_pdf,
             previous_text="Überspringen",
             previous_callback=self.open_ocr_from_file_step,
         )
+
+        self.convert_pdf_step.finished.connect(self.open_crop_step)
 
         self.crop_ocr_pdf_redo_option_step = RedoCropOptionStep(
             next_callback=self.crop_ocr_pdf_redo_skip,
@@ -150,7 +161,7 @@ class MainWindow(QMainWindow):
         self.save_temp_pdf_running_step = SaveTempPdfRunningStep(
             text="PDF wird zwischengespeichert"
         )
-        self.save_temp_pdf_running_step.finished.connect(self.open_crop_step)
+        self.save_temp_pdf_running_step.finished.connect(self.open_convert_pdf_step)
 
         self.crop_amount_step = CropAmountStep(
             text="Die PDF wird analysiert",
@@ -341,6 +352,7 @@ class MainWindow(QMainWindow):
             self.settings_controller.settings_step,
             self.open_ocr_editor_skip_crop,
             self.crop_ocr_pdf_question_step,
+            self.convert_pdf_step,
             self.crop_ocr_pdf_amount_step,
             self.crop_ocr_pdf_running_step,
             self.crop_ocr_pdf_redo_option_step,
@@ -413,7 +425,7 @@ class MainWindow(QMainWindow):
         self.check_pdf_orientation_step.set_indices(Store.INDICES_TO_ROTATE)
         if len(Store.INDICES_TO_ROTATE) == 0:
             self.open_step(self.save_temp_pdf_running_step)
-            self.open_crop_step(Store.FILE_PATH_AFTER_PROCEDURES)
+            self.open_convert_pdf_step(Store.FILE_PATH_AFTER_PROCEDURES)
         else:
             self.open_next_step()
             self.activateWindow()
@@ -422,14 +434,21 @@ class MainWindow(QMainWindow):
         self.open_next_step()
         self.save_temp_pdf_running_step.start()
 
-    def open_crop_step(self, path: str):
-        self.open_next_step()
+    def open_convert_pdf_step(self, pdf_path: str):
+        self.open_step(self.convert_pdf_step)
+        self.convert_pdf_step.convert_pdf_pages(pdf_path)
+
+    def open_grayscale_check(self, pdf_convert_result: ConvertPdfResult):
+        print(pdf_convert_result)
+
+    def open_crop_step(self, convert_pdf_result: ConvertPdfResult):
+        self.open_step(self.crop_amount_step)
         self.window().activateWindow()
-        self.crop_amount_step.open_pdf_pages(path)
+        self.crop_amount_step.open_pdf_pages(convert_pdf_result)
 
     def crop_pdf(self):
         self.crop_running_step.start(
-            self.crop_amount_step.path_to_pdf,
+            self.crop_amount_step.convert_pdf_result.path_to_pdf,
             self.crop_amount_step.crop_amount_selection_controller.get_max_crop_box_pixel(),
             self.crop_amount_step.crop_amount_selection_controller.get_transformed_crop_boxes_pixel(),
             self.crop_amount_step.crop_amount_selection_controller.analysis_result.images,
@@ -456,7 +475,7 @@ class MainWindow(QMainWindow):
 
     def crop_ocr_pdf(self):
         self.crop_ocr_pdf_running_step.start(
-            self.crop_ocr_pdf_amount_step.path_to_pdf,
+            self.crop_ocr_pdf_amount_step.convert_pdf_result.path_to_pdf,
             self.crop_ocr_pdf_amount_step.crop_amount_selection_controller.get_max_crop_box_pixel(),
             self.crop_ocr_pdf_amount_step.crop_amount_selection_controller.get_transformed_crop_boxes_pixel(),
             self.crop_ocr_pdf_amount_step.crop_amount_selection_controller.analysis_result.images,

@@ -1,13 +1,17 @@
+from typing import Optional
+
 from PyQt6.QtCore import pyqtSignal, QRunnable, pyqtSlot, QThreadPool, QObject
 
+from ui.components.grayscale_info import GrayscaleInfo
 from ui.components.progress_bar import ProgressBar
 from ui.controller.crop_amount_selection_controller import CropAmountSelectionController
 from ui.steps.step import Step
 from utils.analysis_result import AnalysisResult
-from utils.analyze_pdf import (
+from utils.analyse_pdf import (
     get_pdf_pages_as_images,
     get_crop_boxes,
 )
+from utils.convert_pdf_result import ConvertPdfResult
 from utils.save_config import SaveConfig
 
 
@@ -17,20 +21,20 @@ class CropWorkerSignals(QObject):
 
 
 class CropWorker(QRunnable):
-    def __init__(self, path_to_pdf: str):
+    def __init__(self, convert_pdf_result: ConvertPdfResult):
         super(CropWorker, self).__init__()
-        self.path_to_pdf = path_to_pdf
+        self.convert_pdf_result = convert_pdf_result
         self.signals = CropWorkerSignals()
 
     @pyqtSlot()
     def run(self):
-        images, pts_width, pts_height, index, pts_dimensions = get_pdf_pages_as_images(
-            self.path_to_pdf, self.signals.progress.emit
-        )
+        # images, pts_width, pts_height, index, pts_dimensions = get_pdf_pages_as_images(
+        #     self.path_to_pdf, self.signals.progress.emit
+        # )
 
         crop_boxes, max_box, max_index = get_crop_boxes(
-            images,
-            lambda value: self.signals.progress.emit(50 + value),
+            self.convert_pdf_result.images,
+            self.signals.progress.emit,
             render_debug_lines=False,
             save_images=False,
         )
@@ -47,14 +51,14 @@ class CropWorker(QRunnable):
             transformed_boxes.append(transformed)
 
         analysis_result = AnalysisResult(
-            images=images,
-            pts_width=pts_width,
-            pts_height=pts_height,
+            images=self.convert_pdf_result.images,
+            pts_width=self.convert_pdf_result.pts_width,
+            pts_height=self.convert_pdf_result.pts_height,
             min_index=max_index,
             max_box=max_box,
             crop_boxes=crop_boxes,
             transformed_boxes=transformed_boxes,
-            pts_dimensions=pts_dimensions,
+            pts_dimensions=self.convert_pdf_result.pts_dimensions,
         )
 
         self.signals.finished.emit(analysis_result)
@@ -81,33 +85,40 @@ class CropAmountStep(Step):
         )
 
         self.crop_amount_selection_controller = CropAmountSelectionController()
-
+        # self.grayscale_info = GrayscaleInfo(
+        #     next_callback=self.convert_image_to_binary, previous_callback=self.update_ui
+        # )
         self.progress_bar = ProgressBar()
         self.layout.addWidget(self.progress_bar, 2, 0, 2, 4)
         self.layout.addWidget(
             self.crop_amount_selection_controller.crop_amount_selection, 2, 0, 2, 4
         )
+        # self.layout.addWidget(self.grayscale_info)
         self.threadpool = QThreadPool()
         self.worker = None
-        self.path_to_pdf = ""
+        self.convert_pdf_result: Optional[ConvertPdfResult] = None
+        self.analysis_result = None
 
-    def open_pdf_pages(self, path_to_pdf: str) -> None:
-        self.label.setText("<h1>Die PDF wird analysiert</h1>")
-        self.path_to_pdf = path_to_pdf
+    def open_pdf_pages(self, convert_pdf_result: ConvertPdfResult) -> None:
+        self.label.setText("<h1>Zuschneidungsboxen werden berechnet</h1>")
+        self.convert_pdf_result = convert_pdf_result
         if self.crop_amount_selection_controller.crop_amount_selection.isVisible():
             self.crop_amount_selection_controller.crop_amount_selection.hide()
+        self.crop_amount_selection_controller.crop_amount_selection.hide()
         self.progress_bar.setValue(0)
         if self.progress_bar.isHidden():
             self.progress_bar.show()
-        self.worker = CropWorker(path_to_pdf)
+        self.worker = CropWorker(convert_pdf_result)
         self.worker.signals.finished.connect(self.update_ui)
-        self.worker.signals.progress.connect(self.progress_bar.setValue)
+        self.worker.signals.progress.connect(self.progress)
         self.threadpool.start(self.worker)
+
+    def progress(self, progress: int):
+        self.progress_bar.setValue(progress)
 
     def update_ui(self, analysis_result: AnalysisResult):
         self.crop_amount_selection_controller.reset()
         self.label.setText("<h1>Wie soll die PDF zugeschnitten werden?")
-
         self.crop_amount_selection_controller.set_analysis_result(analysis_result)
         self.crop_amount_selection_controller.show()
         self.progress_bar.hide()

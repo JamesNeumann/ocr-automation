@@ -20,7 +20,8 @@ class AnalysisResult:
         max_box: Rectangle,
         crop_boxes: List[Rectangle],
         transformed_boxes: List[Rectangle],
-        pts_dimensions: List[Rectangle]
+        pts_dimensions: List[Rectangle],
+        is_grayscale: bool = False
     ):
         self.images = images
         self.pts_width = pts_width
@@ -30,3 +31,4 @@ class AnalysisResult:
         self.crop_boxes = crop_boxes
         self.transformed_box = transformed_boxes
         self.pts_dimensions = pts_dimensions
+        self.is_grayscale = is_grayscale

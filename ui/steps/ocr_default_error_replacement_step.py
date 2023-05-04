@@ -57,10 +57,8 @@ class OcrDefaultErrorReplacementStep(Step):
         self.checkbox_added = True
 
     def check_changed(self, state):
-        print(state)
         if state:
             for check_box in self.check_boxes:
-                print(check_box == self.sender())
                 if check_box != self.sender():
                     check_box.setChecked(False)
 

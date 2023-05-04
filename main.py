@@ -9,7 +9,7 @@ from rich.traceback import install
 
 from config import Config
 from ui.main import MainWindow
-from utils.analyze_pdf import get_pdf_pages_as_images, get_crop_boxes
+from utils.analyse_pdf import get_pdf_pages_as_images, get_crop_boxes
 from utils.save_config import SaveConfig
 from utils.screen import Screen
 
