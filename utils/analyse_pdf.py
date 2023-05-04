@@ -336,5 +336,6 @@ def crop_image(image: ndarray, crop_box: Rectangle) -> ndarray:
 def is_grayscale(images: ndarray):
     print(images.shape)
 
+
 def should_pdf_pages_be_cropped_individual(crop_boxes: Rectangle) -> bool:
     return True

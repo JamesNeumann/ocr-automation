@@ -63,7 +63,6 @@ class CropAmountSelection(QWidget):
         self.pen.setWidth(Config.map_dpi_to_pen_width(SaveConfig.get_dpi_value()))
 
     def render_image(self, image: QImage, box: Rectangle):
-
         pixmap = QPixmap(image)
         painter_instance = QPainter(pixmap)
         painter_instance.setPen(self.pen)
