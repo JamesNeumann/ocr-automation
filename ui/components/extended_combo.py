@@ -23,11 +23,14 @@ class ExtendedCombo(QComboBox):
 
         self.lineEdit().textEdited.connect(self.pFilterModel.setFilterFixedString)
         self.completer.activated.connect(self.setTextIfCompleterIsClicked)
+        self.setCurrentIndex(-1)
 
     def setModel(self, model):
         super(ExtendedCombo, self).setModel(model)
         self.pFilterModel.setSourceModel(model)
         self.completer.setModel(self.pFilterModel)
+        self.lineEdit().setText("")
+        self.setCurrentIndex(-1)
 
     def setModelColumn(self, column):
         self.completer.setCompletionColumn(column)
