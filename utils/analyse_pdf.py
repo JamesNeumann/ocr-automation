@@ -339,7 +339,6 @@ def is_greyscale(images: List[ndarray]):
         return True
     if np.unique(result_images).size == 2:
         return True
-    print(np.unique(result_images))
     return False
 
 
