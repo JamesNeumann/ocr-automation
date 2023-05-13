@@ -193,7 +193,7 @@ class MainWindow(QMainWindow):
 
         # region Grayscale Check
         self.gray_scale_check_step = Step(
-            text="Soll das Bild in Schwarzweiß umgewandelt werden?",
+            text="Soll das Bild in schwarzweiß umgewandelt werden?",
             next_text="Ja",
             next_callback=self.convert_image_to_binary,
             previous_text="Nein",
