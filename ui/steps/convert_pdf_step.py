@@ -37,7 +37,6 @@ class ConvertWorker(QRunnable):
 
         Store.CONVERT_PDF_RESULT = self.convert_pdf_result
 
-
         self.signals.finished.emit()
 
 

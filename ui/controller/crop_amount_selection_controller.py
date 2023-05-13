@@ -266,7 +266,6 @@ class CropAmountSelectionController:
                     ] = self.pages_spinbox_values[self.current_image_index].copy()
 
     def update_image_button_state(self):
-
         if self.current_image_index == 0:
             self.crop_amount_selection.disable_previous_button()
         if Store.CONVERT_PDF_RESULT is None:
