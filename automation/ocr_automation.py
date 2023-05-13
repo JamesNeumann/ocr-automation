@@ -298,6 +298,19 @@ class OcrAutomation:
                 pass
 
     @staticmethod
+    def convert_pdf_to_binary():
+        """
+        Coverts the image to binary
+        """
+        press_key(key_combination="alt+tab", delay_in_seconds=0.3)
+        GeneralProcedures.do_select_all_pages()
+        OcrProcedures.do_photo_correction()
+        press_key(key_combination="enter", delay_in_seconds=0.3)
+        OcrProcedures.do_binary(False)
+        OcrProcedures.do_binary(False)
+        OcrProcedures.do_binary(False)
+
+    @staticmethod
     def crop_pdf(path_to_pdf: str, crop_rectangle: Rectangle) -> None:
         """
         Crops the given pdf
@@ -470,10 +483,14 @@ class OcrAutomation:
             press_key(key_combination="enter", delay_in_seconds=0.5)
 
     @staticmethod
-    def close_ocr_project() -> None:
+    def close_ocr_project(should_tab_in: bool = True) -> None:
         """
         Closes the OCR instance
         """
+        if should_tab_in:
+            press_key(key_combination="alt+tab")
+
+        GeneralProcedures.click_ocr_pages_header()
         GeneralProcedures.click_ocr_pages_header()
         Store.IMAGE_EDIT_TOOL_OPEN = False
         press_key(key_combination="alt+f4", delay_in_seconds=0.3)
@@ -486,6 +503,9 @@ class OcrAutomation:
         """
         console.log("Es wird aufgeräumt")
         OcrAutomation.close_pdf_in_default_program()
+        OcrAutomation.close_pdf_in_default_program()
+        time.sleep(2)
+        OcrAutomation.close_ocr_project()
         OcrAutomation.close_ocr_project()
         time.sleep(2)
         folder = Config.OCR_WORKING_DIR

@@ -87,7 +87,6 @@ class CropRunningWorker(QRunnable):
 
             page.mediabox.upper_right = (width_trans, height_trans)
             page.mediabox.lower_left = (x_trans, y_trans)
-
             out.addPage(page)
             self.signals.progress.emit((index / amount) * 100)
 

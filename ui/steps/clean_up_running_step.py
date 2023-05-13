@@ -20,8 +20,8 @@ class CleanUpRunningWorker(QRunnable):
     def run(self) -> None:
         OcrAutomation.clean_up()
         Store.reset()
-        self.signals.finished.emit()
         console.log("Abgeshlossen")
+        self.signals.finished.emit()
 
 
 class CleanUpRunningStep(Step):

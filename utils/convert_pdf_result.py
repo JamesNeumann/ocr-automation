@@ -17,7 +17,7 @@ class ConvertPdfResult:
         images: List[np.ndarray],
         pts_width: float,
         pts_height: float,
-        pts_dimensions: List[Rectangle]
+        pts_dimensions: List[Rectangle],
     ):
         self.path_to_pdf = path_to_pdf
         self.images = images

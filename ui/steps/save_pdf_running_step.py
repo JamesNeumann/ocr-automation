@@ -6,6 +6,7 @@ from automation.ocr_automation import OcrAutomation
 from ui.components.progress_bar import ProgressBar
 from ui.steps.step import Step
 from utils.file_utils import wait_until_file_is_unlocked
+from utils.keyboard_util import press_key
 from utils.set_metadata import set_standard_metadata, Metadata
 
 
@@ -23,6 +24,7 @@ class SavePDFRunningWorker(QRunnable):
 
     @pyqtSlot()
     def run(self) -> None:
+        press_key(key_combination="alt+tab")
         OcrAutomation.save_pdf(self.pdf_path, self.enable_precise_scan)
         wait_until_file_is_unlocked(self.pdf_path)
         set_standard_metadata(self.pdf_path, self.metadata)

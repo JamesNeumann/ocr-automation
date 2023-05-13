@@ -1,13 +1,14 @@
 from PyQt6.QtCore import pyqtSignal, QRunnable, pyqtSlot, QThreadPool, QObject
 
+from automation.store import Store
 from ui.components.progress_bar import ProgressBar
 from ui.steps.step import Step
 from utils.convert_pdf_result import ConvertPdfResult
-from utils.analyse_pdf import get_pdf_pages_as_images, is_grayscale
+from utils.analyse_pdf import get_pdf_pages_as_images, is_greyscale
 
 
 class ConvertWorkerSignals(QObject):
-    finished = pyqtSignal(ConvertPdfResult)
+    finished = pyqtSignal()
     progress = pyqtSignal(int)
 
 
@@ -32,11 +33,16 @@ class ConvertWorker(QRunnable):
             pts_dimensions=pts_dimensions,
         )
 
-        self.signals.finished.emit(self.convert_pdf_result)
+        # self.convert_pdf_result.is_greyscale = is_greyscale(images)
+
+        Store.CONVERT_PDF_RESULT = self.convert_pdf_result
+
+
+        self.signals.finished.emit()
 
 
 class ConvertPdfStep(Step):
-    finished = pyqtSignal(ConvertPdfResult)
+    finished = pyqtSignal()
 
     def __init__(
         self,

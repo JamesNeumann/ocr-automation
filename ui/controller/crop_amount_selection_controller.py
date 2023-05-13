@@ -4,8 +4,9 @@ from typing import List
 import numpy as np
 from PyQt6.QtGui import QImage
 
+from automation.store import Store
 from ui.components.crop_amount_selection import CropAmountSelection
-from utils.analysis_result import AnalysisResult
+from utils.crop_box_analysis_result import CropBoxAnalysisResult
 from utils.conversion import pts_to_pixel, convert_to_pts
 from utils.offset import Offset
 from utils.rectangle import Rectangle
@@ -88,17 +89,6 @@ def get_crop_box_pts(
 
 class CropAmountSelectionController:
     def __init__(self):
-        self.analysis_result: AnalysisResult = AnalysisResult(
-            images=[],
-            crop_boxes=[],
-            pts_width=0,
-            pts_height=0,
-            transformed_boxes=[],
-            min_index=0,
-            max_box=Rectangle(0, 0, 0, 0),
-            pts_dimensions=[],
-        )
-
         self.crop_amount_selection = CropAmountSelection(
             reset_callback=self.reset_button_clicked,
             apply_all_pages_callback=self.apply_all_pages_button_clicked,
@@ -134,25 +124,25 @@ class CropAmountSelectionController:
 
     def initialize_single_image_offsets(self):
         self.pages_spinbox_values = [
-            self.default_offset.copy() for _ in self.analysis_result.images
+            self.default_offset.copy() for _ in Store.CONVERT_PDF_RESULT.images
         ]
 
         self.pages_offsets = [
-            self.default_offset.copy() for _ in self.analysis_result.images
+            self.default_offset.copy() for _ in Store.CONVERT_PDF_RESULT.images
         ]
 
-        self.horizontal_spinbox_values = [0 for _ in self.analysis_result.images]
-        self.horizontal_pages_offsets = [0 for _ in self.analysis_result.images]
+        self.horizontal_spinbox_values = [0 for _ in Store.CONVERT_PDF_RESULT.images]
+        self.horizontal_pages_offsets = [0 for _ in Store.CONVERT_PDF_RESULT.images]
 
-        self.vertical_spinbox_values = [0 for _ in self.analysis_result.images]
-        self.vertical_pages_offsets = [0 for _ in self.analysis_result.images]
+        self.vertical_spinbox_values = [0 for _ in Store.CONVERT_PDF_RESULT.images]
+        self.vertical_pages_offsets = [0 for _ in Store.CONVERT_PDF_RESULT.images]
 
         for index, offset in enumerate(self.pages_spinbox_values):
-            pts_size_y = self.analysis_result.pts_dimensions[index].height
-            pts_size_x = self.analysis_result.pts_dimensions[index].width
+            pts_size_y = Store.CONVERT_PDF_RESULT.pts_dimensions[index].height
+            pts_size_x = Store.CONVERT_PDF_RESULT.pts_dimensions[index].width
 
-            shape_width = self.analysis_result.images[index].shape[1]
-            shape_height = self.analysis_result.images[index].shape[0]
+            shape_width = Store.CONVERT_PDF_RESULT.images[index].shape[1]
+            shape_height = Store.CONVERT_PDF_RESULT.images[index].shape[0]
 
             self.pages_offsets[index].top = pts_to_pixel(
                 offset.top, pts_size_y / shape_height
@@ -171,7 +161,9 @@ class CropAmountSelectionController:
         if self.current_image_index > len(self.q_images) - 1:
             self.create_q_image(self.current_image_index)
 
-        crop_box = self.analysis_result.transformed_box[self.current_image_index]
+        crop_box = Store.CROP_BOX_ANALYSIS_RESULT.transformed_box[
+            self.current_image_index
+        ]
         self.crop_amount_selection.set_spin_box_values(
             self.pages_spinbox_values[self.current_image_index],
             self.horizontal_spinbox_values[self.current_image_index],
@@ -183,7 +175,7 @@ class CropAmountSelectionController:
             self.pages_offsets[self.current_image_index],
             self.horizontal_pages_offsets[self.current_image_index],
             self.vertical_pages_offsets[self.current_image_index],
-            self.analysis_result.images[self.current_image_index],
+            Store.CONVERT_PDF_RESULT.images[self.current_image_index],
         )
 
         self.crop_amount_selection.render_image(
@@ -196,11 +188,11 @@ class CropAmountSelectionController:
         )
         self.pages_spinbox_values[self.current_image_index] = self.default_offset.copy()
 
-        self.vertical_spinbox_values = [0 for _ in self.analysis_result.images]
-        self.vertical_pages_offsets = [0 for _ in self.analysis_result.images]
+        self.vertical_spinbox_values = [0 for _ in Store.CONVERT_PDF_RESULT.images]
+        self.vertical_pages_offsets = [0 for _ in Store.CONVERT_PDF_RESULT.images]
 
-        self.horizontal_spinbox_values = [0 for _ in self.analysis_result.images]
-        self.horizontal_pages_offsets = [0 for _ in self.analysis_result.images]
+        self.horizontal_spinbox_values = [0 for _ in Store.CONVERT_PDF_RESULT.images]
+        self.horizontal_pages_offsets = [0 for _ in Store.CONVERT_PDF_RESULT.images]
 
         self.update_spin_boxes_max_value()
 
@@ -208,7 +200,7 @@ class CropAmountSelectionController:
         self.change_visible_image()
 
     def apply_all_pages_button_clicked(self):
-        for index in range(len(self.analysis_result.images)):
+        for index in range(len(Store.CONVERT_PDF_RESULT.images)):
             if index == self.current_image_index:
                 continue
             self.pages_offsets[index] = self.pages_offsets[
@@ -219,7 +211,7 @@ class CropAmountSelectionController:
             ].copy()
 
     def apply_even_pages_button_clicked(self):
-        for index in range(len(self.analysis_result.images)):
+        for index in range(len(Store.CONVERT_PDF_RESULT.images)):
             if index == self.current_image_index:
                 continue
             if (index + 1) % 2 != 0:
@@ -232,7 +224,7 @@ class CropAmountSelectionController:
             ].copy()
 
     def apply_odd_pages_button_clicked(self):
-        for index in range(len(self.analysis_result.images)):
+        for index in range(len(Store.CONVERT_PDF_RESULT.images)):
             if index == self.current_image_index:
                 continue
             if (index + 1) % 2 == 0:
@@ -274,20 +266,23 @@ class CropAmountSelectionController:
                     ] = self.pages_spinbox_values[self.current_image_index].copy()
 
     def update_image_button_state(self):
+
         if self.current_image_index == 0:
             self.crop_amount_selection.disable_previous_button()
-        if self.current_image_index == len(self.analysis_result.images) - 1:
+        if Store.CONVERT_PDF_RESULT is None:
+            return
+        if self.current_image_index == len(Store.CONVERT_PDF_RESULT.images) - 1:
             self.crop_amount_selection.disable_next_button()
-        if 0 < self.current_image_index < len(self.analysis_result.images) - 1:
+        if 0 < self.current_image_index < len(Store.CONVERT_PDF_RESULT.images) - 1:
             self.crop_amount_selection.enable_next_button()
             self.crop_amount_selection.enable_previous_button()
 
         self.crop_amount_selection.update_page_label(
-            f"Seite {self.current_image_index + 1} / {len(self.analysis_result.images) or 0}"
+            f"Seite {self.current_image_index + 1} / {len(Store.CONVERT_PDF_RESULT.images) or 0}"
         )
 
     def next_image_button_clicked(self):
-        if self.current_image_index < len(self.analysis_result.images) - 1:
+        if self.current_image_index < len(Store.CONVERT_PDF_RESULT.images) - 1:
             self.current_image_index += 1
             self.change_visible_image()
             self.update_spin_boxes()
@@ -421,15 +416,15 @@ class CropAmountSelectionController:
 
     def pts_to_pixel(self, index: int, dimension: str, value: int):
         if dimension == "top" or dimension == "bottom":
-            pts_size = self.analysis_result.pts_dimensions[index].height
+            pts_size = Store.CONVERT_PDF_RESULT.pts_dimensions[index].height
             shape_index = 0
         else:
-            pts_size = self.analysis_result.pts_dimensions[index].width
+            pts_size = Store.CONVERT_PDF_RESULT.pts_dimensions[index].width
             shape_index = 1
 
         return pts_to_pixel(
             value,
-            pts_size / self.analysis_result.images[index].shape[shape_index],
+            pts_size / Store.CONVERT_PDF_RESULT.images[index].shape[shape_index],
         )
 
     def show(self):
@@ -449,8 +444,7 @@ class CropAmountSelectionController:
         self.update_image_button_state()
         self.crop_amount_selection.reset()
 
-    def set_analysis_result(self, analysis_result: AnalysisResult):
-        self.analysis_result = analysis_result
+    def set_analysis_result(self):
         self.initialize_single_image_offsets()
         self.update_spin_boxes_max_value()
 
@@ -563,8 +557,8 @@ class CropAmountSelectionController:
                 self.pages_offsets[index],
                 self.horizontal_pages_offsets[index],
                 self.vertical_pages_offsets[index],
-                self.analysis_result.images[index],
-                self.analysis_result.pts_dimensions[index],
+                Store.CONVERT_PDF_RESULT.images[index],
+                Store.CONVERT_PDF_RESULT.pts_dimensions[index],
                 True,
             )
             transformed_boxes_pts.append(box)
@@ -573,25 +567,27 @@ class CropAmountSelectionController:
 
     def get_max_crop_box_pts(self):
         return get_crop_box_pts(
-            self.analysis_result.max_box,
-            self.pages_offsets[self.analysis_result.min_index],
-            self.horizontal_pages_offsets[self.analysis_result.min_index],
-            self.vertical_pages_offsets[self.analysis_result.min_index],
-            self.analysis_result.images[self.analysis_result.min_index],
-            self.analysis_result.pts_dimensions[self.analysis_result.min_index],
+            Store.CROP_BOX_ANALYSIS_RESULT.max_box,
+            self.pages_offsets[Store.CROP_BOX_ANALYSIS_RESULT.min_index],
+            self.horizontal_pages_offsets[Store.CROP_BOX_ANALYSIS_RESULT.min_index],
+            self.vertical_pages_offsets[Store.CROP_BOX_ANALYSIS_RESULT.min_index],
+            Store.CONVERT_PDF_RESULT.images[Store.CROP_BOX_ANALYSIS_RESULT.min_index],
+            Store.CONVERT_PDF_RESULT.pts_dimensions[
+                Store.CROP_BOX_ANALYSIS_RESULT.min_index
+            ],
             True,
         )
 
     def get_transformed_crop_boxes_pixel(self):
         transformed_boxes = []
-        for index, box in enumerate(self.analysis_result.transformed_box):
+        for index, box in enumerate(Store.CROP_BOX_ANALYSIS_RESULT.transformed_box):
             transformed_boxes.append(
                 get_crop_box_pixel_including_offset(
                     box,
                     self.pages_offsets[index],
                     self.horizontal_pages_offsets[index],
                     self.vertical_pages_offsets[index],
-                    self.analysis_result.images[index],
+                    Store.CONVERT_PDF_RESULT.images[index],
                     True,
                 )
             )
@@ -599,15 +595,15 @@ class CropAmountSelectionController:
 
     def get_transformed_crop_boxes_pts(self):
         transformed_boxes = []
-        for index, box in enumerate(self.analysis_result.transformed_box):
+        for index, box in enumerate(Store.CROP_BOX_ANALYSIS_RESULT.transformed_box):
             transformed_boxes.append(
                 get_crop_box_pts(
                     box,
                     self.pages_offsets[index],
                     self.horizontal_pages_offsets[index],
                     self.vertical_pages_offsets[index],
-                    self.analysis_result.images[index],
-                    self.analysis_result.pts_dimensions[index],
+                    Store.CONVERT_PDF_RESULT.images[index],
+                    Store.CONVERT_PDF_RESULT.pts_dimensions[index],
                     True,
                 )
             )
@@ -615,16 +611,16 @@ class CropAmountSelectionController:
 
     def get_max_crop_box_pixel(self):
         return get_crop_box_pixel_including_offset(
-            self.analysis_result.max_box,
-            self.pages_offsets[self.analysis_result.min_index],
-            self.horizontal_pages_offsets[self.analysis_result.min_index],
-            self.vertical_pages_offsets[self.analysis_result.min_index],
-            self.analysis_result.images[self.analysis_result.min_index],
+            Store.CROP_BOX_ANALYSIS_RESULT.max_box,
+            self.pages_offsets[Store.CROP_BOX_ANALYSIS_RESULT.min_index],
+            self.horizontal_pages_offsets[Store.CROP_BOX_ANALYSIS_RESULT.min_index],
+            self.vertical_pages_offsets[Store.CROP_BOX_ANALYSIS_RESULT.min_index],
+            Store.CONVERT_PDF_RESULT.images[Store.CROP_BOX_ANALYSIS_RESULT.min_index],
             True,
         )
 
     def create_q_image(self, index: int):
-        image = self.analysis_result.images[index]
+        image = Store.CONVERT_PDF_RESULT.images[index]
         height, width, channel = image.shape
         bytes_per_line = 3 * width
         q_image = QImage(

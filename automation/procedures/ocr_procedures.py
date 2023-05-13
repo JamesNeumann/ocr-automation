@@ -5,7 +5,7 @@ from typing import Dict, List, Callable
 from automation.procedures.general_procedures import GeneralProcedures
 from automation.procedures.procedure_context import ProcedureContext
 from automation.procedures.waiting_procedures import WaitingProcedures
-from utils.keyboard_util import press_key
+from utils.keyboard_util import press_key, write
 
 
 class OcrProcedures:
@@ -100,6 +100,23 @@ class OcrProcedures:
         time.sleep(0.5)
         WaitingProcedures.wait_until_cropping_page_is_done()
         # with ProcedureContext("PDF crop"):
+
+    @staticmethod
+    def do_binary(should_tab_in: bool = True):
+        with ProcedureContext("Binarisierung"):
+            if should_tab_in:
+                press_key(key_combination="alt+tab", delay_in_seconds=1)
+            GeneralProcedures.click_light_bulb()
+            press_key(key_combination="shift+s", delay_in_seconds=0.3)
+            press_key(key_combination="tab", delay_in_seconds=0.3)
+            write("0")
+            press_key(key_combination="tab", repetitions=2, delay_in_seconds=0.1)
+            write("2")
+            press_key(key_combination="tab", delay_in_seconds=0.3, repetitions=4)
+            press_key(key_combination="down", repetitions=4, delay_in_seconds=0.3)
+            press_key(key_combination="tab", delay_in_seconds=0.3)
+            press_key(key_combination="shift+a", delay_in_seconds=0.3)
+            press_key(key_combination="enter")
 
     @staticmethod
     def get_available_procedures() -> Dict[str, Callable]:

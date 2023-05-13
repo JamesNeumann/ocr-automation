@@ -1,4 +1,5 @@
 import os.path
+import time
 
 from PyQt6.QtCore import pyqtSignal, QObject, QRunnable, pyqtSlot, QThreadPool
 
@@ -6,6 +7,7 @@ from automation.ocr_automation import OcrAutomation
 from automation.procedures.general_procedures import GeneralProcedures
 from ui.components.progress_bar import ProgressBar
 from ui.steps.step import Step
+from utils.keyboard_util import press_key
 
 
 class SaveTempPdfRunningSignals(QObject):
@@ -19,8 +21,10 @@ class SaveTempPdfRunningWorker(QRunnable):
 
     @pyqtSlot()
     def run(self):
+        press_key(key_combination="alt+tab")
         path, name = GeneralProcedures.save_temp_pdf()
-        OcrAutomation.close_ocr_project()
+        time.sleep(1)
+        OcrAutomation.close_ocr_project(False)
         # Store.FILE_PATH_AFTER_ORIENTATION_SAVE = os.path.abspath(os.path.join(path, str(name) + ".pdf"))
         self.signals.finished.emit(
             os.path.abspath(os.path.join(path, str(name) + ".pdf"))
