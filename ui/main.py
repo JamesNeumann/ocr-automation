@@ -63,10 +63,11 @@ class MainWindow(QMainWindow):
         self.current_index = 0
         self.steps = []
 
-        self.file_selection_step: Step = None
+        self.file_selection_step = None
         self.open_ocr_editor_step = None
         self.crop_ocr_pdf_question_step = None
         self.convert_pdf_step = None
+        self.convert_ocr_pdf_step = None
         self.crop_ocr_pdf_amount_step = None
         self.gray_scale_check_step = None
         self.open_cropped_ocr_pdf = None
@@ -112,7 +113,7 @@ class MainWindow(QMainWindow):
         # region READ OCR FROM FILE OPTION: Crop PDF question
         self.crop_ocr_pdf_question_step = CropPdfQuestionStep(
             text="Soll die PDF zugeschnitten werden?",
-            next_callback=lambda: self.open_convert_pdf_step(Store.SELECTED_FILE_PATH),
+            next_callback=lambda: self.open_convert_ocr_pdf_step(Store.SELECTED_FILE_PATH),
             previous_callback=self.open_ocr_from_file_step,
         )
         # endregion
@@ -217,14 +218,23 @@ class MainWindow(QMainWindow):
         # region Convert PDF to images
         self.convert_pdf_step = ConvertPdfStep(
             text="Die PDF wird analysiert",
-            next_callback=self.crop_ocr_pdf,
+            next_callback=self.crop_pdf,
             previous_text="Überspringen",
             previous_callback=self.open_ocr_from_file_step,
         )
         self.convert_pdf_step.finished.connect(self.open_crop_step)
         # endregion
 
-        # region Generate initial crop boxes
+        # region READ OCR FROM FILE OPTION: CONVERT PDF
+        self.convert_ocr_pdf_step = ConvertPdfStep(
+            text="Die PDF wird analysiert",
+            previous_text="Überspringen",
+            previous_callback=self.open_ocr_from_file_step,
+        )
+        self.convert_ocr_pdf_step.finished.connect(self.open_crop_ocr_pdf_step)
+        # endregion
+
+        # region READ OCR FROM FILE OPTION: Generate initial crop boxes
         self.crop_ocr_pdf_amount_step = CropAmountStep(
             text="Die PDF wird analysiert",
             next_callback=self.crop_ocr_pdf,
@@ -514,6 +524,7 @@ class MainWindow(QMainWindow):
             self.crop_ocr_pdf_amount_step,
             self.crop_ocr_pdf_running_step,
             self.crop_ocr_pdf_redo_option_step,
+            self.convert_ocr_pdf_step,
             self.set_metadata_step_for_metadata,
         ]
 
@@ -550,7 +561,7 @@ class MainWindow(QMainWindow):
     def open_ocr_editor_after_crop_skip(self):
         OcrAutomation.close_pdf_in_default_program()
         self.open_step(self.open_ocr_editor_skip_crop)
-        self.open_ocr_editor_skip_crop.start(self.crop_amount_step.path_to_pdf)
+        self.open_ocr_editor_skip_crop.start(Store.SELECTED_FILE_PATH)
 
     def open_ocr_editor_after_crop_skip_done(self):
         self.open_step(self.ocr_language_selection_step)
@@ -636,9 +647,13 @@ class MainWindow(QMainWindow):
             self.open_step(self.crop_ocr_pdf_amount_step)
             self.crop_ocr_pdf_amount_step.open_pdf_pages()
 
+    def open_convert_ocr_pdf_step(self, pdf_path: str):
+        self.open_step(self.convert_ocr_pdf_step)
+        self.convert_ocr_pdf_step.convert_pdf_pages(pdf_path)
+
     def crop_ocr_pdf(self):
         self.crop_ocr_pdf_running_step.start(
-            self.crop_ocr_pdf_amount_step.convert_pdf_result.path_to_pdf,
+            Store.CONVERT_PDF_RESULT.path_to_pdf,
             self.crop_ocr_pdf_amount_step.crop_amount_selection_controller.get_max_crop_box_pixel(),
             self.crop_ocr_pdf_amount_step.crop_amount_selection_controller.get_transformed_crop_boxes_pixel(),
             Store.CONVERT_PDF_RESULT.images,

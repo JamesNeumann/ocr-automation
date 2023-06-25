@@ -189,7 +189,7 @@ class OcrAutomation:
         """
         Sets the OCR mode
         :param ocr_from_text: If the OCR should be selected from the file
-        :param close: If the OCR should be closed afterwards
+        :param close: If the OCR should be closed afterward
         :param languages: The languages to use for ocr
         """
         GeneralProcedures.click_ocr_option_icon()
