@@ -24,7 +24,8 @@ def set_standard_metadata(path_to_pdf: str, metadata: Metadata) -> None:
     """
 
     pdf_reader = PdfReader(path_to_pdf)
-    pdf_reader.getXmpMetadata()
+    xmp_metadata = pdf_reader.getXmpMetadata()
+    console.log(xmp_metadata)
     writer = PdfWriter()
     writer.appendPagesFromReader(pdf_reader)
 

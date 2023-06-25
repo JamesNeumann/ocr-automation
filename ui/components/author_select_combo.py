@@ -9,7 +9,7 @@ from utils.console import console
 
 
 class AuthorSelectCombo(QWidget):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, show_add_button: bool = True, parent=None) -> None:
         super(AuthorSelectCombo, self).__init__(parent)
 
         self.parent_layout = QHBoxLayout()
@@ -17,12 +17,14 @@ class AuthorSelectCombo(QWidget):
         self.combo = ExtendedCombo()
         self.parent_layout.addWidget(self.combo)
 
-        self.open_dialog_button = QPushButton("Autor hinzufügen")
-        self.input_dialog = InputDialog()
-        self.open_dialog_button.clicked.connect(self.open_dialog)
-        self.parent_layout.addWidget(self.open_dialog_button)
+        if show_add_button:
+            self.open_dialog_button = QPushButton("Autor hinzufügen")
+            self.input_dialog = InputDialog()
+            self.open_dialog_button.clicked.connect(self.open_dialog)
+            self.parent_layout.addWidget(self.open_dialog_button)
         self.con = DBConnection()
         self.model: Optional[QSqlQueryModel] = None
+        self.callbacks = []
 
     def open_dialog(self):
         if self.input_dialog.exec():
@@ -54,6 +56,8 @@ class AuthorSelectCombo(QWidget):
                 if query.lastError().text() != "":
                     console.log(query.lastError().text())
                 self.init()
+                for callback in self.callbacks:
+                    callback()
                 # if self.model is not None:
                 #    self.model.setQuery(self.model.query())
 

@@ -15,7 +15,7 @@ class ExtendedCombo(QComboBox):
             QCompleter.CompletionMode.UnfilteredPopupCompletion
         )
         self.pFilterModel = QSortFilterProxyModel(self)
-        self.pFilterModel.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        self.pFilterModel.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
 
         self.completer.setPopup(self.view())
 
