@@ -113,7 +113,9 @@ class MainWindow(QMainWindow):
         # region READ OCR FROM FILE OPTION: Crop PDF question
         self.crop_ocr_pdf_question_step = CropPdfQuestionStep(
             text="Soll die PDF zugeschnitten werden?",
-            next_callback=lambda: self.open_convert_ocr_pdf_step(Store.SELECTED_FILE_PATH),
+            next_callback=lambda: self.open_convert_ocr_pdf_step(
+                Store.SELECTED_FILE_PATH
+            ),
             previous_callback=self.open_ocr_from_file_step,
         )
         # endregion
